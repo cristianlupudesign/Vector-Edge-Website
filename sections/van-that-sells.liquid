@@ -1,0 +1,681 @@
+{%- comment -%}
+  Vector Edge — "The Van That Sells" flagship offer page.
+  Self-contained direct-response section: hero, value maths, job-sheet value stack,
+  price bands, guarantee, how-it-works, proof, add-ons, FAQ and mockup-request form.
+  Renders inside the normal theme layout (no {% layout none %}). Vanilla JS only.
+{%- endcomment -%}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600&display=swap">
+
+<style>
+  #shopify-section-{{ section.id }} .vts {
+    --ve-yellow: #E5E521;
+    --ve-blue: #0057FF;
+    --ve-charcoal: #2B2B2B;
+    --ve-paper: #F7F7F5;
+    --ve-white: #FFFFFF;
+    --ve-rule: #D9D9D2;
+    --vts-display: 'Bebas Neue', 'Arial Narrow', Impact, sans-serif;
+    --vts-body: 'Barlow Condensed', 'Arial Narrow', system-ui, sans-serif;
+    font-family: var(--vts-body);
+    color: var(--ve-charcoal);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  #shopify-section-{{ section.id }} .vts *,
+  #shopify-section-{{ section.id }} .vts *::before,
+  #shopify-section-{{ section.id }} .vts *::after { box-sizing: border-box; }
+
+  /* ---- Bands ---- */
+  #shopify-section-{{ section.id }} .vts-band { padding: 6.4rem 2rem; }
+  #shopify-section-{{ section.id }} .vts-band--white { background: var(--ve-white); }
+  #shopify-section-{{ section.id }} .vts-band--paper { background: var(--ve-paper); }
+  #shopify-section-{{ section.id }} .vts-band--dark { background: var(--ve-charcoal); color: var(--ve-white); }
+  #shopify-section-{{ section.id }} .vts-inner { width: 100%; max-width: 1080px; margin: 0 auto; }
+  #shopify-section-{{ section.id }} .vts-inner--narrow { max-width: 820px; }
+
+  /* ---- Type ---- */
+  #shopify-section-{{ section.id }} .vts h1,
+  #shopify-section-{{ section.id }} .vts h2,
+  #shopify-section-{{ section.id }} .vts h3 {
+    font-family: var(--vts-display);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+    line-height: 0.96;
+    margin: 0;
+  }
+  #shopify-section-{{ section.id }} .vts h1 { font-size: clamp(4.6rem, 9vw, 8.4rem); }
+  #shopify-section-{{ section.id }} .vts h2 { font-size: clamp(3.2rem, 5vw, 5.2rem); margin-bottom: 2.4rem; }
+  #shopify-section-{{ section.id }} .vts p { margin: 0 0 1.6rem; }
+  #shopify-section-{{ section.id }} .vts p:last-child { margin-bottom: 0; }
+  #shopify-section-{{ section.id }} .vts__eyebrow {
+    display: inline-block;
+    font-family: var(--vts-display);
+    font-size: 1.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ve-charcoal);
+    margin: 0 0 1.4rem;
+  }
+  #shopify-section-{{ section.id }} .vts-band--dark .vts__eyebrow { color: var(--ve-yellow); }
+  #shopify-section-{{ section.id }} .vts__lead { font-size: 1.9rem; line-height: 1.6; max-width: 62ch; }
+
+  /* ---- Buttons ---- */
+  #shopify-section-{{ section.id }} .vts-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem;
+    font-family: var(--vts-display); font-size: 2.1rem; letter-spacing: 0.05em;
+    text-transform: uppercase; text-decoration: none; cursor: pointer;
+    padding: 1.4rem 2.6rem; border: 2px solid transparent; line-height: 1;
+  }
+  #shopify-section-{{ section.id }} .vts-btn--primary { background: var(--ve-yellow); color: var(--ve-charcoal); }
+  #shopify-section-{{ section.id }} .vts-btn--primary:hover { filter: brightness(0.95); }
+  #shopify-section-{{ section.id }} .vts-btn--ghost { background: transparent; color: inherit; border-color: currentColor; }
+  #shopify-section-{{ section.id }} .vts-btn--block { width: 100%; }
+
+  /* ---- Focus states ---- */
+  #shopify-section-{{ section.id }} .vts a:focus-visible,
+  #shopify-section-{{ section.id }} .vts button:focus-visible,
+  #shopify-section-{{ section.id }} .vts summary:focus-visible,
+  #shopify-section-{{ section.id }} .vts input:focus-visible,
+  #shopify-section-{{ section.id }} .vts textarea:focus-visible {
+    outline: 3px solid var(--ve-blue);
+    outline-offset: 2px;
+  }
+  #shopify-section-{{ section.id }} .vts-band--dark a:focus-visible,
+  #shopify-section-{{ section.id }} .vts-band--dark summary:focus-visible,
+  #shopify-section-{{ section.id }} .vts-band--dark input:focus-visible,
+  #shopify-section-{{ section.id }} .vts-band--dark textarea:focus-visible { outline-color: var(--ve-yellow); }
+
+  /* ---- Hero ---- */
+  #shopify-section-{{ section.id }} .vts-hero__sub { font-size: 2rem; line-height: 1.45; max-width: 40ch; margin: 1.8rem 0 2.6rem; }
+  #shopify-section-{{ section.id }} .vts-hero__ctarow { display: flex; flex-wrap: wrap; align-items: center; gap: 1.4rem 2rem; }
+  #shopify-section-{{ section.id }} .vts-hero__secondary { font-size: 1.7rem; letter-spacing: 0.02em; }
+  #shopify-section-{{ section.id }} .vts-hero__secondary a { color: var(--ve-blue); font-weight: 600; text-decoration: none; }
+  #shopify-section-{{ section.id }} .vts-hero__secondary a:hover { text-decoration: underline; }
+  #shopify-section-{{ section.id }} .vts-trust {
+    display: flex; flex-wrap: wrap; gap: 1rem 2.4rem; list-style: none; padding: 2.8rem 0 0; margin: 2.8rem 0 0;
+    border-top: 1px solid var(--ve-rule);
+  }
+  #shopify-section-{{ section.id }} .vts-trust li {
+    display: flex; align-items: center; gap: 0.7rem;
+    font-size: 1.5rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  #shopify-section-{{ section.id }} .vts-trust svg { width: 1.8rem; height: 1.8rem; flex: none; color: var(--ve-blue); }
+
+  /* ---- Maths ---- */
+  #shopify-section-{{ section.id }} .vts-maths p { font-size: 1.9rem; line-height: 1.6; }
+
+  /* ---- Value stack / job sheet ---- */
+  #shopify-section-{{ section.id }} .vts-sheet {
+    background: var(--ve-white); border: 2px solid var(--ve-charcoal);
+    padding: clamp(2rem, 4vw, 3.6rem); box-shadow: 10px 10px 0 rgba(43,43,43,0.08);
+  }
+  #shopify-section-{{ section.id }} .vts-sheet__row {
+    display: flex; align-items: baseline; gap: 1.2rem;
+    padding: 1.5rem 0; border-bottom: 1px solid var(--ve-rule);
+  }
+  #shopify-section-{{ section.id }} .vts-sheet__row:first-child { padding-top: 0; }
+  #shopify-section-{{ section.id }} .vts-sheet__body { flex: 1 1 auto; min-width: 0; }
+  #shopify-section-{{ section.id }} .vts-sheet__t {
+    display: block; font-family: var(--vts-display); font-size: 2.2rem; letter-spacing: 0.02em; line-height: 1.05;
+  }
+  #shopify-section-{{ section.id }} .vts-sheet__l { display: block; font-size: 1.55rem; color: #55554f; margin-top: 0.2rem; }
+  #shopify-section-{{ section.id }} .vts-sheet__w {
+    flex: none; font-family: var(--vts-display); font-size: 2.2rem; letter-spacing: 0.02em; white-space: nowrap;
+    color: var(--ve-charcoal);
+  }
+  #shopify-section-{{ section.id }} .vts-sheet__w--inc { color: var(--ve-blue); }
+  #shopify-section-{{ section.id }} .vts-sheet__subtotal {
+    text-align: right; font-family: var(--vts-display); font-size: 2.4rem; color: #8a8a82;
+    padding: 2rem 0 0; text-decoration: line-through; text-decoration-thickness: 2px;
+  }
+  #shopify-section-{{ section.id }} .vts-stamp {
+    margin-top: 2rem; background: var(--ve-yellow); color: var(--ve-charcoal);
+    padding: 2rem 2.4rem; text-align: center;
+  }
+  #shopify-section-{{ section.id }} .vts-stamp__big { font-family: var(--vts-display); font-size: clamp(3rem, 5.5vw, 5.4rem); line-height: 0.98; }
+  #shopify-section-{{ section.id }} .vts-stamp__small { font-size: 1.5rem; margin-top: 0.6rem; font-weight: 600; }
+
+  /* ---- Price bands ---- */
+  #shopify-section-{{ section.id }} .vts-bands { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.6rem; }
+  #shopify-section-{{ section.id }} .vts-bandcard {
+    position: relative; display: flex; flex-direction: column;
+    background: var(--ve-white); border: 1px solid var(--ve-rule); padding: 2.6rem 2rem;
+  }
+  #shopify-section-{{ section.id }} .vts-bandcard--pop { border: 2px solid var(--ve-charcoal); }
+  #shopify-section-{{ section.id }} .vts-bandcard__badge {
+    position: absolute; top: -1.2rem; left: 2rem; background: var(--ve-yellow); color: var(--ve-charcoal);
+    font-family: var(--vts-display); font-size: 1.4rem; letter-spacing: 0.06em; padding: 0.4rem 1rem;
+  }
+  #shopify-section-{{ section.id }} .vts-bandcard__name { font-family: var(--vts-display); font-size: 2.4rem; }
+  #shopify-section-{{ section.id }} .vts-bandcard__eg { font-size: 1.45rem; color: #55554f; line-height: 1.45; margin: 0.6rem 0 1.6rem; flex: 1 1 auto; }
+  #shopify-section-{{ section.id }} .vts-bandcard__price { font-family: var(--vts-display); font-size: 4.6rem; line-height: 0.9; }
+  #shopify-section-{{ section.id }} .vts-bandcard__note { font-size: 1.4rem; font-weight: 600; color: var(--ve-blue); margin-top: 0.4rem; }
+  #shopify-section-{{ section.id }} .vts-bands__foot { margin-top: 2.8rem; font-size: 1.6rem; color: #55554f; max-width: 70ch; }
+
+  /* ---- Guarantee ---- */
+  #shopify-section-{{ section.id }} .vts-guarantee { border-top: 4px solid var(--ve-yellow); padding-top: 4rem; }
+  #shopify-section-{{ section.id }} .vts-guarantee p { font-size: 2rem; line-height: 1.6; max-width: 62ch; }
+
+  /* ---- Steps ---- */
+  #shopify-section-{{ section.id }} .vts-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.8rem; counter-reset: vts-step; }
+  #shopify-section-{{ section.id }} .vts-step { padding: 2.4rem; border-top: 3px solid var(--ve-charcoal); background: var(--ve-paper); }
+  #shopify-section-{{ section.id }} .vts-step__n { font-family: var(--vts-display); font-size: 4.4rem; line-height: 1; color: var(--ve-charcoal); }
+  #shopify-section-{{ section.id }} .vts-step__x { font-size: 1.6rem; line-height: 1.5; margin-top: 0.6rem; }
+
+  /* ---- Proof ---- */
+  #shopify-section-{{ section.id }} .vts-proof { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; }
+  #shopify-section-{{ section.id }} .vts-proofcard { background: var(--ve-white); border: 1px solid var(--ve-rule); }
+  #shopify-section-{{ section.id }} .vts-proofcard__imgs { display: grid; grid-template-columns: 1fr 1fr; }
+  #shopify-section-{{ section.id }} .vts-proofcard__imgs img { display: block; width: 100%; height: 100%; object-fit: cover; aspect-ratio: 4/3; }
+  #shopify-section-{{ section.id }} .vts-proofcard__ph {
+    aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center;
+    background: var(--ve-paper); color: #9a9a92; font-family: var(--vts-display); font-size: 1.6rem; letter-spacing: 0.08em;
+    border-right: 1px solid var(--ve-rule);
+  }
+  #shopify-section-{{ section.id }} .vts-proofcard__ph:last-child { border-right: 0; }
+  #shopify-section-{{ section.id }} .vts-proofcard__cap { padding: 1.6rem 1.8rem; }
+  #shopify-section-{{ section.id }} .vts-proofcard__cap p { font-size: 1.55rem; margin: 0; }
+  #shopify-section-{{ section.id }} .vts-proofcard__result { font-family: var(--vts-display); font-size: 1.9rem; margin-top: 0.4rem; }
+  #shopify-section-{{ section.id }} .vts-proof__empty { grid-column: 1 / -1; font-size: 1.7rem; color: #55554f; }
+
+  /* ---- Add-ons ---- */
+  #shopify-section-{{ section.id }} .vts-addons { list-style: none; padding: 0; margin: 0; display: grid; gap: 0; }
+  #shopify-section-{{ section.id }} .vts-addons li {
+    display: flex; align-items: baseline; gap: 1rem; font-size: 1.8rem;
+    padding: 1.4rem 0; border-bottom: 1px solid var(--ve-rule);
+  }
+  #shopify-section-{{ section.id }} .vts-addons li::before { content: '+'; font-family: var(--vts-display); font-size: 2.2rem; color: var(--ve-blue); flex: none; }
+
+  /* ---- FAQ ---- */
+  #shopify-section-{{ section.id }} .vts-faq details { border-bottom: 1px solid var(--ve-rule); }
+  #shopify-section-{{ section.id }} .vts-faq summary {
+    list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 1.5rem;
+    padding: 1.8rem 0; font-family: var(--vts-display); font-size: 2.2rem; letter-spacing: 0.02em;
+  }
+  #shopify-section-{{ section.id }} .vts-faq summary::-webkit-details-marker { display: none; }
+  #shopify-section-{{ section.id }} .vts-faq__ico { flex: none; width: 2.2rem; height: 2.2rem; position: relative; }
+  #shopify-section-{{ section.id }} .vts-faq__ico::before,
+  #shopify-section-{{ section.id }} .vts-faq__ico::after { content: ''; position: absolute; background: var(--ve-blue); }
+  #shopify-section-{{ section.id }} .vts-faq__ico::before { top: 50%; left: 0; width: 100%; height: 3px; transform: translateY(-50%); }
+  #shopify-section-{{ section.id }} .vts-faq__ico::after { left: 50%; top: 0; height: 100%; width: 3px; transform: translateX(-50%); transition: transform 0.2s; }
+  #shopify-section-{{ section.id }} .vts-faq details[open] .vts-faq__ico::after { transform: translateX(-50%) scaleY(0); }
+  #shopify-section-{{ section.id }} .vts-faq__a { padding: 0 0 1.8rem; font-size: 1.7rem; line-height: 1.6; max-width: 78ch; }
+  #shopify-section-{{ section.id }} .vts-faq__a a { color: var(--ve-blue); font-weight: 600; }
+
+  /* ---- Final CTA + form ---- */
+  #shopify-section-{{ section.id }} .vts-form__sub { font-size: 1.9rem; margin: 0.4rem 0 2.6rem; color: rgba(255,255,255,0.85); }
+  #shopify-section-{{ section.id }} .vts-form { display: grid; grid-template-columns: 1fr 1fr; gap: 1.6rem; max-width: 720px; }
+  #shopify-section-{{ section.id }} .vts-field { display: flex; flex-direction: column; gap: 0.5rem; }
+  #shopify-section-{{ section.id }} .vts-field--full { grid-column: 1 / -1; }
+  #shopify-section-{{ section.id }} .vts-field label { font-size: 1.5rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+  #shopify-section-{{ section.id }} .vts-field input,
+  #shopify-section-{{ section.id }} .vts-field textarea {
+    font-family: var(--vts-body); font-size: 1.7rem; padding: 1.2rem 1.4rem; border: 2px solid #55554f;
+    background: var(--ve-white); color: var(--ve-charcoal); width: 100%;
+  }
+  #shopify-section-{{ section.id }} .vts-field textarea { min-height: 10rem; resize: vertical; }
+  #shopify-section-{{ section.id }} .vts-form__submit { grid-column: 1 / -1; }
+  #shopify-section-{{ section.id }} .vts-form__note { grid-column: 1 / -1; font-size: 1.6rem; margin: 0.8rem 0 0; color: rgba(255,255,255,0.85); }
+  #shopify-section-{{ section.id }} .vts-form__note a { color: var(--ve-yellow); font-weight: 600; text-decoration: none; }
+  #shopify-section-{{ section.id }} .vts-form__msg { grid-column: 1 / -1; padding: 1.4rem 1.6rem; font-size: 1.6rem; }
+  #shopify-section-{{ section.id }} .vts-form__msg--ok { background: var(--ve-yellow); color: var(--ve-charcoal); }
+  #shopify-section-{{ section.id }} .vts-form__msg--err { background: #ffdede; color: #7a1c1c; }
+  #shopify-section-{{ section.id }} .vts-form__msg ul { margin: 0.6rem 0 0; padding-left: 2rem; }
+
+  /* ---- Sticky mobile bar ---- */
+  #shopify-section-{{ section.id }} .vts-sticky {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+    display: none; gap: 0.8rem; padding: 0.8rem; background: var(--ve-charcoal);
+    transform: translateY(120%); transition: transform 0.25s ease;
+  }
+  #shopify-section-{{ section.id }} .vts-sticky.is-visible { transform: translateY(0); }
+  #shopify-section-{{ section.id }} .vts-sticky .vts-btn { flex: 1 1 0; font-size: 1.9rem; padding: 1.3rem 1rem; }
+  #shopify-section-{{ section.id }} .vts-sticky .vts-btn--call { background: var(--ve-white); color: var(--ve-charcoal); }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 989px) {
+    #shopify-section-{{ section.id }} .vts-bands { grid-template-columns: 1fr 1fr; }
+    #shopify-section-{{ section.id }} .vts-steps { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 749px) {
+    #shopify-section-{{ section.id }} .vts-band { padding: 4.8rem 1.6rem; }
+    #shopify-section-{{ section.id }} .vts-bands,
+    #shopify-section-{{ section.id }} .vts-steps,
+    #shopify-section-{{ section.id }} .vts-proof,
+    #shopify-section-{{ section.id }} .vts-form { grid-template-columns: 1fr; }
+    #shopify-section-{{ section.id }} .vts-hero__ctarow .vts-btn { width: 100%; }
+    #shopify-section-{{ section.id }} .vts-sticky { display: flex; }
+    #shopify-section-{{ section.id }} .vts-form__end { padding-bottom: 8rem; } /* keep sticky bar clear of form */
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #shopify-section-{{ section.id }} .vts-sticky { transition: none; }
+    #shopify-section-{{ section.id }} .vts-faq__ico::after { transition: none; }
+    #shopify-section-{{ section.id }} html:focus-within { scroll-behavior: auto; }
+  }
+</style>
+
+<div class="vts">
+
+  {%- comment -%} 1. HERO {%- endcomment -%}
+  <section class="vts-band vts-band--white vts-hero" aria-labelledby="vts-h1">
+    <div class="vts-inner">
+      {%- if section.settings.hero_eyebrow != blank -%}<span class="vts__eyebrow">{{ section.settings.hero_eyebrow }}</span>{%- endif -%}
+      <h1 id="vts-h1">{{ section.settings.hero_h1 }}</h1>
+      {%- if section.settings.hero_sub != blank -%}<p class="vts-hero__sub">{{ section.settings.hero_sub }}</p>{%- endif -%}
+      <div class="vts-hero__ctarow">
+        <a href="#vts-form" class="vts-btn vts-btn--primary" data-ve-event="hero_cta">{{ section.settings.hero_cta_label }}</a>
+        {%- if section.settings.hero_secondary != blank -%}
+          <span class="vts-hero__secondary">{{ section.settings.hero_secondary }}</span>
+        {%- endif -%}
+      </div>
+      {%- if section.settings.trust_1 != blank or section.settings.trust_2 != blank or section.settings.trust_3 != blank -%}
+      <ul class="vts-trust">
+        {%- if section.settings.trust_1 != blank -%}<li>{% render 've-check' %}<span>{{ section.settings.trust_1 }}</span></li>{%- endif -%}
+        {%- if section.settings.trust_2 != blank -%}<li>{% render 've-check' %}<span>{{ section.settings.trust_2 }}</span></li>{%- endif -%}
+        {%- if section.settings.trust_3 != blank -%}<li>{% render 've-check' %}<span>{{ section.settings.trust_3 }}</span></li>{%- endif -%}
+      </ul>
+      {%- endif -%}
+    </div>
+  </section>
+
+  {%- comment -%} 2. THE MATHS {%- endcomment -%}
+  <section class="vts-band vts-band--paper vts-maths" aria-labelledby="vts-maths-h">
+    <div class="vts-inner vts-inner--narrow">
+      <h2 id="vts-maths-h">{{ section.settings.maths_h2 }}</h2>
+      {%- if section.settings.maths_body != blank -%}<div>{{ section.settings.maths_body }}</div>{%- endif -%}
+    </div>
+  </section>
+
+  {%- comment -%} 3. THE STACK (job sheet) {%- endcomment -%}
+  <section class="vts-band vts-band--white vts-stack" aria-labelledby="vts-stack-h">
+    <div class="vts-inner vts-inner--narrow">
+      <h2 id="vts-stack-h">{{ section.settings.stack_h2 }}</h2>
+      <div class="vts-sheet">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'stack_item' -%}
+          <div class="vts-sheet__row" {{ block.shopify_attributes }}>
+            <span class="vts-sheet__body">
+              <span class="vts-sheet__t">{{ block.settings.title }}</span>
+              {%- if block.settings.line != blank -%}<span class="vts-sheet__l">{{ block.settings.line }}</span>{%- endif -%}
+            </span>
+            <span class="vts-sheet__w {% if block.settings.included %}vts-sheet__w--inc{% endif %}">{{ block.settings.worth }}</span>
+          </div>
+          {%- endif -%}
+        {%- endfor -%}
+        {%- if section.settings.stack_subtotal != blank -%}<div class="vts-sheet__subtotal">{{ section.settings.stack_subtotal }}</div>{%- endif -%}
+        <div class="vts-stamp">
+          <div class="vts-stamp__big">{{ section.settings.stack_stamp }}</div>
+          {%- if section.settings.stack_stamp_small != blank -%}<div class="vts-stamp__small">{{ section.settings.stack_stamp_small }}</div>{%- endif -%}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {%- comment -%} 4. PRICE BANDS {%- endcomment -%}
+  <section class="vts-band vts-band--paper" aria-labelledby="vts-bands-h">
+    <div class="vts-inner">
+      <h2 id="vts-bands-h">{{ section.settings.bands_h2 }}</h2>
+      <div class="vts-bands">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'price_band' -%}
+          <div class="vts-bandcard {% if block.settings.badge != blank %}vts-bandcard--pop{% endif %}" {{ block.shopify_attributes }}>
+            {%- if block.settings.badge != blank -%}<span class="vts-bandcard__badge">{{ block.settings.badge }}</span>{%- endif -%}
+            <span class="vts-bandcard__name">{{ block.settings.name }}</span>
+            {%- if block.settings.examples != blank -%}<span class="vts-bandcard__eg">{{ block.settings.examples }}</span>{%- endif -%}
+            <span class="vts-bandcard__price">{{ block.settings.price }}</span>
+            {%- if block.settings.note != blank -%}<span class="vts-bandcard__note">{{ block.settings.note }}</span>{%- endif -%}
+          </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+      {%- if section.settings.bands_footnote != blank -%}<p class="vts-bands__foot">{{ section.settings.bands_footnote }}</p>{%- endif -%}
+    </div>
+  </section>
+
+  {%- comment -%} 5. GUARANTEE {%- endcomment -%}
+  <section class="vts-band vts-band--dark" aria-labelledby="vts-guar-h">
+    <div class="vts-inner vts-inner--narrow vts-guarantee">
+      <h2 id="vts-guar-h">{{ section.settings.guarantee_h2 }}</h2>
+      {%- if section.settings.guarantee_body != blank -%}<p>{{ section.settings.guarantee_body }}</p>{%- endif -%}
+    </div>
+  </section>
+
+  {%- comment -%} 6. HOW IT WORKS {%- endcomment -%}
+  <section class="vts-band vts-band--white" aria-labelledby="vts-how-h">
+    <div class="vts-inner">
+      <h2 id="vts-how-h">{{ section.settings.how_h2 }}</h2>
+      <div class="vts-steps">
+        {%- assign steps = section.settings.step_1 | append: '~~' | append: section.settings.step_2 | append: '~~' | append: section.settings.step_3 | append: '~~' | append: section.settings.step_4 | split: '~~' -%}
+        {%- for step in steps -%}
+          {%- assign s = step | strip -%}
+          {%- if s != blank -%}
+          <div class="vts-step">
+            <div class="vts-step__n">{{ forloop.index }}</div>
+            <div class="vts-step__x">{{ s }}</div>
+          </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  </section>
+
+  {%- comment -%} 7. PROOF {%- endcomment -%}
+  <section class="vts-band vts-band--paper" aria-labelledby="vts-proof-h">
+    <div class="vts-inner">
+      <h2 id="vts-proof-h">{{ section.settings.proof_h2 }}</h2>
+      <div class="vts-proof">
+        {%- assign proof_count = 0 -%}
+        {%- for block in section.blocks -%}{%- if block.type == 'proof' -%}{%- assign proof_count = proof_count | plus: 1 -%}{%- endif -%}{%- endfor -%}
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'proof' -%}
+          <figure class="vts-proofcard" {{ block.shopify_attributes }}>
+            {%- if block.settings.before_image != blank or block.settings.after_image != blank -%}
+            <div class="vts-proofcard__imgs">
+              {%- if block.settings.before_image != blank -%}<img src="{{ block.settings.before_image | image_url: width: 800 }}" alt="{{ block.settings.caption | escape }} — before" loading="lazy" width="800" height="600">{%- else -%}<div class="vts-proofcard__ph">Before</div>{%- endif -%}
+              {%- if block.settings.after_image != blank -%}<img src="{{ block.settings.after_image | image_url: width: 800 }}" alt="{{ block.settings.caption | escape }} — after" loading="lazy" width="800" height="600">{%- else -%}<div class="vts-proofcard__ph">After</div>{%- endif -%}
+            </div>
+            {%- else -%}
+            <div class="vts-proofcard__imgs">
+              <div class="vts-proofcard__ph">Before</div>
+              <div class="vts-proofcard__ph">After</div>
+            </div>
+            {%- endif -%}
+            <figcaption class="vts-proofcard__cap">
+              {%- if block.settings.caption != blank -%}<p>{{ block.settings.caption }}</p>{%- endif -%}
+              {%- if block.settings.result != blank -%}<p class="vts-proofcard__result">{{ block.settings.result }}</p>{%- endif -%}
+            </figcaption>
+          </figure>
+          {%- endif -%}
+        {%- endfor -%}
+        {%- if proof_count == 0 and section.settings.proof_empty != blank -%}
+          <p class="vts-proof__empty">{{ section.settings.proof_empty }}</p>
+        {%- endif -%}
+      </div>
+      {%- if proof_count > 0 and section.settings.proof_empty != blank -%}<p class="vts-bands__foot">{{ section.settings.proof_empty }}</p>{%- endif -%}
+    </div>
+  </section>
+
+  {%- comment -%} 8. ADD-ONS {%- endcomment -%}
+  <section class="vts-band vts-band--white" aria-labelledby="vts-addons-h">
+    <div class="vts-inner vts-inner--narrow">
+      <h2 id="vts-addons-h">{{ section.settings.addons_h2 }}</h2>
+      <ul class="vts-addons">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'addon' -%}
+          <li {{ block.shopify_attributes }}>{{ block.settings.text }}</li>
+          {%- endif -%}
+        {%- endfor -%}
+      </ul>
+    </div>
+  </section>
+
+  {%- comment -%} 9. FAQ {%- endcomment -%}
+  <section class="vts-band vts-band--paper vts-faq" aria-labelledby="vts-faq-h">
+    <div class="vts-inner vts-inner--narrow">
+      <h2 id="vts-faq-h">{{ section.settings.faq_h2 }}</h2>
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'faq' -%}
+        <details {{ block.shopify_attributes }}>
+          <summary>{{ block.settings.question }}<span class="vts-faq__ico" aria-hidden="true"></span></summary>
+          <div class="vts-faq__a">{{ block.settings.answer }}</div>
+        </details>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </section>
+
+  {%- comment -%} 10. FINAL CTA + FORM {%- endcomment -%}
+  <section class="vts-band vts-band--dark vts-form__end" id="vts-form" aria-labelledby="vts-form-h">
+    <div class="vts-inner vts-inner--narrow">
+      <h2 id="vts-form-h">{{ section.settings.form_h2 }}</h2>
+      {%- if section.settings.form_sub != blank -%}<p class="vts-form__sub">{{ section.settings.form_sub }}</p>{%- endif -%}
+      {%- form 'contact', id: 'vts-contact-form', class: 'vts-form' -%}
+        {%- if form.posted_successfully? -%}
+          <div class="vts-form__msg vts-form__msg--ok" role="status">{{ section.settings.form_success | default: 'Thanks — your mockup request is in. We will be in touch within a day.' }}</div>
+        {%- elsif form.errors -%}
+          <div class="vts-form__msg vts-form__msg--err" role="alert">
+            {{ form.errors | default_errors }}
+          </div>
+        {%- endif -%}
+        <input type="hidden" name="contact[Subject]" value="Van That Sells — mockup request">
+        <div class="vts-field">
+          <label for="vts-name">Name</label>
+          <input type="text" id="vts-name" name="contact[name]" autocomplete="name" required>
+        </div>
+        <div class="vts-field">
+          <label for="vts-mobile">Mobile</label>
+          <input type="tel" id="vts-mobile" name="contact[phone]" autocomplete="tel" required>
+        </div>
+        <div class="vts-field">
+          <label for="vts-email">Email</label>
+          <input type="email" id="vts-email" name="contact[email]" autocomplete="email" required>
+        </div>
+        <div class="vts-field">
+          <label for="vts-van">Van make &amp; model</label>
+          <input type="text" id="vts-van" name="contact[Van make &amp; model]">
+        </div>
+        <div class="vts-field vts-field--full">
+          <label for="vts-msg">Anything else?</label>
+          <textarea id="vts-msg" name="contact[body]"></textarea>
+        </div>
+        <div class="vts-form__submit">
+          <button type="submit" class="vts-btn vts-btn--primary vts-btn--block" data-ve-event="mockup_submit">{{ section.settings.form_submit_label }}</button>
+        </div>
+        {%- if section.settings.form_footer != blank -%}
+        <p class="vts-form__note">{{ section.settings.form_footer }} · <a href="tel:{{ section.settings.phone_tel }}" data-ve-event="call_click">{{ section.settings.phone_display }}</a> · <a href="mailto:{{ section.settings.email }}">{{ section.settings.email }}</a></p>
+        {%- endif -%}
+      {%- endform -%}
+    </div>
+  </section>
+
+  {%- comment -%} STICKY MOBILE BAR {%- endcomment -%}
+  <div class="vts-sticky" id="vts-sticky" aria-hidden="true">
+    <a href="#vts-form" class="vts-btn vts-btn--primary" data-ve-event="sticky_cta">{{ section.settings.sticky_cta_label }}</a>
+    <a href="tel:{{ section.settings.phone_tel }}" class="vts-btn vts-btn--call" data-ve-event="call_click">{{ section.settings.sticky_call_label }}</a>
+  </div>
+
+</div>
+
+<script>
+  (function () {
+    var root = document.getElementById('shopify-section-{{ section.id }}');
+    if (!root) return;
+
+    // dataLayer tracking — fail silently if absent.
+    function vePush(label) {
+      try {
+        if (window.dataLayer && typeof window.dataLayer.push === 'function') {
+          window.dataLayer.push({ event: 've_cta', label: label, page: 'van-that-sells' });
+        }
+      } catch (e) {}
+    }
+    root.addEventListener('click', function (e) {
+      var el = e.target.closest('[data-ve-event]');
+      if (!el || el.tagName === 'FORM') return;
+      // Submit button is tracked via the form's submit event — skip here to avoid a double push.
+      if (el.matches('button[type="submit"]')) return;
+      vePush(el.getAttribute('data-ve-event'));
+    });
+    var form = root.querySelector('#vts-contact-form');
+    if (form) {
+      form.addEventListener('submit', function () { vePush('mockup_submit'); });
+    }
+
+    // Sticky bar: show after hero scrolls out of view, hide while the form is on screen.
+    var sticky = root.querySelector('#vts-sticky');
+    var hero = root.querySelector('.vts-hero');
+    var formSection = root.querySelector('#vts-form');
+    if (!sticky || !hero || !('IntersectionObserver' in window)) return;
+
+    var pastHero = false, formVisible = false;
+    function update() {
+      var show = pastHero && !formVisible;
+      sticky.classList.toggle('is-visible', show);
+      sticky.setAttribute('aria-hidden', show ? 'false' : 'true');
+    }
+    new IntersectionObserver(function (entries) {
+      pastHero = !entries[0].isIntersecting;
+      update();
+    }, { threshold: 0 }).observe(hero);
+    if (formSection) {
+      new IntersectionObserver(function (entries) {
+        formVisible = entries[0].isIntersecting;
+        update();
+      }, { threshold: 0 }).observe(formSection);
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "The Van That Sells",
+  "tag": "section",
+  "class": "ve-section ve-section--van-that-sells",
+  "settings": [
+    { "type": "header", "content": "1 · Hero" },
+    { "type": "text", "id": "hero_eyebrow", "label": "Eyebrow", "default": "MOBILE VAN SIGNWRITING — WEST LONDON" },
+    { "type": "text", "id": "hero_h1", "label": "H1", "default": "THE VAN THAT SELLS." },
+    { "type": "textarea", "id": "hero_sub", "label": "Sub", "default": "Designed, printed and fitted at your address — with a tracked number so you can see every enquiry it pulls. Most vans £1,295, fitted." },
+    { "type": "text", "id": "hero_cta_label", "label": "Primary CTA label", "default": "GET YOUR FREE MOCKUP" },
+    { "type": "text", "id": "hero_secondary", "label": "Secondary line", "default": "or text VAN to 07348 580359" },
+    { "type": "text", "id": "trust_1", "label": "Trust item 1", "default": "We come to you — van never off the road" },
+    { "type": "text", "id": "trust_2", "label": "Trust item 2", "default": "5–7 year laminated cast vinyl" },
+    { "type": "text", "id": "trust_3", "label": "Trust item 3", "default": "90-day enquiry guarantee" },
+
+    { "type": "header", "content": "2 · The maths" },
+    { "type": "text", "id": "maths_h2", "label": "Heading", "default": "WHAT'S ONE JOB WORTH TO YOU?" },
+    { "type": "richtext", "id": "maths_body", "label": "Copy", "default": "<p>£400? £2,000? If your van brings in two customers over the next five years, it's paid for itself — and it'll do that in its first month. Compare it with ads: £1,295 in Google clicks lasts a plumber about six weeks, then it's gone. Your van works every job site, every school run, every night it's parked on the drive. Over five years that's about 70p a day — for advertising you own.</p>" },
+
+    { "type": "header", "content": "3 · The stack" },
+    { "type": "text", "id": "stack_h2", "label": "Heading", "default": "EVERYTHING IN THE PACKAGE" },
+    { "type": "text", "id": "stack_subtotal", "label": "Subtotal line (struck through)", "default": "Bought separately: £1,465+" },
+    { "type": "text", "id": "stack_stamp", "label": "Price stamp", "default": "THE VAN THAT SELLS — £1,295 FITTED" },
+    { "type": "text", "id": "stack_stamp_small", "label": "Price stamp small print", "default": "Most vans. Exact price by van size below." },
+
+    { "type": "header", "content": "4 · Price bands" },
+    { "type": "text", "id": "bands_h2", "label": "Heading", "default": "PRICED BY VAN, NOT BY POSTCODE" },
+    { "type": "textarea", "id": "bands_footnote", "label": "Footnote", "default": "Cars & pickups from £795, quoted from your photo. Running 3+ identical vans? One invoice, 10% off — ask about fleet." },
+
+    { "type": "header", "content": "5 · Guarantee" },
+    { "type": "text", "id": "guarantee_h2", "label": "Heading", "default": "THE 90-DAY GUARANTEE, IN PLAIN ENGLISH" },
+    { "type": "textarea", "id": "guarantee_body", "label": "Copy", "default": "Every van we fit carries a tracked QR code and phone number, so the enquiries are counted — not guessed. If your van hasn't pulled a single enquiry in its first 90 days on the road, we come back and refit your rear doors free. New design, new print, no charge." },
+
+    { "type": "header", "content": "6 · How it works" },
+    { "type": "text", "id": "how_h2", "label": "Heading", "default": "HOW IT WORKS" },
+    { "type": "textarea", "id": "step_1", "label": "Step 1", "default": "Send a photo of your van — or just the model. Free mockup back within a day." },
+    { "type": "textarea", "id": "step_2", "label": "Step 2", "default": "Tweak it until it's right. Two revision rounds included." },
+    { "type": "textarea", "id": "step_3", "label": "Step 3", "default": "We print and fit at your address. Half a day to a day." },
+    { "type": "textarea", "id": "step_4", "label": "Step 4", "default": "Your tracked number goes live. Watch the enquiries land." },
+
+    { "type": "header", "content": "7 · Proof" },
+    { "type": "text", "id": "proof_h2", "label": "Heading", "default": "RECENT FITS" },
+    { "type": "text", "id": "proof_empty", "label": "Empty-state / footer copy", "default": "Fresh fits added monthly — follow the vans on Instagram." },
+
+    { "type": "header", "content": "8 · Add-ons" },
+    { "type": "text", "id": "addons_h2", "label": "Heading", "default": "WORTH ADDING WHILE WE'RE THERE" },
+
+    { "type": "header", "content": "9 · FAQ" },
+    { "type": "text", "id": "faq_h2", "label": "Heading", "default": "FREQUENTLY ASKED" },
+
+    { "type": "header", "content": "10 · Final CTA + form" },
+    { "type": "text", "id": "form_h2", "label": "Heading", "default": "GET YOUR FREE MOCKUP" },
+    { "type": "textarea", "id": "form_sub", "label": "Sub", "default": "No cost, no obligation — the design is yours either way." },
+    { "type": "text", "id": "form_submit_label", "label": "Submit button label", "default": "SEND ME MY MOCKUP" },
+    { "type": "text", "id": "form_footer", "label": "Under-form line", "default": "Prefer to talk? Call or text" },
+    { "type": "textarea", "id": "form_success", "label": "Success message", "default": "Thanks — your mockup request is in. We will be in touch within a day." },
+
+    { "type": "header", "content": "Contact details" },
+    { "type": "text", "id": "phone_display", "label": "Phone (display)", "default": "07348 580359" },
+    { "type": "text", "id": "phone_tel", "label": "Phone (tel: digits)", "default": "07348580359" },
+    { "type": "text", "id": "email", "label": "Email", "default": "support@vectoredge.co.uk" },
+
+    { "type": "header", "content": "Sticky mobile bar" },
+    { "type": "text", "id": "sticky_cta_label", "label": "Sticky CTA label", "default": "GET FREE MOCKUP" },
+    { "type": "text", "id": "sticky_call_label", "label": "Sticky call label", "default": "CALL" }
+  ],
+  "blocks": [
+    {
+      "type": "stack_item",
+      "name": "Stack item",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Title", "default": "Custom design + two revision rounds" },
+        { "type": "textarea", "id": "line", "label": "Line", "default": "Your logo, colours and layout drawn for your exact van." },
+        { "type": "text", "id": "worth", "label": "Worth", "default": "worth £350" },
+        { "type": "checkbox", "id": "included", "label": "Style as \"included\" (blue, not a price)", "default": false }
+      ]
+    },
+    {
+      "type": "price_band",
+      "name": "Price band",
+      "settings": [
+        { "type": "text", "id": "name", "label": "Name", "default": "SMALL VAN" },
+        { "type": "textarea", "id": "examples", "label": "Examples", "default": "Caddy · Connect · Combo · Berlingo · Partner" },
+        { "type": "text", "id": "price", "label": "Price", "default": "£995" },
+        { "type": "text", "id": "badge", "label": "Badge (also marks card as featured)" },
+        { "type": "text", "id": "note", "label": "Note" }
+      ]
+    },
+    {
+      "type": "faq",
+      "name": "FAQ item",
+      "settings": [
+        { "type": "text", "id": "question", "label": "Question", "default": "Question" },
+        { "type": "richtext", "id": "answer", "label": "Answer", "default": "<p>Answer</p>" }
+      ]
+    },
+    {
+      "type": "proof",
+      "name": "Proof / recent fit",
+      "settings": [
+        { "type": "image_picker", "id": "before_image", "label": "Before image" },
+        { "type": "image_picker", "id": "after_image", "label": "After image" },
+        { "type": "text", "id": "caption", "label": "Caption" },
+        { "type": "text", "id": "result", "label": "Result line", "info": "e.g. \"11 enquiries in the first month\" — plumber, HA5" }
+      ]
+    },
+    {
+      "type": "addon",
+      "name": "Add-on",
+      "settings": [
+        { "type": "text", "id": "text", "label": "Text", "default": "Chapter 8 chevron pack — from £249" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "The Van That Sells",
+      "blocks": [
+        { "type": "stack_item", "settings": { "title": "Custom design + two revision rounds", "line": "Your logo, colours and layout drawn for your exact van.", "worth": "worth £350" } },
+        { "type": "stack_item", "settings": { "title": "Premium cast vinyl, printed & laminated", "line": "Rated 5–7 years outdoors. Won't peel at the jet wash.", "worth": "worth £595" } },
+        { "type": "stack_item", "settings": { "title": "Mobile fitting at your address", "line": "Half a day to a day. You keep working, the van stays home.", "worth": "worth £350" } },
+        { "type": "stack_item", "settings": { "title": "Tracked QR + phone decal", "line": "See every enquiry the van pulls. No guessing.", "worth": "worth £95" } },
+        { "type": "stack_item", "settings": { "title": "Before/after photo pack", "line": "Shot on the day, yours for your own socials.", "worth": "worth £75" } },
+        { "type": "stack_item", "settings": { "title": "The 90-day enquiry guarantee", "line": "Detailed below, in plain English.", "worth": "included", "included": true } },
+        { "type": "price_band", "settings": { "name": "SMALL VAN", "examples": "Caddy · Connect · Combo · Berlingo · Partner", "price": "£995" } },
+        { "type": "price_band", "settings": { "name": "MEDIUM VAN", "examples": "Transit Custom · Transporter · Vito · Vivaro · Trafic", "price": "£1,295", "badge": "MOST POPULAR" } },
+        { "type": "price_band", "settings": { "name": "LARGE VAN", "examples": "Transit LWB · Sprinter · Crafter · Master · Ducato", "price": "£1,595", "note": "High roof +£150" } },
+        { "type": "price_band", "settings": { "name": "LUTON / BOX", "examples": "The biggest billboard you'll ever own.", "price": "£1,895" } },
+        { "type": "proof", "settings": { "caption": "", "result": "" } },
+        { "type": "proof", "settings": { "caption": "", "result": "" } },
+        { "type": "addon", "settings": { "text": "Chapter 8 chevron pack — from £249" } },
+        { "type": "addon", "settings": { "text": "Contravision rear windows — quoted with your mockup" } },
+        { "type": "addon", "settings": { "text": "Roof ID — quoted with your mockup" } },
+        { "type": "addon", "settings": { "text": "Branded workwear to match the van — ask for the bundle" } },
+        { "type": "faq", "settings": { "question": "My van's leased.", "answer": "<p>No problem — the vinyl is fully removable and we design around your return conditions.</p>" } },
+        { "type": "faq", "settings": { "question": "How long does fitting take?", "answer": "<p>Small vans half a day, most vans a day. At your address — you keep working.</p>" } },
+        { "type": "faq", "settings": { "question": "Do I lose the van?", "answer": "<p>No. That's the point of mobile fitting. It's often done while you're on the tools.</p>" } },
+        { "type": "faq", "settings": { "question": "Do you cover my area?", "answer": "<p>Based in West London, we travel. Check your postcode on our <a href=\"/pages/van-designer\">coverage checker</a>.</p>" } },
+        { "type": "faq", "settings": { "question": "I don't have a logo.", "answer": "<p>We'll set your name in proper signwriting as part of the design. Full logo design available if you want to go further.</p>" } },
+        { "type": "faq", "settings": { "question": "How long does it last?", "answer": "<p>The vinyl is rated 5–7 years outdoors and laminated against fuel, jet washes and UK weather.</p>" } },
+        { "type": "faq", "settings": { "question": "How does payment work?", "answer": "<p>Deposit to book your print slot, balance on the day it's fitted. Card or bank transfer.</p>" } },
+        { "type": "faq", "settings": { "question": "What if I change the van?", "answer": "<p>Vinyl removes cleanly, and your design stays on file — we'll re-fit it to the next van and you only pay for print and fitting.</p>" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
