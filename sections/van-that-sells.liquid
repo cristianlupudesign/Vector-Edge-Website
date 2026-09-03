@@ -1,5 +1,5 @@
 {%- comment -%}
-  Vector Edge — "The Van That Sells" flagship offer page.
+  Vector Edge - "The Van That Sells" flagship offer page.
   Self-contained direct-response section: hero, value maths, job-sheet value stack,
   price bands, guarantee, how-it-works, proof, add-ons, FAQ and mockup-request form.
   Renders inside the normal theme layout (no layout-none override). Vanilla JS only.
@@ -255,7 +255,7 @@
   @media (prefers-reduced-motion: reduce) {
     #shopify-section-{{ section.id }} .vts-sticky { transition: none; }
     #shopify-section-{{ section.id }} .vts-faq__ico::after { transition: none; }
-    #shopify-section-{{ section.id }} html:focus-within { scroll-behavior: auto; }
+    #shopify-section-{{ section.id }} html:focus- within { scroll-behavior: auto; }
   }
 </style>
 
@@ -376,8 +376,8 @@
           <figure class="vts-proofcard" {{ block.shopify_attributes }}>
             {%- if block.settings.before_image != blank or block.settings.after_image != blank -%}
             <div class="vts-proofcard__imgs">
-              {%- if block.settings.before_image != blank -%}<img src="{{ block.settings.before_image | image_url: width: 800 }}" alt="{{ block.settings.caption | escape }} — before" loading="lazy" width="800" height="600">{%- else -%}<div class="vts-proofcard__ph">Before</div>{%- endif -%}
-              {%- if block.settings.after_image != blank -%}<img src="{{ block.settings.after_image | image_url: width: 800 }}" alt="{{ block.settings.caption | escape }} — after" loading="lazy" width="800" height="600">{%- else -%}<div class="vts-proofcard__ph">After</div>{%- endif -%}
+              {%- if block.settings.before_image != blank -%}<img src="{{ block.settings.before_image | image_url: width: 800 }}" alt="{{ block.settings.caption | escape }} before" loading="lazy" width="800" height="600">{%- else -%}<div class="vts-proofcard__ph">Before</div>{%- endif -%}
+              {%- if block.settings.after_image != blank -%}<img src="{{ block.settings.after_image | image_url: width: 800 }}" alt="{{ block.settings.caption | escape }} after" loading="lazy" width="800" height="600">{%- else -%}<div class="vts-proofcard__ph">After</div>{%- endif -%}
             </div>
             {%- else -%}
             <div class="vts-proofcard__imgs">
@@ -436,13 +436,13 @@
       {%- if section.settings.form_sub != blank -%}<p class="vts-form__sub">{{ section.settings.form_sub }}</p>{%- endif -%}
       {%- form 'contact', id: 'vts-contact-form', class: 'vts-form' -%}
         {%- if form.posted_successfully? -%}
-          <div class="vts-form__msg vts-form__msg--ok" role="status">{{ section.settings.form_success | default: 'Thanks — your mockup request is in. We will be in touch within a day.' }}</div>
+          <div class="vts-form__msg vts-form__msg--ok" role="status">{{ section.settings.form_success | default: 'Thanks - your mockup request is in. We will be in touch within a day.' }}</div>
         {%- elsif form.errors -%}
           <div class="vts-form__msg vts-form__msg--err" role="alert">
             {{ form.errors | default_errors }}
           </div>
         {%- endif -%}
-        <input type="hidden" name="contact[Subject]" value="Van That Sells — mockup request">
+        <input type="hidden" name="contact[Subject]" value="Van That Sells - mockup request">
         <div class="vts-field">
           <label for="vts-name">Name</label>
           <input type="text" id="vts-name" name="contact[name]" autocomplete="name" required>
@@ -486,7 +486,7 @@
     var root = document.getElementById('shopify-section-{{ section.id }}');
     if (!root) return;
 
-    // dataLayer tracking — fail silently if absent.
+    // dataLayer tracking - fail silently if absent.
     function vePush(label) {
       try {
         if (window.dataLayer && typeof window.dataLayer.push === 'function') {
@@ -497,7 +497,7 @@
     root.addEventListener('click', function (e) {
       var el = e.target.closest('[data-ve-event]');
       if (!el || el.tagName === 'FORM') return;
-      // Submit button is tracked via the form's submit event — skip here to avoid a double push.
+      // Submit button is tracked via the form's submit event - skip here to avoid a double push.
       if (el.matches('button[type="submit"]')) return;
       vePush(el.getAttribute('data-ve-event'));
     });
@@ -538,43 +538,43 @@
   "class": "ve-section ve-section--van-that-sells",
   "settings": [
     { "type": "header", "content": "1 · Hero" },
-    { "type": "text", "id": "hero_eyebrow", "label": "Eyebrow", "default": "MOBILE VAN SIGNWRITING — WEST LONDON" },
+    { "type": "text", "id": "hero_eyebrow", "label": "Eyebrow", "default": "MOBILE VAN SIGNWRITING - WEST LONDON" },
     { "type": "text", "id": "hero_h1", "label": "H1", "default": "THE VAN THAT SELLS." },
-    { "type": "textarea", "id": "hero_sub", "label": "Sub", "default": "Designed, printed and fitted at your address — with a tracked number so you can see every enquiry it pulls. Most vans £1,295, fitted." },
+    { "type": "textarea", "id": "hero_sub", "label": "Sub", "default": "Designed, printed and fitted at your address - with a tracked number so you can see every enquiry it pulls. Most vans £1,295, fitted." },
     { "type": "text", "id": "hero_cta_label", "label": "Primary CTA label", "default": "GET YOUR FREE MOCKUP" },
-    { "type": "text", "id": "hero_secondary", "label": "Secondary line", "default": "or text VAN to 07348 580359" },
-    { "type": "text", "id": "trust_1", "label": "Trust item 1", "default": "We come to you — van never off the road" },
+    { "type": "text", "id": "hero_secondary", "label": "Secondary line", "default": "Or text VAN to 07348 580359" },
+    { "type": "text", "id": "trust_1", "label": "Trust item 1", "default": "We come to you - van never off the road" },
     { "type": "text", "id": "trust_2", "label": "Trust item 2", "default": "5–7 year laminated cast vinyl" },
     { "type": "text", "id": "trust_3", "label": "Trust item 3", "default": "90-day enquiry guarantee" },
 
     { "type": "header", "content": "2 · The maths" },
     { "type": "text", "id": "maths_h2", "label": "Heading", "default": "WHAT'S ONE JOB WORTH TO YOU?" },
-    { "type": "richtext", "id": "maths_body", "label": "Copy", "default": "<p>£400? £2,000? If your van brings in two customers over the next five years, it's paid for itself — and it'll do that in its first month. Compare it with ads: £1,295 in Google clicks lasts a plumber about six weeks, then it's gone. Your van works every job site, every school run, every night it's parked on the drive. Over five years that's about 70p a day — for advertising you own.</p>" },
+    { "type": "richtext", "id": "maths_body", "label": "Copy", "default": "<p>£400? £2,000? If your van brings in two customers over the next five years, it's paid for itself and it'll do that in its first month. Compare it with ads: £1,295 in Google clicks lasts a plumber about six weeks, then it's gone. Your van works every job site, every school run, every night it's parked on the drive. Over five years that's about 70p a day for advertising you own.</p>" },
 
     { "type": "header", "content": "3 · The stack" },
     { "type": "text", "id": "stack_h2", "label": "Heading", "default": "EVERYTHING IN THE PACKAGE" },
     { "type": "text", "id": "stack_subtotal", "label": "Subtotal line (struck through)", "default": "Bought separately: £1,465+" },
-    { "type": "text", "id": "stack_stamp", "label": "Price stamp", "default": "THE VAN THAT SELLS — £1,295 FITTED" },
+    { "type": "text", "id": "stack_stamp", "label": "Price stamp", "default": "THE VAN THAT SELLS - £1,295 FITTED" },
     { "type": "text", "id": "stack_stamp_small", "label": "Price stamp small print", "default": "Most vans. Exact price by van size below." },
 
     { "type": "header", "content": "4 · Price bands" },
     { "type": "text", "id": "bands_h2", "label": "Heading", "default": "PRICED BY VAN, NOT BY POSTCODE" },
-    { "type": "textarea", "id": "bands_footnote", "label": "Footnote", "default": "Cars & pickups from £795, quoted from your photo. Running 3+ identical vans? One invoice, 10% off — ask about fleet." },
+    { "type": "textarea", "id": "bands_footnote", "label": "Footnote", "default": "Cars & pickups from £795, quoted from your photo. Running 3+ identical vans? One invoice, 10% off - ask about fleet." },
 
     { "type": "header", "content": "5 · Guarantee" },
     { "type": "text", "id": "guarantee_h2", "label": "Heading", "default": "THE 90-DAY GUARANTEE, IN PLAIN ENGLISH" },
-    { "type": "textarea", "id": "guarantee_body", "label": "Copy", "default": "Every van we fit carries a tracked QR code and phone number, so the enquiries are counted — not guessed. If your van hasn't pulled a single enquiry in its first 90 days on the road, we come back and refit your rear doors free. New design, new print, no charge." },
+    { "type": "textarea", "id": "guarantee_body", "label": "Copy", "default": "Every van we fit carries a tracked QR code and phone number, so the enquiries are counted, not guessed. If your van hasn't pulled a single enquiry in its first 90 days on the road, we come back and refit your rear doors free. New design, new print, no charge." },
 
     { "type": "header", "content": "6 · How it works" },
     { "type": "text", "id": "how_h2", "label": "Heading", "default": "HOW IT WORKS" },
-    { "type": "textarea", "id": "step_1", "label": "Step 1", "default": "Send a photo of your van — or just the model. Free mockup back within a day." },
+    { "type": "textarea", "id": "step_1", "label": "Step 1", "default": "Send a photo of your van - or just the model. Free mockup back within a day." },
     { "type": "textarea", "id": "step_2", "label": "Step 2", "default": "Tweak it until it's right. Two revision rounds included." },
     { "type": "textarea", "id": "step_3", "label": "Step 3", "default": "We print and fit at your address. Half a day to a day." },
     { "type": "textarea", "id": "step_4", "label": "Step 4", "default": "Your tracked number goes live. Watch the enquiries land." },
 
     { "type": "header", "content": "7 · Proof" },
     { "type": "text", "id": "proof_h2", "label": "Heading", "default": "RECENT FITS" },
-    { "type": "text", "id": "proof_empty", "label": "Empty-state / footer copy", "default": "Fresh fits added monthly — follow the vans on Instagram." },
+    { "type": "text", "id": "proof_empty", "label": "Empty-state / footer copy", "default": "Fresh fits added monthly -follow the vans on Instagram." },
 
     { "type": "header", "content": "8 · Add-ons" },
     { "type": "text", "id": "addons_h2", "label": "Heading", "default": "WORTH ADDING WHILE WE'RE THERE" },
@@ -584,10 +584,10 @@
 
     { "type": "header", "content": "10 · Final CTA + form" },
     { "type": "text", "id": "form_h2", "label": "Heading", "default": "GET YOUR FREE MOCKUP" },
-    { "type": "textarea", "id": "form_sub", "label": "Sub", "default": "No cost, no obligation — the design is yours either way." },
+    { "type": "textarea", "id": "form_sub", "label": "Sub", "default": "No cost, no obligation - the design is yours either way." },
     { "type": "text", "id": "form_submit_label", "label": "Submit button label", "default": "SEND ME MY MOCKUP" },
     { "type": "text", "id": "form_footer", "label": "Under-form line", "default": "Prefer to talk? Call or text" },
-    { "type": "textarea", "id": "form_success", "label": "Success message", "default": "Thanks — your mockup request is in. We will be in touch within a day." },
+    { "type": "textarea", "id": "form_success", "label": "Success message", "default": "Thanks - your mockup request is in. We will be in touch within a day." },
 
     { "type": "header", "content": "Contact details" },
     { "type": "text", "id": "phone_display", "label": "Phone (display)", "default": "07348 580359" },
@@ -635,14 +635,14 @@
         { "type": "image_picker", "id": "before_image", "label": "Before image" },
         { "type": "image_picker", "id": "after_image", "label": "After image" },
         { "type": "text", "id": "caption", "label": "Caption" },
-        { "type": "text", "id": "result", "label": "Result line", "info": "e.g. \"11 enquiries in the first month\" — plumber, HA5" }
+        { "type": "text", "id": "result", "label": "Result line", "info": "e.g. \"11 enquiries in the first month\" - plumber, HA5" }
       ]
     },
     {
       "type": "addon",
       "name": "Add-on",
       "settings": [
-        { "type": "text", "id": "text", "label": "Text", "default": "Chapter 8 chevron pack — from £249" }
+        { "type": "text", "id": "text", "label": "Text", "default": "Chapter 8 chevron pack - from £249" }
       ]
     }
   ],
@@ -662,18 +662,18 @@
         { "type": "price_band", "settings": { "name": "LUTON / BOX", "examples": "The biggest billboard you'll ever own.", "price": "£1,895" } },
         { "type": "proof", "settings": { "caption": "", "result": "" } },
         { "type": "proof", "settings": { "caption": "", "result": "" } },
-        { "type": "addon", "settings": { "text": "Chapter 8 chevron pack — from £249" } },
-        { "type": "addon", "settings": { "text": "Contravision rear windows — quoted with your mockup" } },
-        { "type": "addon", "settings": { "text": "Roof ID — quoted with your mockup" } },
-        { "type": "addon", "settings": { "text": "Branded workwear to match the van — ask for the bundle" } },
-        { "type": "faq", "settings": { "question": "My van's leased.", "answer": "<p>No problem — the vinyl is fully removable and we design around your return conditions.</p>" } },
-        { "type": "faq", "settings": { "question": "How long does fitting take?", "answer": "<p>Small vans half a day, most vans a day. At your address — you keep working.</p>" } },
+        { "type": "addon", "settings": { "text": "Chapter 8 chevron pack - from £249" } },
+        { "type": "addon", "settings": { "text": "Contravision rear windows -quoted with your mockup" } },
+        { "type": "addon", "settings": { "text": "Roof ID -quoted with your mockup" } },
+        { "type": "addon", "settings": { "text": "Branded workwear to match the van -ask for the bundle" } },
+        { "type": "faq", "settings": { "question": "My van's leased.", "answer": "<p>No problem -the vinyl is fully removable and we design around your return conditions.</p>" } },
+        { "type": "faq", "settings": { "question": "How long does fitting take?", "answer": "<p>Small vans half a day, most vans a day. At your address -you keep working.</p>" } },
         { "type": "faq", "settings": { "question": "Do I lose the van?", "answer": "<p>No. That's the point of mobile fitting. It's often done while you're on the tools.</p>" } },
         { "type": "faq", "settings": { "question": "Do you cover my area?", "answer": "<p>Based in West London, we travel. Check your postcode on our <a href=\"/pages/van-designer\">coverage checker</a>.</p>" } },
         { "type": "faq", "settings": { "question": "I don't have a logo.", "answer": "<p>We'll set your name in proper signwriting as part of the design. Full logo design available if you want to go further.</p>" } },
         { "type": "faq", "settings": { "question": "How long does it last?", "answer": "<p>The vinyl is rated 5–7 years outdoors and laminated against fuel, jet washes and UK weather.</p>" } },
         { "type": "faq", "settings": { "question": "How does payment work?", "answer": "<p>Deposit to book your print slot, balance on the day it's fitted. Card or bank transfer.</p>" } },
-        { "type": "faq", "settings": { "question": "What if I change the van?", "answer": "<p>Vinyl removes cleanly, and your design stays on file — we'll re-fit it to the next van and you only pay for print and fitting.</p>" } }
+        { "type": "faq", "settings": { "question": "What if I change the van?", "answer": "<p>Vinyl removes cleanly, and your design stays on file -we'll re-fit it to the next van and you only pay for print and fitting.</p>" } }
       ]
     }
   ]
