@@ -1,0 +1,888 @@
+{%- comment -%}
+  Speed Army: wheel rim stripe designer.
+  Customer picks wheel sizes, stripe style, breaks, width, vinyl colours and optional rim text,
+  sees a live SVG preview of the wheel, then adds the kit to cart. Every choice travels on the
+  line item as properties, plus a short design code and a link that reopens the exact design.
+  Preview only: no cut files are generated. Renders inside the normal theme layout. Vanilla JS only.
+{%- endcomment -%}
+
+{%- liquid
+  assign sd_product = section.settings.product
+  assign sd_addon = section.settings.text_addon_product
+  assign sd_uid = 'sd-' | append: section.id
+-%}
+
+<style>
+  #shopify-section-{{ section.id }} .sd {
+    --sd-accent: {{ section.settings.accent | default: '#D0121B' }};
+    --sd-ink: #161616;
+    --sd-muted: #5c5c5c;
+    --sd-rule: #dcdcdc;
+    --sd-panel: #f5f5f4;
+    --sd-white: #ffffff;
+    font-family: inherit;
+    color: var(--sd-ink);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  #shopify-section-{{ section.id }} .sd *,
+  #shopify-section-{{ section.id }} .sd *::before,
+  #shopify-section-{{ section.id }} .sd *::after { box-sizing: border-box; }
+  #shopify-section-{{ section.id }} .sd-inner { max-width: 1200px; margin: 0 auto; padding: 4rem 2rem 6.4rem; }
+
+  /* ---- Header ---- */
+  #shopify-section-{{ section.id }} .sd-eyebrow {
+    display: inline-block; font-size: 1.3rem; font-weight: 700; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--sd-accent); margin: 0 0 1rem;
+  }
+  #shopify-section-{{ section.id }} .sd h1 {
+    font-size: clamp(3.2rem, 5vw, 5rem); line-height: 1; text-transform: uppercase;
+    letter-spacing: 0.01em; margin: 0 0 1.4rem;
+  }
+  #shopify-section-{{ section.id }} .sd-intro { font-size: 1.7rem; color: var(--sd-muted); max-width: 64ch; margin-bottom: 3.2rem; }
+  #shopify-section-{{ section.id }} .sd-intro p { margin: 0 0 1rem; }
+
+  /* ---- Layout ---- */
+  #shopify-section-{{ section.id }} .sd-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 4rem; align-items: start; }
+  @media (max-width: 899px) {
+    #shopify-section-{{ section.id }} .sd-grid { grid-template-columns: minmax(0, 1fr); gap: 2.4rem; }
+  }
+
+  /* ---- Preview ---- */
+  #shopify-section-{{ section.id }} .sd-stage {
+    position: sticky; top: 2rem; background: var(--sd-panel); border-radius: 12px; padding: 2rem;
+  }
+  @media (max-width: 899px) {
+    #shopify-section-{{ section.id }} .sd-stage { position: static; }
+  }
+  #shopify-section-{{ section.id }} .sd-stage__bar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.2rem; flex-wrap: wrap; }
+  #shopify-section-{{ section.id }} .sd-svg { display: block; width: 100%; max-width: 520px; height: auto; margin: 0 auto; }
+  #shopify-section-{{ section.id }} .sd-wheel { transform-box: fill-box; transform-origin: center; }
+  #shopify-section-{{ section.id }} .sd-wheel.is-spinning { animation: sd-spin-{{ section.id }} 6s linear infinite; }
+  @keyframes sd-spin-{{ section.id }} { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) {
+    #shopify-section-{{ section.id }} .sd-wheel.is-spinning { animation: none; }
+  }
+  #shopify-section-{{ section.id }} .sd-caption { text-align: center; font-size: 1.3rem; color: var(--sd-muted); margin: 1rem 0 0; }
+  #shopify-section-{{ section.id }} .sd-code {
+    display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap;
+    margin-top: 1.2rem; font-size: 1.3rem;
+  }
+  #shopify-section-{{ section.id }} .sd-code code { font-family: ui-monospace, Menlo, Consolas, monospace; background: var(--sd-white); padding: 0.3rem 0.8rem; border-radius: 4px; }
+
+  /* ---- Controls ---- */
+  #shopify-section-{{ section.id }} .sd-form { margin: 0; }
+  #shopify-section-{{ section.id }} .sd-step { border: 0; padding: 0 0 2.2rem; margin: 0 0 2.2rem; border-bottom: 1px solid var(--sd-rule); min-width: 0; }
+  #shopify-section-{{ section.id }} .sd-step:last-of-type { border-bottom: 0; }
+  #shopify-section-{{ section.id }} .sd-step legend,
+  #shopify-section-{{ section.id }} .sd-label {
+    display: block; font-size: 1.4rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+    margin: 0 0 1rem; padding: 0;
+  }
+  #shopify-section-{{ section.id }} .sd-step legend span { color: var(--sd-accent); margin-right: 0.6rem; }
+  #shopify-section-{{ section.id }} .sd-hint { font-size: 1.3rem; color: var(--sd-muted); margin: 0.6rem 0 0; }
+  #shopify-section-{{ section.id }} .sd-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+  #shopify-section-{{ section.id }} .sd-field { margin-bottom: 1.4rem; }
+  #shopify-section-{{ section.id }} .sd-field:last-child { margin-bottom: 0; }
+  #shopify-section-{{ section.id }} .sd-sublabel { display: block; font-size: 1.3rem; font-weight: 600; margin-bottom: 0.5rem; }
+  #shopify-section-{{ section.id }} .sd-input,
+  #shopify-section-{{ section.id }} .sd-select {
+    width: 100%; padding: 1rem 1.2rem; font: inherit; font-size: 1.5rem; color: var(--sd-ink);
+    background: var(--sd-white); border: 1px solid #c4c4c4; border-radius: 6px;
+  }
+  #shopify-section-{{ section.id }} .sd-input[aria-invalid="true"] { border-color: #b00020; }
+  #shopify-section-{{ section.id }} .sd-error { color: #b00020; font-size: 1.3rem; margin: 0.6rem 0 0; }
+
+  /* Segmented radios */
+  #shopify-section-{{ section.id }} .sd-seg { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  #shopify-section-{{ section.id }} .sd-seg input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+  #shopify-section-{{ section.id }} .sd-seg label {
+    flex: 1 1 auto; min-width: 9rem; text-align: center; cursor: pointer; font-size: 1.4rem; font-weight: 600;
+    padding: 1rem 1.2rem; border: 1px solid #c4c4c4; border-radius: 6px; background: var(--sd-white);
+    transition: border-color .15s, background .15s, color .15s;
+  }
+  #shopify-section-{{ section.id }} .sd-seg label small { display: block; font-weight: 400; font-size: 1.2rem; color: var(--sd-muted); }
+  #shopify-section-{{ section.id }} .sd-seg input:checked + label { border-color: var(--sd-ink); background: var(--sd-ink); color: var(--sd-white); }
+  #shopify-section-{{ section.id }} .sd-seg input:checked + label small { color: #d6d6d6; }
+  #shopify-section-{{ section.id }} .sd-seg input:focus-visible + label { outline: 3px solid var(--sd-accent); outline-offset: 2px; }
+
+  /* Swatches */
+  #shopify-section-{{ section.id }} .sd-swatches { display: flex; flex-wrap: wrap; gap: 0.8rem; }
+  #shopify-section-{{ section.id }} .sd-swatches input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+  #shopify-section-{{ section.id }} .sd-swatches label {
+    width: 4rem; height: 4rem; border-radius: 50%; cursor: pointer; position: relative;
+    border: 1px solid rgba(0,0,0,.25); box-shadow: inset 0 -6px 10px rgba(0,0,0,.12), inset 0 4px 8px rgba(255,255,255,.35);
+  }
+  #shopify-section-{{ section.id }} .sd-swatches input:checked + label { box-shadow: 0 0 0 3px var(--sd-white), 0 0 0 5px var(--sd-ink); }
+  #shopify-section-{{ section.id }} .sd-swatches input:focus-visible + label { outline: 3px solid var(--sd-accent); outline-offset: 4px; }
+  #shopify-section-{{ section.id }} .sd-swatch-name { font-size: 1.3rem; margin: 0.8rem 0 0; color: var(--sd-muted); }
+  #shopify-section-{{ section.id }} .sd-swatch-name strong { color: var(--sd-ink); }
+
+  /* Range */
+  #shopify-section-{{ section.id }} .sd-range { display: flex; align-items: center; gap: 1.2rem; }
+  #shopify-section-{{ section.id }} .sd-range input[type="range"] { flex: 1 1 auto; accent-color: var(--sd-accent); }
+  #shopify-section-{{ section.id }} .sd-range output { min-width: 5.6rem; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  /* Toggle */
+  #shopify-section-{{ section.id }} .sd-toggle { display: inline-flex; align-items: center; gap: 0.6rem; font-size: 1.3rem; cursor: pointer; }
+  #shopify-section-{{ section.id }} .sd-toggle input { accent-color: var(--sd-accent); width: 1.6rem; height: 1.6rem; }
+
+  /* ---- Buy box ---- */
+  #shopify-section-{{ section.id }} .sd-buy { background: var(--sd-panel); border-radius: 12px; padding: 2rem; }
+  #shopify-section-{{ section.id }} .sd-price-row { display: flex; justify-content: space-between; font-size: 1.4rem; color: var(--sd-muted); margin-bottom: 0.4rem; }
+  #shopify-section-{{ section.id }} .sd-price-row--total { font-size: 2rem; font-weight: 700; color: var(--sd-ink); border-top: 1px solid var(--sd-rule); padding-top: 1rem; margin: 1rem 0 1.6rem; }
+  #shopify-section-{{ section.id }} .sd-btn {
+    display: flex; width: 100%; align-items: center; justify-content: center; gap: 0.8rem;
+    font: inherit; font-size: 1.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 1.5rem 2rem; border: 2px solid var(--sd-accent); border-radius: 6px; cursor: pointer;
+    background: var(--sd-accent); color: var(--sd-white); text-decoration: none;
+  }
+  #shopify-section-{{ section.id }} .sd-btn:hover { filter: brightness(0.92); }
+  #shopify-section-{{ section.id }} .sd-btn[disabled] { opacity: .6; cursor: progress; }
+  #shopify-section-{{ section.id }} .sd-btn--ghost { background: transparent; color: var(--sd-ink); border-color: var(--sd-ink); font-size: 1.3rem; padding: 0.6rem 1.2rem; width: auto; display: inline-flex; }
+  #shopify-section-{{ section.id }} .sd-btn:focus-visible,
+  #shopify-section-{{ section.id }} .sd-input:focus-visible,
+  #shopify-section-{{ section.id }} .sd-select:focus-visible { outline: 3px solid var(--sd-accent); outline-offset: 2px; }
+  #shopify-section-{{ section.id }} .sd-status { font-size: 1.4rem; margin: 1rem 0 0; min-height: 2rem; }
+  #shopify-section-{{ section.id }} .sd-status.is-error { color: #b00020; }
+  #shopify-section-{{ section.id }} .sd-notes { list-style: none; margin: 1.6rem 0 0; padding: 0; font-size: 1.35rem; color: var(--sd-muted); }
+  #shopify-section-{{ section.id }} .sd-notes li { padding-left: 2rem; position: relative; margin-bottom: 0.5rem; }
+  #shopify-section-{{ section.id }} .sd-notes li::before { content: ""; position: absolute; left: 0.2rem; top: 0.7rem; width: 0.9rem; height: 0.5rem; border-left: 2px solid var(--sd-accent); border-bottom: 2px solid var(--sd-accent); transform: rotate(-45deg); }
+  #shopify-section-{{ section.id }} .sd-merchant { background: #fff4d6; border: 1px solid #e3c35a; border-radius: 6px; padding: 1rem 1.2rem; font-size: 1.3rem; margin-bottom: 1.6rem; }
+  #shopify-section-{{ section.id }} [hidden] { display: none !important; }
+</style>
+
+<div class="sd" id="{{ sd_uid }}">
+  <div class="sd-inner">
+    {%- if section.settings.eyebrow != blank -%}<p class="sd-eyebrow">{{ section.settings.eyebrow | escape }}</p>{%- endif -%}
+    <h1>{{ section.settings.heading | escape }}</h1>
+    {%- if section.settings.intro != blank -%}<div class="sd-intro">{{ section.settings.intro }}</div>{%- endif -%}
+
+    <div class="sd-grid">
+      {%- comment -%} ---- Live preview ---- {%- endcomment -%}
+      <div class="sd-stage">
+        <div class="sd-stage__bar">
+          <div class="sd-seg" role="radiogroup" aria-label="Preview wheel">
+            <input type="radio" name="{{ sd_uid }}-view" id="{{ sd_uid }}-view-front" value="front" data-sd="view" checked>
+            <label for="{{ sd_uid }}-view-front">Front</label>
+            <input type="radio" name="{{ sd_uid }}-view" id="{{ sd_uid }}-view-rear" value="rear" data-sd="view">
+            <label for="{{ sd_uid }}-view-rear">Rear</label>
+          </div>
+          <label class="sd-toggle"><input type="checkbox" data-sd="spin"> Spin</label>
+        </div>
+        <svg class="sd-svg" viewBox="0 0 400 400" role="img" aria-labelledby="{{ sd_uid }}-svg-title" data-sd-svg>
+          <title id="{{ sd_uid }}-svg-title">Wheel stripe preview</title>
+          <g class="sd-wheel" data-sd-wheel></g>
+          <g data-sd-fixed></g>
+        </svg>
+        <p class="sd-caption">Preview only. Proportions are to scale for your wheel size; colours vary slightly on screen.</p>
+        <div class="sd-code">
+          <span>Design code <code data-sd-code></code></span>
+          <button type="button" class="sd-btn sd-btn--ghost" data-sd-share>Copy design link</button>
+        </div>
+      </div>
+
+      {%- comment -%} ---- Controls ---- {%- endcomment -%}
+      <form class="sd-form" data-sd-form novalidate>
+        <fieldset class="sd-step">
+          <legend><span>01</span>Your bike</legend>
+          <div class="sd-field">
+            <label class="sd-sublabel" for="{{ sd_uid }}-bike">Make, model and year</label>
+            <input class="sd-input" type="text" id="{{ sd_uid }}-bike" data-sd="bike" maxlength="60" autocomplete="off" placeholder="e.g. Yamaha MT-07 2021" aria-describedby="{{ sd_uid }}-bike-hint {{ sd_uid }}-bike-err">
+            <p class="sd-hint" id="{{ sd_uid }}-bike-hint">We cut every kit to your exact rim, so we need the bike.</p>
+            <p class="sd-error" id="{{ sd_uid }}-bike-err" data-sd-bike-err hidden>Please tell us the bike so we can cut the kit to fit.</p>
+          </div>
+          <div class="sd-row">
+            <div class="sd-field">
+              <label class="sd-sublabel" for="{{ sd_uid }}-front">Front wheel</label>
+              <select class="sd-select" id="{{ sd_uid }}-front" data-sd="front"></select>
+            </div>
+            <div class="sd-field">
+              <label class="sd-sublabel" for="{{ sd_uid }}-rear">Rear wheel</label>
+              <select class="sd-select" id="{{ sd_uid }}-rear" data-sd="rear"></select>
+            </div>
+          </div>
+          <p class="sd-hint">Not sure? The size is on the tyre sidewall, e.g. 120/70 <strong>ZR17</strong> is a 17&Prime; wheel.</p>
+        </fieldset>
+
+        <fieldset class="sd-step">
+          <legend><span>02</span>Stripe style</legend>
+          <div class="sd-seg" data-sd-styles></div>
+          <div class="sd-field" data-sd-breaks-wrap style="margin-top:1.4rem">
+            <label class="sd-sublabel" for="{{ sd_uid }}-breaks">Pieces per side</label>
+            <div class="sd-range">
+              <input type="range" id="{{ sd_uid }}-breaks" data-sd="breaks" min="2" max="8" step="1">
+              <output data-sd-out="breaks"></output>
+            </div>
+          </div>
+          <div class="sd-field" data-sd-gap-wrap>
+            <label class="sd-sublabel" for="{{ sd_uid }}-gap">Gap between pieces</label>
+            <div class="sd-range">
+              <input type="range" id="{{ sd_uid }}-gap" data-sd="gap" min="2" max="24" step="1">
+              <output data-sd-out="gap"></output>
+            </div>
+          </div>
+          <div class="sd-field">
+            <span class="sd-sublabel" id="{{ sd_uid }}-width-l">Stripe width</span>
+            <div class="sd-seg" role="radiogroup" aria-labelledby="{{ sd_uid }}-width-l" data-sd-widths></div>
+          </div>
+        </fieldset>
+
+        <fieldset class="sd-step">
+          <legend><span>03</span>Colours</legend>
+          <div class="sd-field">
+            <span class="sd-sublabel" id="{{ sd_uid }}-colour-l">Stripe colour</span>
+            <div class="sd-swatches" role="radiogroup" aria-labelledby="{{ sd_uid }}-colour-l" data-sd-swatches="colour"></div>
+            <p class="sd-swatch-name" data-sd-name="colour"></p>
+          </div>
+          <div class="sd-field" data-sd-accent-wrap>
+            <span class="sd-sublabel" id="{{ sd_uid }}-accent-l" data-sd-accent-label>Second colour</span>
+            <div class="sd-swatches" role="radiogroup" aria-labelledby="{{ sd_uid }}-accent-l" data-sd-swatches="accent"></div>
+            <p class="sd-swatch-name" data-sd-name="accent"></p>
+          </div>
+          <div class="sd-field">
+            <span class="sd-sublabel" id="{{ sd_uid }}-rim-l">Your rim colour <small>(preview only)</small></span>
+            <div class="sd-swatches" role="radiogroup" aria-labelledby="{{ sd_uid }}-rim-l" data-sd-swatches="rim"></div>
+            <p class="sd-swatch-name" data-sd-name="rim"></p>
+          </div>
+        </fieldset>
+
+        {%- if section.settings.enable_text -%}
+        <fieldset class="sd-step">
+          <legend><span>04</span>Rim text <small style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</small></legend>
+          <div class="sd-field">
+            <label class="sd-sublabel" for="{{ sd_uid }}-text">Text set into the stripe</label>
+            <input class="sd-input" type="text" id="{{ sd_uid }}-text" data-sd="text" maxlength="14" autocomplete="off" placeholder="e.g. RACING or your name" aria-describedby="{{ sd_uid }}-text-hint">
+            <p class="sd-hint" id="{{ sd_uid }}-text-hint">Up to 14 letters, numbers or spaces. Cut in your second colour.{% if sd_addon != blank %} Adds {{ sd_addon.selected_or_first_available_variant.price | money }}.{% endif %}</p>
+          </div>
+        </fieldset>
+        {%- endif -%}
+
+        <div class="sd-buy">
+          {%- if request.design_mode and sd_product == blank -%}
+            <p class="sd-merchant"><strong>Store owner:</strong> pick the wheel stripe kit product in this section's settings. Until then the button sends customers to the quote page.</p>
+          {%- endif -%}
+
+          <fieldset class="sd-step" data-sd-coverage-wrap style="border:0;padding:0;margin:0 0 1.6rem">
+            <legend>Kit</legend>
+            <div class="sd-seg" data-sd-coverage></div>
+          </fieldset>
+
+          <div data-sd-pricebox>
+            <div class="sd-price-row"><span>Stripe kit</span><span data-sd-price="kit"></span></div>
+            <div class="sd-price-row" data-sd-price-addon-row hidden><span>Rim text</span><span data-sd-price="addon"></span></div>
+            <div class="sd-price-row sd-price-row--total"><span>Total</span><span data-sd-price="total" aria-live="polite"></span></div>
+          </div>
+
+          <button type="submit" class="sd-btn" data-sd-submit>{{ section.settings.button_label | escape }}</button>
+          <p class="sd-status" data-sd-status role="status" aria-live="polite"></p>
+
+          {%- if section.settings.notes != blank -%}
+            <ul class="sd-notes">
+              {%- assign sd_notes = section.settings.notes | newline_to_br | split: '<br />' -%}
+              {%- for note in sd_notes -%}
+                {%- assign n = note | strip -%}
+                {%- if n != blank -%}<li>{{ n | escape }}</li>{%- endif -%}
+              {%- endfor -%}
+            </ul>
+          {%- endif -%}
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="application/json" data-sd-config>
+    {
+      "product": {% if sd_product != blank %}{{ sd_product | json }}{% else %}null{% endif %},
+      "addon": {% if sd_addon != blank %}{{ sd_addon | json }}{% else %}null{% endif %},
+      "moneyFormat": {{ shop.money_format | json }},
+      "quoteUrl": {{ section.settings.quote_url | default: '/pages/contact' | json }},
+      "cartUrl": {{ routes.cart_url | json }},
+      "cartAddUrl": {{ routes.cart_add_url | append: '.js' | json }},
+      "afterAdd": {{ section.settings.after_add | json }},
+      "colours": [
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'colour' -%}
+            {"name": {{ block.settings.name | json }}, "hex": {{ block.settings.hex | json }}, "accentOnly": {% if block.settings.accent_only %}true{% else %}false{% endif %}}{% unless forloop.last %},{% endunless %}
+          {%- endif -%}
+        {%- endfor -%}
+      ]
+    }
+  </script>
+</div>
+
+<script>
+  (function () {
+    var root = document.getElementById('{{ sd_uid }}');
+    if (!root) return;
+    var cfgEl = root.querySelector('[data-sd-config]');
+    var cfg;
+    try { cfg = JSON.parse(cfgEl.textContent); } catch (e) { return; }
+
+    var SVGNS = 'http://www.w3.org/2000/svg';
+    var UID = '{{ sd_uid }}';
+
+    // ---- Options ----
+    var FRONT_SIZES = [12, 13, 14, 15, 16, 17, 18, 19, 21, 23];
+    var REAR_SIZES = [12, 13, 14, 15, 16, 17, 18, 19];
+    var STYLES = [
+      { id: 'full', label: 'Full ring', hint: 'One unbroken line', code: 'FUL' },
+      { id: 'segments', label: 'Segments', hint: 'Evenly broken', code: 'SEG' },
+      { id: 'tapered', label: 'Tapered', hint: 'Blade ends', code: 'TAP' },
+      { id: 'twin', label: 'Twin line', hint: 'Two colours', code: 'TWN' }
+    ];
+    var WIDTHS = [5, 7, 10, 12];
+    var RIMS = [
+      { name: 'Black', hex: '#1d1d1f' },
+      { name: 'Silver', hex: '#b9bcc0' },
+      { name: 'Gunmetal', hex: '#4a4e54' },
+      { name: 'White', hex: '#ececea' },
+      { name: 'Gold', hex: '#b8913f' },
+      { name: 'Blue', hex: '#1d3f8f' },
+      { name: 'Red', hex: '#9e1a1f' },
+      { name: 'Orange', hex: '#e2621b' }
+    ];
+    var COLOURS = (cfg.colours || []).filter(function (c) { return c && c.name && /^#[0-9a-f]{3,8}$/i.test(c.hex || ''); });
+    if (!COLOURS.length) {
+      COLOURS = [
+        { name: 'Gloss White', hex: '#f5f5f3' }, { name: 'Gloss Black', hex: '#111111' },
+        { name: 'Red', hex: '#d0121b' }, { name: 'Yellow', hex: '#ffd100' }
+      ];
+    }
+    var STRIPE_COLOURS = COLOURS.filter(function (c) { return !c.accentOnly; });
+    if (!STRIPE_COLOURS.length) STRIPE_COLOURS = COLOURS;
+
+    var state = {
+      view: 'front', spin: false, bike: '',
+      front: 17, rear: 17,
+      style: 'segments', breaks: 4, gap: 8, width: 7,
+      colour: (STRIPE_COLOURS[2] || STRIPE_COLOURS[0]).name,
+      accent: COLOURS[0].name,
+      rim: 'Black', text: '', coverage: null
+    };
+
+    // ---- Helpers ----
+    function $(sel) { return root.querySelector(sel); }
+    function $all(sel) { return Array.prototype.slice.call(root.querySelectorAll(sel)); }
+    function el(tag, attrs, parent) {
+      var n = document.createElementNS(SVGNS, tag);
+      for (var k in attrs) if (Object.prototype.hasOwnProperty.call(attrs, k)) n.setAttribute(k, attrs[k]);
+      if (parent) parent.appendChild(n);
+      return n;
+    }
+    function byName(list, name) {
+      for (var i = 0; i < list.length; i++) if (list[i].name === name) return list[i];
+      return list[0];
+    }
+    function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+    function cleanText(t) { return String(t || '').toUpperCase().replace(/[^A-Z0-9 &.\-!']/g, '').replace(/\s+/g, ' ').slice(0, 14); }
+    function shade(hex, amt) {
+      var h = hex.replace('#', '');
+      if (h.length === 3) h = h.replace(/./g, '$&$&');
+      var n = parseInt(h.slice(0, 6), 16);
+      var r = clamp(((n >> 16) & 255) + amt, 0, 255), g = clamp(((n >> 8) & 255) + amt, 0, 255), b = clamp((n & 255) + amt, 0, 255);
+      return '#' + ((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1);
+    }
+    function formatMoney(cents, format) {
+      if (typeof cents !== 'number' || isNaN(cents)) return '';
+      format = format || '\u00A3\x7b\x7bamount\x7d\x7d';
+      function delim(num, precision, thousands, decimal) {
+        var parts = (num / 100).toFixed(precision).split('.');
+        parts[0] = parts[0].replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1' + thousands);
+        return parts[1] ? parts[0] + decimal + parts[1] : parts[0];
+      }
+      return format.replace(/\{\{\s*(\w+)\s*\}\}/, function (_, key) {
+        switch (key) {
+          case 'amount_no_decimals': return delim(cents, 0, ',', '.');
+          case 'amount_with_comma_separator': return delim(cents, 2, '.', ',');
+          case 'amount_no_decimals_with_comma_separator': return delim(cents, 0, '.', ',');
+          case 'amount_with_apostrophe_separator': return delim(cents, 2, "'", '.');
+          default: return delim(cents, 2, ',', '.');
+        }
+      });
+    }
+
+    // ---- Geometry: degrees clockwise from 12 o'clock ----
+    var C = 200;
+    var RIM_OUT = 156, RIM_IN = 124, STRIPE_R = 140;
+    function pt(r, a) { var t = a * Math.PI / 180; return [C + r * Math.sin(t), C - r * Math.cos(t)]; }
+    function arcPath(r, a0, a1) {
+      var p0 = pt(r, a0), p1 = pt(r, a1), large = (a1 - a0) > 180 ? 1 : 0;
+      return 'M' + p0[0].toFixed(2) + ' ' + p0[1].toFixed(2) + ' A' + r + ' ' + r + ' 0 ' + large + ' 1 ' + p1[0].toFixed(2) + ' ' + p1[1].toFixed(2);
+    }
+    function taperPath(r, a0, a1, w) {
+      var steps = 48, outer = [], inner = [];
+      for (var i = 0; i <= steps; i++) {
+        var t = i / steps, a = a0 + (a1 - a0) * t;
+        var hw = (w / 2) * Math.pow(Math.sin(Math.PI * t), 0.55);
+        outer.push(pt(r + hw, a));
+        inner.unshift(pt(r - hw, a));
+      }
+      return 'M' + outer.concat(inner).map(function (p) { return p[0].toFixed(2) + ' ' + p[1].toFixed(2); }).join(' L') + ' Z';
+    }
+
+    // Stripe width in preview px, to scale with the rim diameter.
+    function stripePx(mm, inches) { return mm * (RIM_OUT / (inches * 25.4 / 2)); }
+
+    function layout() {
+      var text = state.text;
+      var n = state.style === 'full' ? 1 : state.breaks;
+      if (state.style === 'twin') n = state.breaks;
+      var gap = n > 1 ? state.gap : 0;
+      var inches = state.view === 'front' ? state.front : state.rear;
+      var w = stripePx(state.width, inches);
+      var fs = clamp(w * 1.55, 9, 16);
+      if (text) {
+        if (n < 2) n = 2;
+        var textDeg = ((text.length * fs * 0.68) + fs * 1.2) / STRIPE_R * 180 / Math.PI;
+        gap = Math.max(gap, textDeg);
+      }
+      // Never let gaps eat the whole ring.
+      gap = Math.min(gap, 360 / n * 0.7);
+      // With text, the first gap sits at 12 o'clock so it reads upright.
+      return { n: n, gap: gap, w: w, fs: fs, step: 360 / n, offset: text ? 0 : -90 / n };
+    }
+
+    // ---- Render ----
+    var wheel = $('[data-sd-wheel]');
+    var svg = $('[data-sd-svg]');
+    var fixed = $('[data-sd-fixed]');
+    function render() {
+      while (wheel.firstChild) wheel.removeChild(wheel.firstChild);
+      while (fixed.firstChild) fixed.removeChild(fixed.firstChild);
+      var rim = byName(RIMS, state.rim).hex;
+      var colour = byName(COLOURS, state.colour).hex;
+      var accent = byName(COLOURS, state.accent).hex;
+      var L = layout();
+
+      // Tyre
+      el('circle', { cx: C, cy: C, r: 197, fill: '#151515' }, wheel);
+      el('circle', { cx: C, cy: C, r: 191, fill: 'none', stroke: '#262626', 'stroke-width': 9, 'stroke-dasharray': '7 5' }, wheel);
+      el('circle', { cx: C, cy: C, r: 176, fill: '#1e1e1e' }, wheel);
+      el('circle', { cx: C, cy: C, r: 161, fill: '#111' }, wheel);
+
+      // Rim lip
+      el('circle', { cx: C, cy: C, r: RIM_OUT, fill: rim }, wheel);
+      el('circle', { cx: C, cy: C, r: RIM_OUT - 1, fill: 'none', stroke: shade(rim, 40), 'stroke-width': 1.5, opacity: 0.6 }, wheel);
+      el('circle', { cx: C, cy: C, r: RIM_IN, fill: '#0c0c0c' }, wheel);
+      el('circle', { cx: C, cy: C, r: RIM_IN + 0.5, fill: 'none', stroke: shade(rim, -40), 'stroke-width': 2 }, wheel);
+
+      // Brake disc (front) or sprocket (rear), behind the spokes
+      if (state.view === 'front') {
+        el('circle', { cx: C, cy: C, r: 98, fill: '#8f9296' }, wheel);
+        el('circle', { cx: C, cy: C, r: 92, fill: 'none', stroke: '#6f7276', 'stroke-width': 2, 'stroke-dasharray': '2 9' }, wheel);
+        el('circle', { cx: C, cy: C, r: 66, fill: '#2a2a2c' }, wheel);
+        el('rect', { x: C + 92, y: C - 48, width: 26, height: 60, rx: 6, fill: '#c0201f', transform: 'rotate(30 ' + C + ' ' + C + ')' }, fixed);
+      } else {
+        el('circle', { cx: C, cy: C, r: 82, fill: 'none', stroke: '#5e6166', 'stroke-width': 10, 'stroke-dasharray': '6 4' }, wheel);
+        el('circle', { cx: C, cy: C, r: 76, fill: '#5e6166' }, wheel);
+        el('circle', { cx: C, cy: C, r: 58, fill: '#2a2a2c' }, wheel);
+      }
+
+      // Split five-spoke cast wheel
+      for (var s = 0; s < 5; s++) {
+        var base = s * 72;
+        [-7, 7].forEach(function (d) {
+          var a = base + d;
+          var p1 = pt(38, a - 9), p2 = pt(38, a + 9), p3 = pt(RIM_IN + 2, a + d * 0.55 + 3), p4 = pt(RIM_IN + 2, a + d * 0.55 - 3);
+          el('path', {
+            d: 'M' + p1.join(' ') + ' L' + p4.join(' ') + ' L' + p3.join(' ') + ' L' + p2.join(' ') + ' Z',
+            fill: rim, stroke: shade(rim, -30), 'stroke-width': 1
+          }, wheel);
+        });
+      }
+      el('circle', { cx: C, cy: C, r: 40, fill: rim, stroke: shade(rim, -30), 'stroke-width': 1 }, wheel);
+      el('circle', { cx: C, cy: C, r: 16, fill: '#7b7e82' }, wheel);
+      el('circle', { cx: C, cy: C, r: 7, fill: '#2a2a2c' }, wheel);
+
+      // Stripes
+      var g = el('g', { 'stroke-linecap': 'butt' }, wheel);
+      var pieces = [];
+      if (L.n === 1) {
+        pieces.push([0, 360]);
+      } else {
+        for (var i = 0; i < L.n; i++) {
+          var gc = L.offset + i * L.step;
+          pieces.push([gc + L.gap / 2, gc + L.step - L.gap / 2]);
+        }
+      }
+      pieces.forEach(function (p) {
+        if (state.style === 'tapered') {
+          el('path', { d: taperPath(STRIPE_R, p[0], p[1], L.w), fill: colour }, g);
+        } else if (state.style === 'twin') {
+          var lw = L.w * 0.4, off = L.w * 0.32;
+          drawArc(g, STRIPE_R + off, p, lw, colour);
+          drawArc(g, STRIPE_R - off, p, lw, accent);
+        } else {
+          drawArc(g, STRIPE_R, p, L.w, colour);
+        }
+      });
+
+      // Rim text, centred in each gap
+      if (state.text) {
+        var pathId = UID + '-textpath';
+        // Path starts mid-piece so no word ever straddles the join.
+        var start = L.offset + L.step / 2;
+        var baseR = STRIPE_R - L.fs * 0.34;
+        var d = arcPath(baseR, start, start + 180) + ' ' + arcPath(baseR, start + 180, start + 359.99).replace(/^M[^A]+/, '');
+        var defs = el('defs', {}, wheel);
+        el('path', { id: pathId, d: d }, defs);
+        var circ = 2 * Math.PI * baseR;
+        for (var j = 0; j < L.n; j++) {
+          var gapCentre = L.offset + j * L.step;
+          var rel = ((gapCentre - start) % 360 + 360) % 360;
+          var t = el('text', {
+            fill: accent, 'font-size': L.fs.toFixed(1), 'font-weight': 800,
+            'font-family': 'Impact, "Arial Narrow Bold", "Arial Black", sans-serif', 'letter-spacing': '0.6'
+          }, wheel);
+          var tp = el('textPath', { href: '#' + pathId, startOffset: (rel / 360 * circ).toFixed(2), 'text-anchor': 'middle' }, t);
+          tp.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', '#' + pathId);
+          tp.textContent = state.text;
+        }
+      }
+
+      wheel.classList.toggle('is-spinning', !!state.spin);
+      var title = svg.querySelector('title');
+      if (title) {
+        title.textContent = (state.view === 'front' ? 'Front ' + state.front : 'Rear ' + state.rear) + ' inch ' + state.rim.toLowerCase() +
+          ' wheel with ' + styleLabel().toLowerCase() + ' stripes in ' + state.colour + (state.text ? ', text "' + state.text + '"' : '');
+      }
+      $('[data-sd-code]').textContent = designCode();
+    }
+    function drawArc(parent, r, p, width, colour) {
+      if (p[1] - p[0] >= 359.9) {
+        el('circle', { cx: C, cy: C, r: r, fill: 'none', stroke: colour, 'stroke-width': width.toFixed(2) }, parent);
+      } else {
+        el('path', { d: arcPath(r, p[0], p[1]), fill: 'none', stroke: colour, 'stroke-width': width.toFixed(2) }, parent);
+      }
+    }
+    function styleLabel() { for (var i = 0; i < STYLES.length; i++) if (STYLES[i].id === state.style) return STYLES[i].label; return ''; }
+    function styleCode() { for (var i = 0; i < STYLES.length; i++) if (STYLES[i].id === state.style) return STYLES[i].code; return 'SEG'; }
+    // Colour code from the name (Red -> RED, Gloss White -> GW) so reordering swatches never changes a code's meaning.
+    function abbr(name) {
+      var words = String(name).toUpperCase().replace(/[^A-Z0-9 ]/g, '').split(' ').filter(Boolean);
+      if (!words.length) return 'X';
+      return words.length > 1 ? words.map(function (w) { return w[0]; }).join('') : words[0].slice(0, 3);
+    }
+    function designCode() {
+      var L = layout();
+      return [
+        'SA', styleCode() + L.n, 'G' + Math.round(L.gap), 'W' + state.width,
+        'F' + state.front + 'R' + state.rear,
+        abbr(state.colour) + (usesAccent() ? '.' + abbr(state.accent) : ''),
+        state.text ? 'T' : ''
+      ].filter(Boolean).join('-');
+    }
+    function usesAccent() { return state.style === 'twin' || !!state.text; }
+
+    // ---- Build controls ----
+    function fillSelect(sel, sizes, value) {
+      sizes.forEach(function (s) {
+        var o = document.createElement('option');
+        o.value = s; o.textContent = s + '"';
+        if (s === value) o.selected = true;
+        sel.appendChild(o);
+      });
+    }
+    function radio(container, name, value, labelHtml, checked, key) {
+      var id = UID + '-' + name + '-' + String(value).replace(/[^a-z0-9]/gi, '');
+      var input = document.createElement('input');
+      input.type = 'radio'; input.name = UID + '-' + name; input.id = id; input.value = value;
+      input.setAttribute('data-sd', key || name);
+      if (checked) input.checked = true;
+      var label = document.createElement('label');
+      label.htmlFor = id;
+      label.innerHTML = labelHtml;
+      container.appendChild(input);
+      container.appendChild(label);
+      return { input: input, label: label };
+    }
+    function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+
+    fillSelect($('[data-sd="front"]'), FRONT_SIZES, state.front);
+    fillSelect($('[data-sd="rear"]'), REAR_SIZES, state.rear);
+    STYLES.forEach(function (s) {
+      radio($('[data-sd-styles]'), 'style', s.id, esc(s.label) + '<small>' + esc(s.hint) + '</small>', s.id === state.style);
+    });
+    WIDTHS.forEach(function (w) {
+      radio($('[data-sd-widths]'), 'width', w, w + ' mm', w === state.width);
+    });
+    function swatches(key, list) {
+      var box = $('[data-sd-swatches="' + key + '"]');
+      list.forEach(function (c) {
+        var r = radio(box, key, c.name, '', c.name === state[key]);
+        r.label.style.background = c.hex;
+        r.label.title = c.name;
+        r.input.setAttribute('aria-label', c.name);
+      });
+    }
+    swatches('colour', STRIPE_COLOURS);
+    swatches('accent', COLOURS);
+    swatches('rim', RIMS);
+
+    // ---- Product / coverage ----
+    var product = cfg.product;
+    var variants = product && product.variants ? product.variants.filter(function (v) { return v.available !== false; }) : [];
+    var STATIC_COVERAGE = ['Front & rear', 'Front only', 'Rear only'];
+    var coverageBox = $('[data-sd-coverage]');
+    if (variants.length > 1) {
+      variants.forEach(function (v, i) {
+        radio(coverageBox, 'coverage', v.id, esc(v.title) + '<small>' + esc(formatMoney(v.price, cfg.moneyFormat)) + '</small>', i === 0);
+      });
+      state.coverage = String(variants[0].id);
+    } else {
+      STATIC_COVERAGE.forEach(function (label, i) { radio(coverageBox, 'coverage', label, esc(label), i === 0); });
+      state.coverage = STATIC_COVERAGE[0];
+    }
+    var addonVariant = null;
+    if (cfg.addon && cfg.addon.variants) {
+      for (var a = 0; a < cfg.addon.variants.length; a++) if (cfg.addon.variants[a].available !== false) { addonVariant = cfg.addon.variants[a]; break; }
+    }
+    function currentVariant() {
+      if (!variants.length) return null;
+      if (variants.length === 1) return variants[0];
+      for (var i = 0; i < variants.length; i++) if (String(variants[i].id) === String(state.coverage)) return variants[i];
+      return variants[0];
+    }
+    function coverageLabel() {
+      var v = currentVariant();
+      return variants.length > 1 && v ? v.title : state.coverage;
+    }
+
+    var submitBtn = $('[data-sd-submit]');
+    var buttonLabel = submitBtn.textContent;
+    function updatePrice() {
+      var v = currentVariant();
+      var box = $('[data-sd-pricebox]');
+      if (!v) {
+        box.hidden = true;
+        submitBtn.textContent = 'Send design for a quote';
+        return;
+      }
+      box.hidden = false;
+      var withAddon = !!(state.text && addonVariant);
+      $('[data-sd-price="kit"]').textContent = formatMoney(v.price, cfg.moneyFormat);
+      $('[data-sd-price-addon-row]').hidden = !withAddon;
+      if (withAddon) $('[data-sd-price="addon"]').textContent = formatMoney(addonVariant.price, cfg.moneyFormat);
+      $('[data-sd-price="total"]').textContent = formatMoney(v.price + (withAddon ? addonVariant.price : 0), cfg.moneyFormat);
+      submitBtn.textContent = buttonLabel;
+    }
+
+    // ---- UI sync ----
+    function syncUi() {
+      var multi = state.style !== 'full';
+      var range = $('[data-sd="breaks"]');
+      range.min = state.style === 'twin' ? 1 : 2;
+      if (state.breaks < +range.min) state.breaks = +range.min;
+      range.value = state.breaks;
+      $('[data-sd-breaks-wrap]').hidden = !multi;
+      $('[data-sd-gap-wrap]').hidden = !multi || state.breaks < 2;
+      $('[data-sd="gap"]').value = state.gap;
+      $('[data-sd-out="breaks"]').textContent = state.breaks === 1 ? 'Full' : state.breaks;
+      $('[data-sd-out="gap"]').textContent = state.gap + '°';
+      $('[data-sd-accent-wrap]').hidden = !usesAccent();
+      $('[data-sd-accent-label]').textContent = state.style === 'twin' ? 'Inner line colour' : 'Text colour';
+      ['colour', 'accent', 'rim'].forEach(function (k) {
+        var nameEl = $('[data-sd-name="' + k + '"]');
+        if (nameEl) nameEl.innerHTML = '<strong>' + esc(state[k]) + '</strong>';
+      });
+      updatePrice();
+      render();
+    }
+
+    root.addEventListener('input', onChange);
+    root.addEventListener('change', onChange);
+    function onChange(e) {
+      var key = e.target.getAttribute('data-sd');
+      if (!key) return;
+      var v = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+      switch (key) {
+        case 'front': case 'rear': state[key] = parseInt(v, 10); state.view = key; checkView(); break;
+        case 'breaks': case 'gap': case 'width': state[key] = parseInt(v, 10); break;
+        case 'text': state.text = cleanText(v); if (e.type === 'change') e.target.value = state.text; break;
+        case 'bike': state.bike = String(v).trim().slice(0, 60); if (state.bike) showBikeError(false); break;
+        default: state[key] = v;
+      }
+      syncUi();
+    }
+    function checkView() {
+      var r = root.querySelector('[data-sd="view"][value="' + state.view + '"]');
+      if (r) r.checked = true;
+    }
+
+    // ---- Shareable link (hash) ----
+    function toHash() {
+      var p = new URLSearchParams();
+      p.set('s', state.style); p.set('n', state.breaks); p.set('g', state.gap); p.set('w', state.width);
+      p.set('f', state.front); p.set('r', state.rear); p.set('c', state.colour); p.set('a', state.accent); p.set('rim', state.rim);
+      if (state.text) p.set('t', state.text);
+      return 'stripe&' + p.toString();
+    }
+    function fromHash() {
+      var h = (location.hash || '').replace(/^#/, '');
+      if (h.indexOf('stripe&') !== 0) return;
+      var p = new URLSearchParams(h.slice(7));
+      function num(k, lo, hi) { var n = parseInt(p.get(k), 10); return isNaN(n) ? null : clamp(n, lo, hi); }
+      if (STYLES.some(function (s) { return s.id === p.get('s'); })) state.style = p.get('s');
+      var n = num('n', 1, 8); if (n !== null) state.breaks = n;
+      var g = num('g', 2, 24); if (g !== null) state.gap = g;
+      var w = num('w', 1, 99); if (w !== null && WIDTHS.indexOf(w) > -1) state.width = w;
+      var f = num('f', 1, 99); if (f !== null && FRONT_SIZES.indexOf(f) > -1) state.front = f;
+      var r = num('r', 1, 99); if (r !== null && REAR_SIZES.indexOf(r) > -1) state.rear = r;
+      if (STRIPE_COLOURS.some(function (c) { return c.name === p.get('c'); })) state.colour = p.get('c');
+      if (COLOURS.some(function (c) { return c.name === p.get('a'); })) state.accent = p.get('a');
+      if (RIMS.some(function (c) { return c.name === p.get('rim'); })) state.rim = p.get('rim');
+      if (p.get('t')) state.text = cleanText(p.get('t'));
+      // Reflect into controls
+      $('[data-sd="front"]').value = state.front;
+      $('[data-sd="rear"]').value = state.rear;
+      var t = $('[data-sd="text"]'); if (t) t.value = state.text;
+      ['style', 'width', 'colour', 'accent', 'rim'].forEach(function (k) {
+        $all('[data-sd="' + k + '"]').forEach(function (i) { i.checked = String(i.value) === String(state[k]); });
+      });
+    }
+    function shareUrl() { return location.href.split('#')[0] + '#' + toHash(); }
+    $('[data-sd-share]').addEventListener('click', function () {
+      var url = shareUrl();
+      var btn = this;
+      function done(ok) { btn.textContent = ok ? 'Link copied' : 'Copy failed'; setTimeout(function () { btn.textContent = 'Copy design link'; }, 2000); }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(function () { done(true); }, function () { done(false); });
+      } else {
+        try { history.replaceState(null, '', url); done(true); } catch (e) { done(false); }
+      }
+    });
+
+    // ---- Submit ----
+    var status = $('[data-sd-status]');
+    function setStatus(msg, isError) { status.textContent = msg; status.classList.toggle('is-error', !!isError); }
+    function showBikeError(show) {
+      var input = $('[data-sd="bike"]');
+      $('[data-sd-bike-err]').hidden = !show;
+      input.setAttribute('aria-invalid', show ? 'true' : 'false');
+    }
+    function properties() {
+      var L = layout();
+      var props = {
+        'Bike': state.bike,
+        'Front wheel': state.front + '"',
+        'Rear wheel': state.rear + '"',
+        'Style': styleLabel(),
+        'Pieces per side': L.n === 1 ? 'Full ring' : String(L.n),
+        'Stripe width': state.width + ' mm',
+        'Stripe colour': state.colour
+      };
+      if (L.n > 1) props['Gap'] = Math.round(L.gap) + '°';
+      if (state.style === 'twin') props['Inner line colour'] = state.accent;
+      if (state.text) { props['Rim text'] = state.text; props['Text colour'] = state.accent; }
+      props['Rim colour'] = state.rim;
+      if (variants.length <= 1) props['Kit'] = coverageLabel();
+      props['Design code'] = designCode();
+      props['_Design link'] = shareUrl();
+      return props;
+    }
+
+    $('[data-sd-form]').addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!state.bike) {
+        showBikeError(true);
+        $('[data-sd="bike"]').focus();
+        return;
+      }
+      var v = currentVariant();
+      if (!v) {
+        var q = new URLSearchParams({ design: designCode(), bike: state.bike, link: shareUrl() });
+        location.href = cfg.quoteUrl + (cfg.quoteUrl.indexOf('?') > -1 ? '&' : '?') + q.toString();
+        return;
+      }
+      var props = properties();
+      var items = [{ id: v.id, quantity: 1, properties: props }];
+      if (state.text && addonVariant) {
+        items.push({ id: addonVariant.id, quantity: 1, properties: { 'For design': props['Design code'], 'Rim text': state.text } });
+      }
+      submitBtn.disabled = true;
+      setStatus('Adding your kit to the basket...');
+      fetch(cfg.cartAddUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ items: items })
+      }).then(function (res) {
+        return res.json().then(function (data) { return { ok: res.ok, data: data }; });
+      }).then(function (r) {
+        if (!r.ok) throw new Error((r.data && (r.data.description || r.data.message)) || 'Could not add to basket');
+        try {
+          if (window.dataLayer && typeof window.dataLayer.push === 'function') {
+            window.dataLayer.push({ event: 'sd_add_to_cart', design: props['Design code'], style: state.style });
+          }
+        } catch (err) {}
+        if (cfg.afterAdd === 'cart') {
+          location.href = cfg.cartUrl;
+        } else {
+          setStatus('Added to your basket.');
+          document.dispatchEvent(new CustomEvent('cart:refresh', { bubbles: true }));
+          submitBtn.disabled = false;
+        }
+      }).catch(function (err) {
+        setStatus(err.message || 'Something went wrong. Please try again.', true);
+        submitBtn.disabled = false;
+      });
+    });
+
+    fromHash();
+    checkView();
+    syncUi();
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Stripe designer",
+  "tag": "section",
+  "class": "sa-section sa-section--stripe-designer",
+  "settings": [
+    { "type": "header", "content": "Heading" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "WHEEL RIM STRIPES" },
+    { "type": "text", "id": "heading", "label": "H1", "default": "DESIGN YOUR WHEEL STRIPES" },
+    { "type": "richtext", "id": "intro", "label": "Intro", "default": "<p>Pick your style, width and colours and see it on your wheel before you buy. Every kit is die-cut from outdoor-grade vinyl to fit your exact rim, front and rear, both sides.</p>" },
+
+    { "type": "header", "content": "Product" },
+    { "type": "product", "id": "product", "label": "Stripe kit product", "info": "If it has variants (e.g. Front & rear / Front only / Rear only), customers choose between them. With no product the button sends customers to the quote page." },
+    { "type": "checkbox", "id": "enable_text", "label": "Offer rim text", "default": true },
+    { "type": "product", "id": "text_addon_product", "label": "Rim text add-on product", "info": "Optional. Added to the basket alongside the kit when a customer adds text. Leave empty to include text free." },
+    { "type": "url", "id": "quote_url", "label": "Quote page (fallback)", "info": "Receives ?design=, &bike= and &link= in the URL." },
+    {
+      "type": "select", "id": "after_add", "label": "After adding to basket",
+      "options": [ { "value": "cart", "label": "Go to basket" }, { "value": "stay", "label": "Stay on page" } ],
+      "default": "cart"
+    },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "ADD TO BASKET" },
+    { "type": "textarea", "id": "notes", "label": "Notes under button (one per line)", "default": "Die-cut outdoor vinyl, weather and jet-wash resistant\nFront & rear kits cover both sides of each wheel\nCut to your rim from the bike you enter\nEasy-fit, no tools needed" },
+
+    { "type": "header", "content": "Style" },
+    { "type": "color", "id": "accent", "label": "Accent colour", "default": "#D0121B" }
+  ],
+  "blocks": [
+    {
+      "type": "colour",
+      "name": "Vinyl colour",
+      "limit": 30,
+      "settings": [
+        { "type": "text", "id": "name", "label": "Name", "default": "Gloss White" },
+        { "type": "color", "id": "hex", "label": "Swatch", "default": "#F5F5F3" },
+        { "type": "checkbox", "id": "accent_only", "label": "Only for text / second line", "default": false }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Stripe designer",
+      "blocks": [
+        { "type": "colour", "settings": { "name": "Gloss White", "hex": "#F5F5F3" } },
+        { "type": "colour", "settings": { "name": "Gloss Black", "hex": "#111111" } },
+        { "type": "colour", "settings": { "name": "Red", "hex": "#D0121B" } },
+        { "type": "colour", "settings": { "name": "Yellow", "hex": "#FFD100" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

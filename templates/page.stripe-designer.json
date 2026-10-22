@@ -1,0 +1,32 @@
+{
+  "sections": {
+    "main": {
+      "type": "stripe-designer",
+      "blocks": {
+        "colour-1": { "type": "colour", "settings": { "name": "Gloss White", "hex": "#F5F5F3" } },
+        "colour-2": { "type": "colour", "settings": { "name": "Gloss Black", "hex": "#111111" } },
+        "colour-3": { "type": "colour", "settings": { "name": "Red", "hex": "#D0121B" } },
+        "colour-4": { "type": "colour", "settings": { "name": "Orange", "hex": "#FF6A00" } },
+        "colour-5": { "type": "colour", "settings": { "name": "Yellow", "hex": "#FFD100" } },
+        "colour-6": { "type": "colour", "settings": { "name": "Lime Green", "hex": "#6CC24A" } },
+        "colour-7": { "type": "colour", "settings": { "name": "Racing Blue", "hex": "#1E5BD8" } },
+        "colour-8": { "type": "colour", "settings": { "name": "Dark Blue", "hex": "#0A2F7A" } },
+        "colour-9": { "type": "colour", "settings": { "name": "Pink", "hex": "#E8458B" } },
+        "colour-10": { "type": "colour", "settings": { "name": "Purple", "hex": "#6B3FA0" } },
+        "colour-11": { "type": "colour", "settings": { "name": "Silver", "hex": "#BFC3C7" } },
+        "colour-12": { "type": "colour", "settings": { "name": "Gold", "hex": "#C9A44C" } },
+        "colour-13": { "type": "colour", "settings": { "name": "Reflective White", "hex": "#E3E9EE" } }
+      },
+      "block_order": [
+        "colour-1", "colour-2", "colour-3", "colour-4", "colour-5", "colour-6", "colour-7",
+        "colour-8", "colour-9", "colour-10", "colour-11", "colour-12", "colour-13"
+      ],
+      "settings": {
+        "eyebrow": "WHEEL RIM STRIPES",
+        "heading": "DESIGN YOUR WHEEL STRIPES",
+        "after_add": "cart"
+      }
+    }
+  },
+  "order": ["main"]
+}
