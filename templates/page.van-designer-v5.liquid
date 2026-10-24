@@ -1,0 +1,257 @@
+{%- comment -%}
+  VECTOR EDGE — Vehicle Designer v5
+  Layered rebuild of the v4 van designer (templates/page.van-designer.liquid on
+  the live theme). Same look, pricing, fitting and cart; new engine:
+    - the vehicle, the design and the customer's elements are separate layers,
+      so any design goes on any vehicle (v4 needed one Illustrator file per
+      design per vehicle, and most designs only existed for the medium van)
+    - one shared set of elements (logo, name, tagline, services list, phone,
+      web, email, socials), each switched on/off once and kept when the design
+      or vehicle changes; colours are kept per colour role, font is kept too
+    - vehicles come from the existing outline sheets today and switch to
+      PSD-exported photo layers per vehicle when they exist (see
+      docs/van-designer-v5.md) — no change to designs needed
+  Engine: assets/ve-vd5-engine.js · designs: assets/ve-vd5-library.js ·
+  page logic: assets/ve-vd5-app.js
+  Cart anchor: product 'custom-van-design' — one variant per possible total (£).
+  Logo files cannot travel through cart/add.js; the filename is recorded and
+  the customer sends the file after ordering, as in v4.
+{%- endcomment -%}
+
+{%- assign vd_product = all_products['custom-van-design'] -%}
+
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Anton&family=Archivo+Black&family=Audiowide&family=Bangers&family=Barlow+Condensed:wght@600;700&family=Bebas+Neue&family=Caveat:wght@700&family=Dancing+Script:wght@700&family=Exo+2:wght@700&family=Inter:wght@600;700&family=Lobster&family=Merriweather:wght@700&family=Montserrat:wght@600;700;800&family=Orbitron:wght@700&family=Oswald:wght@600&family=Pacifico&family=Permanent+Marker&family=Playfair+Display:wght@700&family=Poppins:wght@600;700&family=Righteous&family=Roboto+Slab:wght@700&family=Russo+One&family=Teko:wght@600&display=swap" rel="stylesheet">
+
+{{ 've-editor.css' | asset_url | stylesheet_tag }}
+
+<style>
+  #ve-vd { background:#16233D; color:#F5F7FA; padding:24px 20px 60px; }
+  #ve-vd * { box-sizing:border-box; }
+  #ve-vd .vd-wrap { max-width:1520px; margin:0 auto; }
+  #ve-vd .vd-vans { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+  #ve-vd .vd-grid { display:grid; grid-template-columns:minmax(0,1fr) 420px; gap:24px; align-items:start; }
+  #ve-vd .vd-controls { max-width:100%; }
+  #ve-vd .vd-designs { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:10px; }
+  #ve-vd .vd-card .sw { display:flex; gap:3px; margin-bottom:6px; }
+  #ve-vd .vd-card .sw i { width:14px; height:14px; border-radius:3px; border:1px solid rgba(245,247,250,.3); }
+  #ve-vd .vd-fields { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  #ve-vd .vd-f.wide { grid-column:1 / -1; }
+  #ve-vd label { display:block; font-size:12px; text-transform:uppercase; letter-spacing:.05em; font-weight:600; margin-bottom:5px; color:rgba(245,247,250,.85); }
+  #ve-vd select option { background:#21365C; color:#F5F7FA; }
+  #ve-vd textarea { width:100%; border:1.5px solid rgba(234,240,251,.16); background:#2E4A7A; color:#EAF0FB; font:15px/1.4 var(--se-body, system-ui); padding:10px 12px; resize:vertical; outline:none; }
+  #ve-vd textarea:focus { border-color:#E8F338; }
+  #ve-vd .vd-hide { display:none !important; }
+  #ve-vd .vd-swrow { display:flex; flex-wrap:wrap; gap:7px; align-items:center; }
+  #ve-vd .vd-custom { width:34px !important; height:32px; padding:2px !important; cursor:pointer; }
+  #ve-vd .vd-slot { margin-bottom:16px; }
+  #ve-vd .vd-slot .sl-head { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+  #ve-vd .vd-slot .sl-cur { width:22px; height:22px; border:1px solid rgba(245,247,250,.4); border-radius:var(--se-r-tile); }
+  #ve-vd .vd-slot .sl-name { font-size:12px; color:rgba(245,247,250,.8); text-transform:uppercase; letter-spacing:.04em; }
+  #ve-vd .vd-linkbtn { background:none; border:0; color:#E8F338; font-size:12px; cursor:pointer; text-decoration:underline; padding:0; }
+
+  /* elements: one row per element, a switch, and its input when switched on */
+  #ve-vd .vd-els { display:grid; gap:10px; }
+  #ve-vd .vd-el { border:1px solid rgba(245,247,250,.16); padding:10px 12px; }
+  #ve-vd .vd-el.off { opacity:.62; }
+  #ve-vd .vd-el.off .vd-el-body { display:none; }
+  #ve-vd .vd-el-head { display:flex; align-items:center; gap:10px; margin:0; cursor:pointer; }
+  #ve-vd .vd-el-n { font-size:13px; letter-spacing:.06em; }
+  #ve-vd .vd-tgl { appearance:none; -webkit-appearance:none; width:34px !important; height:20px; padding:0 !important; border-radius:999px !important; background:#2E4A7A; border:1.5px solid rgba(234,240,251,.3) !important; position:relative; cursor:pointer; flex:0 0 auto; transition:background .15s; }
+  #ve-vd .vd-tgl::after { content:''; position:absolute; top:2px; left:2px; width:13px; height:13px; border-radius:50%; background:#EAF0FB; transition:transform .15s; }
+  #ve-vd .vd-tgl:checked { background:#E8F338; border-color:#E8F338 !important; }
+  #ve-vd .vd-tgl:checked::after { transform:translateX(14px); background:#16233D; }
+  #ve-vd .vd-el-body { margin-top:10px; }
+  #ve-vd .vd-el-sub { display:grid; grid-template-columns:90px 1fr; gap:8px; align-items:center; margin-top:6px; font-size:12px; color:rgba(245,247,250,.8); }
+  #ve-vd .vd-el-body input[type=file] { border:0; padding:0; font-size:13px; background:none; }
+  #ve-vd .vd-logo-actions { display:flex; gap:12px; align-items:center; margin-top:8px; }
+  #ve-vd .vd-logo-actions button { background:none; border:0; color:#E8F338; font-size:12px; cursor:pointer; text-decoration:underline; padding:0; }
+
+  #ve-vd .vd-side { position:sticky; top:12px; order:-1; }
+  #ve-vd .vd-views { display:flex; gap:6px; flex-wrap:nowrap; }
+  #ve-vd .vd-preview { background:#21365C; border:1px solid rgba(245,247,250,.14); padding:10px; }
+  #ve-vd .vd-svgwrap { background:#fff; height:calc(100vh - 330px); min-height:420px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+  #ve-vd .vd-svgwrap svg { display:block; }
+  #ve-vd .vd-loading { padding:60px; text-align:center; color:#888; font-size:13px; }
+  #ve-vd .vd-ind { font-size:11px; color:rgba(245,247,250,.72); text-transform:uppercase; letter-spacing:.06em; padding:8px 2px 2px; }
+  #ve-vd .vd-price { display:flex; justify-content:space-between; align-items:baseline; border-top:1px solid rgba(245,247,250,.14); margin-top:14px; padding-top:14px; }
+  #ve-vd .vd-cta[disabled] { opacity:.6; cursor:wait; }
+  #ve-vd .vd-msg { font-size:13px; margin-top:10px; text-align:center; color:#E8F338; min-height:18px; }
+
+  #ve-vd .vd-plate { display:flex; align-items:stretch; border-radius:var(--se-r-tile); overflow:hidden; border:1px solid rgba(245,247,250,.25); }
+  #ve-vd .vd-plate .gb { flex:0 0 26px; background:#063298; color:#F5D400; font-size:10px; font-weight:800; display:flex; align-items:center; justify-content:center; letter-spacing:.02em; }
+  #ve-vd .vd-plate input { border:0 !important; background:#F5D400 !important; color:#111 !important; font-weight:800; letter-spacing:.12em; text-transform:uppercase; text-align:center; font-size:18px; color-scheme:light; border-radius:0; }
+  #ve-vd .vd-plate input::placeholder { color:rgba(0,0,0,.4); font-weight:700; letter-spacing:.06em; }
+
+  #ve-vd .vd-fontpick { position:relative; margin-top:6px; }
+  #ve-vd .vd-fontbtn { text-align:left; cursor:pointer; position:relative; }
+  #ve-vd .vd-fontbtn::after { content:'\25BE'; position:absolute; right:12px; top:50%; transform:translateY(-50%); color:rgba(245,247,250,.6); font-size:12px; }
+  #ve-vd .vd-fontmenu { position:absolute; z-index:60; left:0; right:0; top:calc(100% + 4px); max-height:300px; overflow-y:auto; background:#21365C; border:1px solid rgba(245,247,250,.3); box-shadow:0 12px 34px rgba(0,0,0,.5); padding:4px; }
+  #ve-vd .vd-fontgrp { font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:#E8F338; padding:10px 10px 4px; font-weight:700; }
+  #ve-vd .vd-fontopt { display:block; width:100%; text-align:left; background:none; border:0; color:#F5F7FA; padding:9px 10px; font-size:18px; cursor:pointer; line-height:1.15; border-radius:var(--se-r-tile); }
+  #ve-vd .vd-fontopt:hover { background:rgba(232,243,56,.14); }
+  #ve-vd .vd-fontopt.on { background:rgba(232,243,56,.22); color:#fff; }
+
+  #ve-vd .vd-fitmode { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  #ve-vd .vd-fitpc { margin-top:14px; }
+  #ve-vd .vd-pcrow { display:flex; gap:8px; }
+  #ve-vd .vd-pcrow input { text-transform:uppercase; letter-spacing:.06em; }
+  #ve-vd .vd-fitresult { font-size:13px; margin-top:10px; line-height:1.5; }
+  #ve-vd .vd-fitresult.ok { color:#9BE38B; }
+  #ve-vd .vd-fitresult.warn { color:#F2C94C; }
+  #ve-vd .vd-fitresult.err { color:#F2846B; }
+  @media (max-width:900px){
+    #ve-vd { padding:8px 14px 104px; }
+    #ve-vd .vd-grid { grid-template-columns:1fr; gap:14px; }
+    #ve-vd .vd-side { position:sticky; top:0; z-index:30; background:#16233D; padding:4px 0 8px; }
+    #ve-vd .vd-preview { padding:6px; }
+    #ve-vd .vd-svgwrap { height:30vh; min-height:190px; }
+    #ve-vd .vd-ind { display:none; }
+    #ve-vd .vd-views { margin-bottom:8px; }
+    #ve-vd .vd-vw { padding:7px 2px; font-size:12px; }
+    #ve-vd .vd-buybar { position:fixed; left:0; right:0; bottom:0; z-index:40; background:#16233D; border-top:1px solid rgba(245,247,250,.16); padding:8px 14px calc(8px + env(safe-area-inset-bottom)); box-shadow:0 -6px 20px rgba(0,0,0,.45); }
+    #ve-vd .vd-buybar .vd-price { margin-top:0; padding-top:0; border-top:0; }
+    #ve-vd .vd-buybar .vd-cta { margin-top:6px; padding:12px 20px; }
+    #ve-vd .vd-buybar .vd-msg { min-height:0; margin-top:4px; }
+    #ve-vd .vd-fitmode, #ve-vd .vd-fields { grid-template-columns:1fr; }
+  }
+</style>
+
+<div id="ve-vd">
+  <div class="vd-wrap">
+    <a class="ved-back" href="/pages/design-online">&larr; All designers</a>
+    <span class="vd-eyebrow">Vehicle Designer · ready-made layouts, cut in Oracal 651 vinyl</span>
+    <h1>Pick a design. <em>Make it yours.</em></h1>
+    <p class="vd-intro">Add your logo and details once — then try every design on your vehicle. Your details, logo and colours stay put while you switch. Colours are the exact vinyl range we cut from, and we proof everything properly before it's made.</p>
+
+    <div class="vd-grid">
+      <div class="vd-controls">
+        <div class="vd-step">
+          <p class="vd-label"><b>01</b> Your vehicle</p>
+          <div class="vd-vans" id="vd-vans"></div>
+          <div class="vd-fields" style="margin-top:14px;">
+            <div class="vd-f wide"><label>Vehicle colour — match your own vehicle</label>
+              <div class="vd-swrow" id="vd-vcol"></div>
+            </div>
+            <div class="vd-f"><label for="vd-make">Make &amp; model</label><input type="text" id="vd-make" placeholder="e.g. Ford Transit Custom 2022"></div>
+            <div class="vd-f"><label for="vd-reg">…or your registration</label>
+              <div class="vd-plate"><span class="gb">UK</span><input type="text" id="vd-reg" maxlength="8" placeholder="AB12 CDE" autocapitalize="characters"></div>
+            </div>
+          </div>
+          <p class="vd-note">We cut the graphics to fit your exact vehicle. Give us the make &amp; model — or just your reg and we'll look it up.</p>
+        </div>
+
+        <div class="vd-step">
+          <p class="vd-label"><b>02</b> Choose your design</p>
+          <div class="vd-designs" id="vd-designs"></div>
+          <p class="vd-note">Every design fits every vehicle. Switch freely — nothing you've added is lost.</p>
+        </div>
+
+        <div class="vd-step">
+          <p class="vd-label"><b>03</b> Your logo &amp; details</p>
+          <div class="vd-els" id="vd-els"></div>
+          <p class="vd-note">Switch off anything you don't want on the vehicle. Logos: PNG, SVG or JPG — the preview is indicative; we'll ask for the original file after ordering and place it properly at proofing.</p>
+        </div>
+
+        <div class="vd-step">
+          <p class="vd-label"><b>04</b> Colours &amp; font <button type="button" class="vd-linkbtn vd-hide" id="vd-col-reset">Reset to design colours</button></p>
+          <p class="vd-note" style="margin:0 0 12px;">Oracal 651 vinyl — what you pick is what goes on the vehicle. A colour you choose stays when you change design.</p>
+          <div id="vd-slots"></div>
+          <label>Lettering font</label>
+          <div class="vd-fontpick" id="vd-fontpick">
+            <button type="button" class="vd-fontbtn" id="vd-fontbtn">As designed</button>
+            <div class="vd-fontmenu vd-hide" id="vd-fontmenu"></div>
+          </div>
+        </div>
+
+        <div class="vd-step">
+          <p class="vd-label"><b>05</b> Fitting</p>
+          <div class="vd-fitmode" id="vd-fitmode">
+            <button type="button" class="vd-fitopt on" data-fit="supply">
+              <span class="fo-t">Supply only</span>
+              <span class="fo-s">Delivered UK-wide · included</span>
+            </button>
+            <button type="button" class="vd-fitopt" data-fit="fitted">
+              <span class="fo-t">Fitted at your location</span>
+              <span class="fo-s">We come to you · priced by postcode</span>
+            </button>
+          </div>
+          <div class="vd-fitpc vd-hide" id="vd-fitpc">
+            <label for="vd-postcode">Your postcode</label>
+            <div class="vd-pcrow">
+              <input type="text" id="vd-postcode" inputmode="text" autocomplete="postal-code" maxlength="8" placeholder="e.g. UB8 1AA">
+              <button type="button" class="vd-pcbtn" id="vd-pccheck">Check</button>
+            </div>
+            <p class="vd-fitresult" id="vd-fitresult">We fit from our Ruislip workshop — pop in your postcode for an exact fitting price.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="vd-side">
+        <div class="vd-views" id="vd-views">
+          <button type="button" class="vd-vw on" data-v="side">Side</button>
+          <button type="button" class="vd-vw" data-v="side2">Other side</button>
+          <button type="button" class="vd-vw" data-v="rear">Rear</button>
+          <button type="button" class="vd-vw" data-v="front">Front</button>
+          <button type="button" class="vd-vw" data-v="all">All</button>
+        </div>
+        <div class="vd-preview">
+          <div class="vd-svgwrap" id="vd-svgwrap"></div>
+          <div class="vd-ind">Indicative preview — we design and proof properly before anything is cut</div>
+        </div>
+        <div class="vd-buybar">
+          <div class="vd-price"><span class="t" id="vd-pt">Supply only</span><span class="p" id="vd-pp">£189</span></div>
+          <button type="button" class="vd-cta" id="vd-add">Add to cart</button>
+          <a class="vd-cta vd-hide" id="vd-quote" href="/pages/get-a-quote">Get a free mockup for this vehicle</a>
+          <div class="vd-msg" id="vd-msg"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{%- comment -%}
+  Vehicles. `outline` is the current five-view sheet; `tune` pins a zone where
+  the automatic measuring misjudges a sheet (fractions of the view's body
+  frame, measured from the front). When a vehicle's PSD has
+  been exported (docs/van-designer-v5.md), add a `photo` manifest next to it —
+  the designer then shows the photo-real vehicle instead, with the same designs:
+    "photo": {"views": {
+      "side":  {"img": {{ 've-v5-medium-van-side.webp' | asset_url | json }},
+                "mask": {{ 've-v5-medium-van-side-mask.png' | asset_url | json }},
+                "shade": {{ 've-v5-medium-van-side-shade.webp' | asset_url | json }},
+                "w": 2400, "h": 1100, "anchors": {"cab":0.33,"belt":0.42,"fw":0.2,"rw":0.8,"wt":0.62}},
+      "side2": {...}, "rear": {...}, "front": {...} }}
+  The export script writes this block for you (tools/psd-to-vd5).
+{%- endcomment -%}
+<script type="application/json" id="vd5-config">
+{
+  "defaultVehicle": "medium-van",
+  "vehicles": [
+    {"k":"small-van","n":"Small Van","sub":"Caddy, Berlingo","price":169,"outline":{{ 've-veh-small-van.svg' | asset_url | json }}},
+    {"k":"medium-van","n":"Medium Van","sub":"Transit Custom","price":189,"outline":{{ 've-veh-medium-van.svg' | asset_url | json }}},
+    {"k":"large-van","n":"Large Van","sub":"Sprinter, Ducato","price":219,"outline":{{ 've-veh-large-van.svg' | asset_url | json }}},
+    {"k":"luton-van","n":"Luton Box Van","sub":"Box van","price":259,"outline":{{ 've-veh-luton-van.svg' | asset_url | json }}},
+    {"k":"pickup","n":"Pickup","sub":"Ranger, Hilux","price":189,"outline":{{ 've-veh-pickup.svg' | asset_url | json }},
+     "tune":{"side":{"zones":{"panel":{"x0":0.6,"y0":0.42,"x1":0.95,"y1":0.74}}}}},
+    {"k":"car","n":"Car / Estate","sub":"Golf, Astra","price":169,"outline":{{ 've-veh-car.svg' | asset_url | json }}},
+    {"k":"suv","n":"SUV","sub":"4x4, crossover","price":null,"outline":{{ 've-veh-suv.svg' | asset_url | json }}},
+    {"k":"people-carrier","n":"People Carrier","sub":"MPV","price":null,"outline":{{ 've-veh-people-carrier.svg' | asset_url | json }}},
+    {"k":"minibus","n":"Minibus","sub":"Crew, shuttle","price":null,"outline":{{ 've-veh-minibus.svg' | asset_url | json }}},
+    {"k":"tipper","n":"Tipper","sub":"Dropside","price":null,"outline":{{ 've-veh-tipper.svg' | asset_url | json }}},
+    {"k":"hgv","n":"HGV","sub":"7.5t and up","price":null,"outline":{{ 've-veh-hgv.svg' | asset_url | json }}}
+  ],
+  "priceVariants": {
+    {%- for v in vd_product.variants -%}
+      {%- assign pounds = v.price | divided_by: 100 -%}
+      "{{ pounds }}": {{ v.id }}{%- unless forloop.last -%},{%- endunless -%}
+    {%- endfor -%}
+  }
+}
+</script>
+
+<script src="{{ 've-vd5-engine.js' | asset_url }}" defer></script>
+<script src="{{ 've-vd5-library.js' | asset_url }}" defer></script>
+<script src="{{ 've-vd5-app.js' | asset_url }}" defer></script>
+
+{%- comment -%} Server-rendered copy, FAQ and schema for search engines {%- endcomment -%}
+{%- assign key = 'van-designer' -%}{%- include 've-seo-block' -%}
