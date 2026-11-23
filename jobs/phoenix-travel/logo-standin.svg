@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+<path d="M269.2,236.6 Q175.1,210.9 85.0,175.0 Q157.1,257.6 262.8,253.4 Z" fill="#E2452A"/>
+<path d="M271.0,190.8 Q189.2,137.6 115.0,75.0 Q161.6,171.8 261.0,203.2 Z" fill="#EE7A1F"/>
+<path d="M275.3,149.3 Q226.0,89.0 182.0,25.0 Q196.3,109.4 264.7,156.7 Z" fill="#F6BE1E"/>
+<path d="M330.8,236.6 Q424.9,210.9 515.0,175.0 Q442.9,257.6 337.2,253.4 Z" fill="#E2452A"/>
+<path d="M329.0,190.8 Q410.8,137.6 485.0,75.0 Q438.4,171.8 339.0,203.2 Z" fill="#EE7A1F"/>
+<path d="M324.7,149.3 Q374.0,89.0 418.0,25.0 Q403.7,109.4 335.3,156.7 Z" fill="#F6BE1E"/>
+<path d="M300,15 C316,15 324,29 322,43 L342,51 L322,57 C340,105 340,175 316,245 C310,285 304,315 300,325 C296,285 290,315 284,245 C260,175 260,105 280,40 C286,29 292,15 300,15 Z" fill="#1C1C1C"/>
+<path d="M284,337 C270,365 250,385 222,391 C256,401 282,385 287,353 Z" fill="#EE7A1F"/>
+<path d="M316,337 C330,365 350,385 378,391 C344,401 318,385 313,353 Z" fill="#EE7A1F"/>
+<path d="M291,343 C294,365 296,387 300,411 C304,387 306,365 309,343 Z" fill="#E2452A"/>
+<text x="300" y="512" text-anchor="middle" font-family="Archivo Black" font-size="104" fill="#1C1C1C" textLength="560" lengthAdjust="spacingAndGlyphs">PHOENIX</text>
+<text x="300" y="586" text-anchor="middle" font-family="Montserrat" font-weight="800" font-size="62" fill="#EE7A1F" textLength="440">TRAVEL</text>
+</svg>
