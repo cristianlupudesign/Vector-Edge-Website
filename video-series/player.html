@@ -36,7 +36,8 @@
   const load = (src, cb) => { const e = document.createElement('script'); e.src = src; e.onload = cb; document.body.appendChild(e); };
   s.onload = () => {
     const ep = window.EPISODE;
-    if (ep.engine === 2) load('vans/' + ep.van.model + '.js', () => load('engine2.js', startPlayer));
+    if (ep.engine === 3) load('assets/ve-vd5-engine.js', () => load('engine3.js', startPlayer));
+    else if (ep.engine === 2) load('vans/' + ep.van.model + '.js', () => load('engine2.js', startPlayer));
     else load('engine.js', startPlayer);
   };
   document.body.appendChild(s);
@@ -49,7 +50,8 @@
       stage.style.transform = `translate(${(innerWidth - 1080 * k) / 2}px,0) scale(${k})`;
     };
     addEventListener('resize', fit); fit();
-    window.VE_READY.then(() => {
+    const ready = () => new Promise((r) => { const w = () => (window.VE_READY && typeof window.VE_READY !== 'object' ? r() : setTimeout(w, 50)); w(); });
+    Promise.resolve(window.VE_READY && window.VE_READY.then ? window.VE_READY : ready()).then(() => {
       const total = window.VE_TOTAL, scrub = document.getElementById('scrub'), btn = document.getElementById('play'), time = document.getElementById('time');
       let t = qs.has('t') ? +qs.get('t') : 0, playing = !qs.has('t'), last = performance.now();
       btn.onclick = () => { playing = !playing; btn.textContent = playing ? 'Pause' : 'Play'; last = performance.now(); };

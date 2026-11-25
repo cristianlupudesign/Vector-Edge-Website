@@ -124,6 +124,33 @@ async function exportPanels(page, browser) {
   await shot.close();
 }
 
+// Engine 3 (real templates): per view, the vinyl graphics as SVG (text outlined, masked to the
+// bodywork like the live designer) + transparent PNG, and a flat mockup PNG (paint + vinyl).
+async function exportViews(page, browser, port) {
+  const opentype = require('opentype.js');
+  const font = opentype.loadSync(path.join(ROOT, 'assets/fonts/bebas-neue-latin-400-normal.woff'));
+  const views = await page.evaluate(() => window.exportViews());
+  const big = await browser.newPage({ viewport: { width: 1600, height: 1600 }, deviceScaleFactor: 1 });
+  await big.goto(`http://127.0.0.1:${port}/player.html?ep=${EP}&render=1`);
+  await big.waitForFunction(() => window.VE_READY || window.VE_ERROR, null, { timeout: 60000 });
+  for (const v of views) {
+    const c = v.crop;
+    const body = v.items.map((n) => n.tag === 'path'
+      ? `<path d="${n.d}" fill="${n.fill}"${n.rule && n.rule !== 'nonzero' ? ` fill-rule="${n.rule}"` : ''}/>`
+      : `<path d="${textToPath(font, n)}" fill="${n.fill}"/>`).join('\n');
+    const svg = `<?xml version="1.0" encoding="UTF-8"?>\n<!-- ${EP} ${v.name}: vinyl graphics only. Van paint ${v.paint}. Same coordinates as the Vector Edge template sheet. -->\n<svg xmlns="http://www.w3.org/2000/svg" width="${c.w.toFixed(2)}" height="${c.h.toFixed(2)}" viewBox="${c.x} ${c.y} ${c.w} ${c.h}">\n<defs>${v.maskHTML}</defs>\n<g mask="url(#${v.maskId})">\n${body}\n</g>\n</svg>\n`;
+    const base = path.join(OUT, `${EP}-${v.name}`);
+    fs.writeFileSync(base + '.svg', svg);
+    for (const [mode, scale, file] of [['graphics', 6, base + '.png'], ['mockup', 4, base + '-mockup.png']]) {
+      const size = await big.evaluate(([n, m, s]) => window.showExport(n, m, s), [v.name, mode, scale]);
+      await big.setViewportSize({ width: Math.max(1600, size.w), height: Math.max(1600, size.h) });
+      await big.locator('#expSvg').screenshot({ path: file, omitBackground: mode === 'graphics' });
+    }
+    console.log('View      →', path.relative(ROOT, base) + '.svg / .png / -mockup.png');
+  }
+  await big.close();
+}
+
 (async () => {
   if (!fs.existsSync(path.join(ROOT, 'episodes', EP + '.js'))) { console.error('No episode file: episodes/' + EP + '.js'); process.exit(1); }
   const port = 4000 + Math.floor(Math.random() * 2000);
@@ -138,7 +165,9 @@ async function exportPanels(page, browser) {
   const page = await browser.newPage({ viewport: { width: 1080, height: 1920 }, deviceScaleFactor: 1 });
   page.on('pageerror', (e) => console.error('Page error:', e.message));
   await page.goto(`http://127.0.0.1:${port}/player.html?ep=${EP}&render=1`);
-  await page.waitForFunction(() => window.VE_READY);
+  await page.waitForFunction(() => window.VE_READY || window.VE_ERROR, null, { timeout: 60000 });
+  const loadErr = await page.evaluate(() => window.VE_ERROR);
+  if (loadErr) throw new Error(loadErr);
   await page.evaluate(() => window.VE_READY);
   const total = await page.evaluate(() => window.VE_TOTAL);
   const stages = await page.evaluate(() => window.VE_STAGES);
@@ -155,7 +184,8 @@ async function exportPanels(page, browser) {
     return;
   }
 
-  if (await page.evaluate(() => !!window.exportPanels)) await exportPanels(page, browser);
+  if (await page.evaluate(() => !!window.exportViews)) await exportViews(page, browser, port);
+  else if (await page.evaluate(() => !!window.exportPanels)) await exportPanels(page, browser);
   else await exportLogo(page);
 
   const full = path.join(OUT, `${EP}-9x16.mp4`);

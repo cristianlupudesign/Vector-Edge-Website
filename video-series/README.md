@@ -1,5 +1,23 @@
 # From Idea to Van — Vector Edge video series
 
+## Real-template episodes (engine 3, current)
+
+```bash
+node render.js ep03-skill-builder
+```
+
+- Vans are the real Vector Edge template sheets (`assets/vans/ve-veh-*.svg`, copied from the theme), loaded with the Van Designer v5 engine (`assets/ve-vd5-engine.js`). Vinyl is masked to the bodywork, and the sheet is multiplied back on top so handles and panel lines sit on the vinyl, the same as the live designer.
+- Designs use the v5 frame: `u` 0 = front of the body → 1 = rear, `v` 0 = roof → 1 = sill. Sizes are fractions of the body height. One design fits both sides (offside mirrored, text kept readable) and any van sheet.
+- Branding: the real Vector Edge logo (`assets/brand/`, from the `brand/` branch), Bebas Neue + Barlow Condensed, Oracal 651 vinyl colours, van paint colours.
+- Change van: set `van.sheet` to another sheet (`ve-veh-large-van.svg` = Peugeot Boxer, `ve-veh-small-van.svg` = Vauxhall Combo) and `van.name`. Check lettering against door rails and handles: the mask cuts vinyl around them.
+
+Outputs per view (`nearside`, `offside`, `rear`) for the 3D mockup app:
+- `<ep>-<view>.png`: vinyl graphics only, transparent, 6x the template size, aligned to the template view
+- `<ep>-<view>.svg`: the same graphics, text as outlines, in the template sheet's coordinates
+- `<ep>-<view>-mockup.png`: flat proof: van paint + vinyl on the template
+
+---
+
 ## Van-wrap episodes (Ep 02 onwards)
 
 Flow: **Brief → sketch on the van template → AI concept → vector (pen + type) → colours → zoom compare → on the van → 3D hand-off slate → outro**.
