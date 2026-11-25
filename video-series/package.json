@@ -1,0 +1,16 @@
+{
+  "name": "vectoredge-idea-to-van",
+  "private": true,
+  "description": "From Idea to Van — code-rendered video series for Vector Edge (concept → vector → 3D).",
+  "scripts": {
+    "preview": "node render.js ep01-harris-build --preview",
+    "render": "node render.js ep01-harris-build"
+  },
+  "dependencies": {
+    "opentype.js": "1.3.4",
+    "playwright": "1.63.0"
+  },
+  "optionalDependencies": {
+    "ffmpeg-static": "5.2.0"
+  }
+}

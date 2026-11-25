@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>From Idea to Van — player</title>
+<style>
+  @font-face { font-family: 'Bebas Neue'; font-weight: 400; src: url(assets/fonts/bebas-neue-latin-400-normal.woff2) format('woff2'); }
+  @font-face { font-family: 'Barlow Condensed'; font-weight: 400; src: url(assets/fonts/barlow-condensed-latin-400-normal.woff2) format('woff2'); }
+  @font-face { font-family: 'Barlow Condensed'; font-weight: 500; src: url(assets/fonts/barlow-condensed-latin-500-normal.woff2) format('woff2'); }
+  @font-face { font-family: 'Barlow Condensed'; font-weight: 600; src: url(assets/fonts/barlow-condensed-latin-600-normal.woff2) format('woff2'); }
+  html, body { margin: 0; background: #0e0e0e; overflow: hidden; }
+  #stage { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; overflow: hidden; transform-origin: 0 0; background: #1B1B1B; }
+  #main { position: absolute; left: 0; top: 0; }
+  #t3d { position: absolute; left: 90px; top: 450px; width: 900px; height: 900px; perspective: 1900px; display: none; z-index: 2; }
+  #t3d .rot { position: absolute; inset: 0; transform-style: preserve-3d; }
+  #t3d .layer { position: absolute; inset: 0; }
+  #t3d svg { display: block; }
+  #controls { position: fixed; left: 0; right: 0; bottom: 0; height: 56px; display: flex; gap: 12px; align-items: center; padding: 0 16px;
+    background: #181818; color: #ddd; font: 14px system-ui, sans-serif; }
+  #controls button { background: #E5E521; border: 0; padding: 8px 16px; font-weight: 700; cursor: pointer; }
+  #controls input { flex: 1; }
+  body.render #controls { display: none; }
+</style>
+</head>
+<body>
+<div id="stage"><div id="t3d"></div></div>
+<div id="controls"><button id="play">Pause</button><input id="scrub" type="range" min="0" max="1000" value="0"><span id="time">0.0s</span></div>
+<script src="lib.js"></script>
+<script>
+  // Load the episode named in ?ep=..., then the engine.
+  const qs = new URLSearchParams(location.search);
+  const ep = (qs.get('ep') || 'ep01-harris-build').replace(/[^a-z0-9-]/gi, '');
+  if (qs.has('render')) document.body.classList.add('render');
+  const s = document.createElement('script');
+  s.src = 'episodes/' + ep + '.js';
+  s.onload = () => {
+    const e = document.createElement('script');
+    e.src = 'engine.js';
+    e.onload = startPlayer;
+    document.body.appendChild(e);
+  };
+  document.body.appendChild(s);
+
+  function startPlayer() {
+    if (qs.has('render')) return; // render.js drives renderAt() itself
+    const stage = document.getElementById('stage');
+    const fit = () => {
+      const k = Math.min((innerHeight - 56) / 1920, innerWidth / 1080);
+      stage.style.transform = `translate(${(innerWidth - 1080 * k) / 2}px,0) scale(${k})`;
+    };
+    addEventListener('resize', fit); fit();
+    window.VE_READY.then(() => {
+      const total = window.VE_TOTAL, scrub = document.getElementById('scrub'), btn = document.getElementById('play'), time = document.getElementById('time');
+      let t = qs.has('t') ? +qs.get('t') : 0, playing = !qs.has('t'), last = performance.now();
+      btn.onclick = () => { playing = !playing; btn.textContent = playing ? 'Pause' : 'Play'; last = performance.now(); };
+      scrub.oninput = () => { t = (scrub.value / 1000) * total; };
+      btn.textContent = playing ? 'Pause' : 'Play';
+      (function loop(now) {
+        if (playing) { t += (now - last) / 1000; if (t >= total) t = 0; }
+        last = now;
+        window.renderAt(t);
+        scrub.value = (t / total) * 1000;
+        time.textContent = t.toFixed(1) + 's / ' + total.toFixed(1) + 's';
+        requestAnimationFrame(loop);
+      })(performance.now());
+    });
+  }
+</script>
+</body>
+</html>
