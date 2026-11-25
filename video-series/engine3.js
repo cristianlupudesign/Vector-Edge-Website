@@ -12,9 +12,16 @@
   const NS = 'http://www.w3.org/2000/svg';
   const W = 1080, H = 1920;
   const EP = window.EPISODE;
-  const C = { yellow: '#E5E521', blue: '#0057FF', charcoal: '#2B2B2B', ink: '#2B2B2B', bg: '#1A1A1A', grey: '#9C9C94', line: '#3A3A3A', graphite: '#4A4A4E' };
-  const DISPLAY = "'Bebas Neue', 'Arial Narrow', Impact, sans-serif";
-  const BODY = "'Barlow Condensed', 'Arial Narrow', sans-serif";
+  // vectoredge.co.uk look: deep navy, lime highlight blocks, blue accents, off-white text.
+  const C = { yellow: '#E8F338', lime: '#E8F338', blue: '#2563EB', navy: '#16233D', navy2: '#21365C', charcoal: '#16233D', ink: '#2B2B2B', bg: '#16233D', grey: '#A9B5C9', line: '#2E4470', graphite: '#4A4A4E', text: '#F5F7FA', panel: '#1B2B4B', panelLine: '#2E4470' };
+  const DISPLAY = "'Bebas Neue', 'Arial Narrow', Impact, sans-serif";            // lettering ON the vans
+  const HEAD = "'Barlow Condensed', 'Arial Narrow', sans-serif";                // site headings: 900 italic
+  const BODY = "'Archivo Narrow', 'Barlow Condensed', 'Arial Narrow', sans-serif"; // site body text
+  const H900 = { 'font-family': HEAD, 'font-weight': 900, 'font-style': 'italic' };
+  const H800 = { 'font-family': HEAD, 'font-weight': 800, 'font-style': 'italic' };
+  const H700 = { 'font-family': HEAD, 'font-weight': 700, 'font-style': 'italic' };
+  const EYEBROW = 'MOBILE VINYL SIGNWRITING · WEST LONDON';
+  const TICKER = ['VEHICLE SIGNWRITING', 'MAGNETIC SIGNS', 'CHAPTER 8 CHEVRONS', 'MOBILE FITTING', 'WINDOW GRAPHICS', 'FREE MOCKUP & PRICE IN 48 HOURS'];
 
   // ---------- helpers ----------
   const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
@@ -45,7 +52,7 @@
   // ---------- load the van template + logo ----------
   const [sheetTxt, logoTxt] = await Promise.all([
     fetch(EP.van.sheet).then((r) => r.text()),
-    fetch('assets/brand/yellow/logo-inverse.svg').then((r) => r.text()),
+    fetch('assets/brand/site-logo.png').then((r) => r.blob()).then((b) => new Promise((res) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.readAsDataURL(b); })),
   ]);
   const host = document.createElement('div');
   host.style.cssText = 'position:absolute;left:0;top:0;width:1368px;height:1368px;opacity:0;pointer-events:none;z-index:-1;overflow:hidden';
@@ -69,6 +76,12 @@
   function convText(x, view) {
     const p = view.pt(x.u, x.v);
     return { x: p[0], y: p[1], size: x.size * view.F.h, spacing: (x.spacing || 0) * view.F.h };
+  }
+
+  // Timing fitted to the voiceover by vo-plan.js (episodes/<id>.timing.js), if present.
+  if (window.EPISODE_TIMING) {
+    Object.assign(EP.durations, window.EPISODE_TIMING.durations || {});
+    for (const [k, ats] of Object.entries(window.EPISODE_TIMING.captionsAt || {})) (EP.captions[k] || []).forEach((c, i) => { if (ats[i] != null) c.at = ats[i]; });
   }
 
   // ---------- timeline ----------
@@ -161,66 +174,78 @@
     useBase(cv, { style: 'mix-blend-mode:multiply' });
   }
 
-  // ---------- background, header (real logo), titles, pips ----------
+  // ---------- background, header (site logo), titles, pips ----------
   el('rect', { width: W, height: H, fill: C.bg }, svg);
-  el('rect', { width: W, height: H, fill: 'url(#dots)' }, svg);
-  const logoDoc = new DOMParser().parseFromString(logoTxt, 'image/svg+xml').documentElement;
-  const logoVB = logoDoc.getAttribute('viewBox').split(/\s+/).map(Number);
-  function placeLogo(parent, x, y, h, markOnly) {
-    const k = h / logoVB[3];
-    const g = el('g', { transform: `translate(${x} ${y}) scale(${k}) translate(${-logoVB[0]} ${-logoVB[1]})` }, parent);
-    [...logoDoc.querySelectorAll('path')].forEach((p, i) => { if (!markOnly || i < 2) g.appendChild(document.importNode(p, true)); });
-    return g;
-  }
-  placeLogo(svg, 90, 62, 54);
-  el('text', { x: 990, y: 102, 'text-anchor': 'end', 'font-family': BODY, 'font-weight': 500, 'font-size': 32, fill: C.grey, 'letter-spacing': 1, text: `FROM IDEA TO VAN · EP ${String(EP.number).padStart(2, '0')}` }, svg);
+  const LOGO_AR = 655 / 213; // site logo PNG
+  function placeLogo(parent, x, y, h) { return el('image', { href: logoTxt, x, y, width: h * LOGO_AR, height: h }, parent); }
+  el('rect', { x: 0, y: 0, width: W, height: 128, fill: '#111C31' }, svg);
+  placeLogo(svg, 84, 30, 68);
+  el('text', Object.assign({ x: 996, y: 78, 'text-anchor': 'end', 'font-size': 30, fill: C.grey, 'letter-spacing': 1.5, text: `FROM IDEA TO VAN · EP ${String(EP.number).padStart(2, '0')}` }, H700), svg);
+  el('text', Object.assign({ x: 90, y: 182, 'font-size': 26, 'letter-spacing': 3.5, fill: C.lime, text: EYEBROW }, H700), svg);
 
+  // Titles: a lime highlight block behind the key word (like the site hero), then the rest in white.
   const TITLES = {
-    brief: { num: '01', main: 'THE BRIEF', sub: 'Who it’s for and what it has to say' },
-    sketch: { num: '02', main: 'SKETCH', sub: `On the ${EP.van.name} template` },
-    concept: { num: '02', main: 'AI CONCEPT', sub: 'The sketch, turned into a look' },
-    vector: { num: '03', main: 'VECTOR', sub: 'Redrawn clean with the pen tool' },
-    colour: { num: '03', main: 'VECTOR', sub: 'Van paint + Oracal 651 vinyl' },
-    zoom: { num: '', main: 'WHY VECTOR?', sub: 'Same design, zoomed right in' },
-    van: { num: '04', main: 'ON THE VAN', sub: `${EP.van.name} · both sides + rear` },
+    brief: { hl: '01', main: 'THE BRIEF', sub: 'Who it’s for and what it has to say' },
+    sketch: { hl: '02', main: 'SKETCH', sub: `On the ${EP.van.name} template` },
+    concept: { hl: '02', main: 'AI CONCEPT', sub: 'The sketch, turned into a look' },
+    vector: { hl: '03', main: 'VECTOR', sub: 'Redrawn clean with the pen tool' },
+    colour: { hl: '03', main: 'VECTOR', sub: 'Van paint + Oracal 651 vinyl' },
+    zoom: { pre: 'WHY', hl: 'VECTOR?', sub: 'Same design, zoomed right in' },
+    van: { hl: '04', main: 'ON THE VAN', sub: `${EP.van.name} · both sides + rear` },
   };
+  function titleBlock(parent, spec, y, size) {
+    const g = el('g', {}, parent);
+    const pre = spec.pre ? el('text', Object.assign({ x: 90, y, 'font-size': size, fill: C.text, text: spec.pre }, H900), g) : null;
+    const box = el('rect', { y: y - size * 0.8, height: size * 0.94, fill: C.lime }, g);
+    const hl = el('text', Object.assign({ y, 'font-size': size, fill: C.navy, text: spec.hl }, H900), g);
+    const main = spec.main ? el('text', Object.assign({ y, 'font-size': size, fill: C.text, text: spec.main }, H900), g) : null;
+    return { g, pre, box, hl, main, size, wipe: 1 };
+  }
+  function layoutTitle(tb) {
+    let x = 90;
+    if (tb.pre) x += tb.pre.getComputedTextLength() + tb.size * 0.2;
+    const w = tb.hl.getComputedTextLength();
+    set(tb.box, { x: x - tb.size * 0.06, width: w + tb.size * 0.3 });
+    set(tb.hl, { x: x + tb.size * 0.1 });
+    tb.boxW = w + tb.size * 0.3;
+    if (tb.main) set(tb.main, { x: x + w + tb.size * 0.44 });
+  }
   const titleEls = {};
   for (const k in TITLES) {
-    const g = el('g', { opacity: 0 }, svg);
-    const tt = el('text', { x: 90, y: 262, 'font-family': DISPLAY, 'font-size': 150, fill: '#fff' }, g);
-    if (TITLES[k].num) el('tspan', { text: TITLES[k].num + ' ', fill: C.yellow }, tt);
-    el('tspan', { text: TITLES[k].main }, tt);
-    titleEls[k] = { g, sub: el('text', { x: 92, y: 318, 'font-family': BODY, 'font-weight': 500, 'font-size': 40, fill: C.grey, text: TITLES[k].sub }, svg) };
+    const tb = titleBlock(svg, TITLES[k], 300, 128);
+    set(tb.g, { opacity: 0 });
+    titleEls[k] = Object.assign(tb, { sub: el('text', { x: 92, y: 352, 'font-family': BODY, 'font-weight': 500, 'font-size': 36, fill: C.grey, text: TITLES[k].sub }, svg) });
   }
   const PIPS = ['BRIEF', 'CONCEPT', 'VECTOR', 'VAN', '3D'];
   const pipW = (900 - 4 * 18) / 5;
   const pipEls = PIPS.map((label, i) => {
     const x = 90 + i * (pipW + 18);
-    el('rect', { x, y: 350, width: pipW, height: 8, rx: 4, fill: C.line }, svg);
-    return { fill: el('rect', { x, y: 350, width: 0, height: 8, rx: 4, fill: C.yellow }, svg), txt: el('text', { x, y: 395, 'font-family': DISPLAY, 'font-size': 30, 'letter-spacing': 2, fill: C.grey, text: label }, svg) };
+    el('rect', { x, y: 384, width: pipW, height: 8, fill: C.line }, svg);
+    return { fill: el('rect', { x, y: 384, width: 0, height: 8, fill: C.lime }, svg), txt: el('text', Object.assign({ x, y: 428, 'font-size': 28, 'letter-spacing': 2, fill: C.grey, text: label }, H700), svg) };
   });
 
   // ---------- brief card ----------
   const brief = el('g', { opacity: 0 }, svg);
-  el('rect', { x: 90, y: 470, width: 900, height: 1000, rx: 26, fill: '#232323', stroke: '#3E3E3E', 'stroke-width': 2 }, brief);
-  el('text', { x: 130, y: 540, 'font-family': DISPLAY, 'font-size': 44, 'letter-spacing': 3, fill: C.yellow, text: 'CREATIVE BRIEF' }, brief);
-  el('rect', { x: 130, y: 562, width: 820, height: 2, fill: '#3E3E3E' }, brief);
-  let by = 630;
+  el('rect', { x: 90, y: 470, width: 900, height: 1000, fill: C.panel, stroke: C.panelLine, 'stroke-width': 2 }, brief);
+  el('rect', { x: 90, y: 470, width: 900, height: 8, fill: C.lime }, brief);
+  el('text', Object.assign({ x: 130, y: 548, 'font-size': 44, 'letter-spacing': 3, fill: C.lime, text: 'CREATIVE BRIEF' }, H900), brief);
+  el('rect', { x: 130, y: 572, width: 820, height: 2, fill: C.panelLine }, brief);
+  let by = 640;
   const briefRows = EP.brief.map((r) => {
-    const size = r.key ? 54 : 44, lh = r.key ? 60 : 52;
-    const lines = wrap(r.value, r.key ? 24 : 31);
-    const label = el('text', { x: 130, y: by, 'font-family': DISPLAY, 'font-size': 30, 'letter-spacing': 2, fill: C.grey, text: r.label, opacity: 0 }, brief);
-    const hl = r.key ? el('rect', { x: 330, y: by - 46, width: 0, height: lines.length * lh + 14, rx: 6, fill: C.yellow, opacity: 0.22 }, brief) : null;
-    const nodes = lines.map((_, i) => el('text', { x: 340, y: by + i * lh, 'font-family': BODY, 'font-weight': 600, 'font-size': size, fill: r.key ? C.yellow : '#fff' }, brief));
-    const row = { lines, label, nodes, hl };
-    by += lines.length * lh + 26;
+    const size = r.key ? 54 : 42, lh = r.key ? 62 : 50;
+    const lines = wrap(r.value, r.key ? 22 : 33);
+    const label = el('text', Object.assign({ x: 130, y: by, 'font-size': 28, 'letter-spacing': 2, fill: C.grey, text: r.label, opacity: 0 }, H700), brief);
+    const hl = r.key ? el('rect', { x: 326, y: by - 50, width: 0, height: lines.length * lh + 16, fill: C.lime }, brief) : null;
+    const nodes = lines.map((_, i) => el('text', Object.assign({ x: 340, y: by + i * lh, 'font-size': size, fill: r.key ? C.lime : C.text }, r.key ? H900 : { 'font-family': BODY, 'font-weight': 600 }), brief));
+    const row = { lines, label, nodes, hl, key: !!r.key };
+    by += lines.length * lh + 28;
     return row;
   });
-  const briefChars = briefRows.reduce((a, r) => a + r.lines.join(' ').length, 0);
+  const briefChars = briefRows.reduce((a, r) => a + r.lines.join(' ').length + 1, 0);
 
   // ---------- paper + camera (sheet coordinates) ----------
   const paperG = el('g', {}, svg);
-  const paperRect = el('rect', { x: PAPER.x, y: PAPER.y, width: PAPER.w, height: PAPER.h, fill: '#FBFAF6', filter: 'url(#abShadow)' }, paperG);
+  const paperRect = el('rect', { x: PAPER.x, y: PAPER.y, width: PAPER.w, height: PAPER.h, fill: '#F5F7FA', filter: 'url(#abShadow)' }, paperG);
   const clipG = el('g', { 'clip-path': 'url(#paperClip)' }, paperG);
   const cam = el('g', { transform: camT(DEF) }, clipG);
   const floorShadow = el('ellipse', { cx: SIDE.F.x + SIDE.F.w / 2, cy: CR.y + CR.h - 4, rx: SIDE.F.w * 0.56, ry: 10, fill: '#000', opacity: 0 }, cam);
@@ -271,17 +296,18 @@
   // ---------- readouts ----------
   const RY = 1130;
   const prompt = el('g', { opacity: 0 }, svg);
-  el('rect', { x: 90, y: RY + 20, width: 900, height: 210, rx: 22, fill: '#262626', stroke: '#3E3E3E', 'stroke-width': 2 }, prompt);
-  el('text', { x: 124, y: RY + 74, 'font-family': DISPLAY, 'font-size': 34, fill: C.yellow, 'letter-spacing': 2, text: '✦ PROMPT  +  SKETCH.PNG' }, prompt);
+  el('rect', { x: 90, y: RY + 20, width: 900, height: 210, fill: C.panel, stroke: C.panelLine, 'stroke-width': 2 }, prompt);
+  el('text', Object.assign({ x: 124, y: RY + 74, 'font-size': 32, fill: C.lime, 'letter-spacing': 2, text: '✦ PROMPT  +  SKETCH.PNG' }, H800), prompt);
   const promptLines = wrap('“' + EP.concept.prompt + '”', 56);
-  const promptTxt = promptLines.map((_, i) => el('text', { x: 124, y: RY + 122 + i * 40, 'font-family': BODY, 'font-size': 34, fill: '#EDEDE6' }, prompt));
-  const genRect = el('rect', { x: 790, y: RY + 40, width: 176, height: 50, rx: 25, fill: '#3A3A3A' }, prompt);
-  const genTxt = el('text', { x: 878, y: RY + 75, 'text-anchor': 'middle', 'font-family': DISPLAY, 'font-size': 30, 'letter-spacing': 2, fill: '#fff', text: 'GENERATE' }, prompt);
+  const promptTxt = promptLines.map((_, i) => el('text', { x: 124, y: RY + 122 + i * 40, 'font-family': BODY, 'font-size': 32, fill: C.text }, prompt));
+  const genRect = el('rect', { x: 780, y: RY + 38, width: 186, height: 52, rx: 26, fill: C.navy2 }, prompt);
+  const genTxt = el('text', Object.assign({ x: 873, y: RY + 74, 'text-anchor': 'middle', 'font-size': 28, 'letter-spacing': 1.5, fill: C.text, text: 'GENERATE' }, H800), prompt);
   const genBar = el('rect', { x: 90, y: RY + 224, width: 0, height: 6, fill: C.yellow }, prompt);
 
   const tool = el('g', { opacity: 0 }, svg);
-  el('rect', { x: 90, y: RY + 40, width: 900, height: 96, rx: 22, fill: '#262626', stroke: '#3E3E3E', 'stroke-width': 2 }, tool);
-  const toolName = el('text', { x: 124, y: RY + 102, 'font-family': DISPLAY, 'font-size': 44, 'letter-spacing': 2, fill: '#fff' }, tool);
+  el('rect', { x: 90, y: RY + 40, width: 900, height: 96, fill: C.panel, stroke: C.panelLine, 'stroke-width': 2 }, tool);
+  el('rect', { x: 90, y: RY + 40, width: 8, height: 96, fill: C.lime }, tool);
+  const toolName = el('text', Object.assign({ x: 124, y: RY + 104, 'font-size': 44, 'letter-spacing': 1.5, fill: C.text }, H900), tool);
   const toolCount = el('text', { x: 956, y: RY + 102, 'text-anchor': 'end', 'font-family': BODY, 'font-weight': 500, 'font-size': 38, fill: C.grey }, tool);
 
   const PAL = [{ name: `Van paint · ${EP.van.paint.name}`, hex: PAINT }].concat(EP.palette);
@@ -289,23 +315,23 @@
   const swatches = PAL.map((p, i) => {
     const g = el('g', { opacity: 0 }, svg);
     const x = 90 + i * swW;
-    el('circle', { cx: x + 32, cy: RY + 90, r: 32, fill: p.hex, stroke: '#666', 'stroke-width': 2 }, g);
-    el('text', { x: x + 76, y: RY + 84, 'font-family': DISPLAY, 'font-size': 30, 'letter-spacing': 1, fill: '#fff', text: p.name.toUpperCase() }, g);
+    el('circle', { cx: x + 32, cy: RY + 90, r: 32, fill: p.hex, stroke: '#5B6E92', 'stroke-width': 2 }, g);
+    el('text', Object.assign({ x: x + 76, y: RY + 84, 'font-size': 27, 'letter-spacing': 0.5, fill: C.text, text: p.name.toUpperCase() }, H800), g);
     el('text', { x: x + 76, y: RY + 116, 'font-family': BODY, 'font-weight': 500, 'font-size': 28, fill: C.grey, text: p.hex.toUpperCase() }, g);
     return g;
   });
 
   // Exported views (thumbnails in the van stage)
   const panelsG = el('g', { opacity: 0 }, svg);
-  el('text', { x: 90, y: RY + 70, 'font-family': DISPLAY, 'font-size': 36, 'letter-spacing': 2, fill: C.yellow, text: `READY FOR THE 3D MOCKUP · PAINT ${PAINT.toUpperCase()}` }, panelsG);
+  el('text', Object.assign({ x: 90, y: RY + 70, 'font-size': 34, 'letter-spacing': 2, fill: C.lime, text: `READY FOR THE 3D MOCKUP · PAINT ${PAINT.toUpperCase()}` }, H800), panelsG);
   let tx0 = 90;
   const thumbEls = [['side', 'NEARSIDE', 360], ['side2', 'OFFSIDE', 360], ['rear', 'REAR', 150]].map(([k, label, w]) => {
     const c = V[k].crop, h = (w * c.h) / c.w;
     const g = el('g', { opacity: 0 }, panelsG);
-    el('rect', { x: tx0 - 6, y: RY + 90, width: w + 12, height: 186, rx: 10, fill: '#F4F4F1' }, g);
+    el('rect', { x: tx0 - 6, y: RY + 90, width: w + 12, height: 186, fill: '#F5F7FA' }, g);
     const s = el('svg', { x: tx0, y: RY + 96 + (174 - h) / 2, width: w, height: h, viewBox: `${c.x} ${c.y} ${c.w} ${c.h}` }, g);
     el('use', { href: '#vanAll' }, s);
-    el('text', { x: tx0, y: RY + 312, 'font-family': DISPLAY, 'font-size': 28, 'letter-spacing': 2, fill: '#fff', text: label }, g);
+    el('text', Object.assign({ x: tx0, y: RY + 314, 'font-size': 28, 'letter-spacing': 2, fill: C.text, text: label }, H800), g);
     tx0 += w + 33;
     return g;
   });
@@ -317,54 +343,65 @@
   Z.h = Z.w * ZA;
   const zoomPct = Math.round(CR.w / Z.w) * 100;
   const panels = [
-    { y: 490, href: '#conceptArt', label: `AI IMAGE · ${zoomPct}%`, chip: '#B23A2A' },
-    { y: 1040, href: '#vanAll', label: `VECTOR · ${zoomPct}%`, chip: C.blue },
+    { y: 490, href: '#conceptArt', label: `AI IMAGE · ${zoomPct}%`, chip: '#55627A', ink: C.text },
+    { y: 1040, href: '#vanAll', label: `VECTOR · ${zoomPct}%`, chip: C.lime, ink: C.navy },
   ].map((p) => {
     const g = el('g', { transform: `translate(90,${p.y})` }, zoomG);
-    el('rect', { x: -4, y: -4, width: 908, height: 528, rx: 6, fill: '#fff', stroke: '#444', 'stroke-width': 2 }, g);
+    el('rect', { x: -4, y: -4, width: 908, height: 528, fill: '#fff', stroke: C.panelLine, 'stroke-width': 3 }, g);
     const inner = el('svg', { x: 0, y: 0, width: 900, height: 520, viewBox: '0 0 10 10', preserveAspectRatio: 'xMidYMid slice' }, g);
     el('rect', { x: -5000, y: -5000, width: 11000, height: 11000, fill: '#FBFAF6' }, inner);
     el('use', { href: p.href }, inner);
     const chipW = p.label.length * 17 + 40;
-    el('rect', { x: 20, y: 20, width: chipW, height: 54, rx: 27, fill: p.chip }, g);
-    el('text', { x: 20 + chipW / 2, y: 58, 'text-anchor': 'middle', 'font-family': DISPLAY, 'font-size': 34, 'letter-spacing': 2, fill: '#fff', text: p.label }, g);
+    el('rect', { x: 20, y: 20, width: chipW, height: 54, fill: p.chip }, g);
+    el('text', Object.assign({ x: 20 + chipW / 2, y: 59, 'text-anchor': 'middle', 'font-size': 32, 'letter-spacing': 1.5, fill: p.ink, text: p.label }, H900), g);
     return { inner };
   });
 
   // Hand-off slate
   const handoff = el('g', { opacity: 0 }, svg);
-  const hoT = el('text', { x: 540, y: 900, 'text-anchor': 'middle', 'font-family': DISPLAY, 'font-size': 200, fill: '#fff' }, handoff);
-  el('tspan', { text: '05 ', fill: C.yellow }, hoT);
-  el('tspan', { text: '3D PREVIEW' }, hoT);
-  el('text', { x: 540, y: 990, 'text-anchor': 'middle', 'font-family': BODY, 'font-weight': 500, 'font-size': 48, fill: C.grey, text: 'The full van, wrapped, in 3D' }, handoff);
-  const hoArrow = el('path', { d: 'M 510 1080 L 540 1120 L 570 1080', fill: 'none', stroke: C.yellow, 'stroke-width': 8, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, handoff);
+  const hoTitle = titleBlock(handoff, { hl: '05', main: '3D PREVIEW' }, 880, 150);
+  el('text', { x: 92, y: 960, 'font-family': BODY, 'font-weight': 500, 'font-size': 46, fill: C.grey, text: 'The full van, wrapped, in 3D' }, handoff);
+  const hoArrow = el('path', { d: 'M 90 1050 L 130 1090 L 170 1050', fill: 'none', stroke: C.lime, 'stroke-width': 10, 'stroke-linecap': 'square' }, handoff);
 
-  // Captions, footer, disclaimer
+  // Captions
   const capG = el('g', {}, svg);
-  const capLines = [0, 1].map((i) => el('text', { x: 540, y: 1640 + i * 66, 'text-anchor': 'middle', 'font-family': BODY, 'font-weight': 600, 'font-size': 56, fill: '#fff' }, capG));
-  const footer = el('text', { x: 540, y: 1860, 'text-anchor': 'middle', 'font-family': BODY, 'font-weight': 500, 'font-size': 34, 'letter-spacing': 2, fill: C.grey, text: 'VECTOREDGE.CO.UK' }, svg);
+  const capLines = [0, 1].map((i) => el('text', Object.assign({ x: 540, y: 1640 + i * 68, 'text-anchor': 'middle', 'font-size': 60, fill: C.text, 'font-family': HEAD, 'font-weight': 700 }), capG));
 
-  // Intro overlay: the paper plane flies in
+  // Disclaimer + lime ticker strip (like the site's scrolling band)
+  if (EP.disclaimer) el('text', { x: 540, y: 1794, 'text-anchor': 'middle', 'font-family': BODY, 'font-weight': 500, 'font-size': 22, 'letter-spacing': 1, fill: '#7F8CA6', text: EP.disclaimer }, svg);
+  const tickerG = el('g', {}, svg);
+  el('rect', { x: 0, y: 1822, width: W, height: 98, fill: C.lime }, tickerG);
+  const tickerRow = el('g', {}, tickerG);
+  const tickerItems = [];
+  for (let rep = 0; rep < 3; rep++) TICKER.forEach((w) => tickerItems.push(el('text', Object.assign({ y: 1888, 'font-size': 44, fill: C.navy, 'letter-spacing': 1, text: '▸ ' + w }, H900), tickerRow)));
+  let tickerW = 0;
+  const footer = el('g', {}, svg); // (kept for compatibility)
+
+  // Intro overlay: logo, eyebrow, "FROM IDEA TO VAN." with VAN in a lime block
   const intro = el('g', {}, svg);
-  el('rect', { width: W, height: H, fill: C.charcoal }, intro);
-  const introMark = el('g', {}, intro);
-  placeLogo(introMark, 0, 0, 230, true);
-  const introLines = [['FROM', '#fff'], ['IDEA', C.yellow], ['TO VAN.', '#fff']].map(([s, f], i) => el('text', { x: 90, y: 940 + i * 230, 'font-family': DISPLAY, 'font-size': 270, fill: f, text: s }, intro));
-  const introRule = el('rect', { x: 90, y: 1460, width: 0, height: 10, fill: C.yellow }, intro);
-  const introEp = el('text', { x: 92, y: 1550, 'font-family': BODY, 'font-weight': 600, 'font-size': 54, 'letter-spacing': 2, fill: '#fff', text: `EP ${String(EP.number).padStart(2, '0')} · ${EP.title.toUpperCase()}` }, intro);
-  const introSub = el('text', { x: 92, y: 1612, 'font-family': BODY, 'font-weight': 500, 'font-size': 44, fill: C.grey, text: EP.subtitle }, intro);
+  el('rect', { width: W, height: H, fill: C.navy }, intro);
+  const introLogo = placeLogo(intro, 90, 300, 150);
+  const introEyebrow = el('text', Object.assign({ x: 92, y: 720, 'font-size': 32, 'letter-spacing': 4, fill: C.lime, text: EYEBROW }, H700), intro);
+  const introL1 = el('text', Object.assign({ x: 84, y: 950, 'font-size': 240, fill: C.text, text: 'FROM IDEA' }, H900), intro);
+  const introT2 = titleBlock(intro, { pre: 'TO', hl: 'VAN.' }, 1190, 240);
+  const introEp = el('text', Object.assign({ x: 92, y: 1370, 'font-size': 56, 'letter-spacing': 2, fill: C.text, text: `EP ${String(EP.number).padStart(2, '0')} · ${EP.title.toUpperCase()}` }, H800), intro);
+  const introSub = el('text', { x: 92, y: 1430, 'font-family': BODY, 'font-weight': 500, 'font-size': 42, fill: C.grey, text: EP.subtitle }, intro);
 
-  // Outro overlay: full logo
+  // Outro overlay: logo, headline with lime block, the site's three promises, button, contact
   const outro = el('g', { opacity: 0 }, svg);
-  el('rect', { width: W, height: H, fill: C.charcoal }, outro);
-  placeLogo(outro, 540 - (900 * logoVB[2]) / logoVB[2] / 2, 650, (900 * logoVB[3]) / logoVB[2]);
-  el('text', { x: 540, y: 990, 'text-anchor': 'middle', 'font-family': BODY, 'font-weight': 600, 'font-size': 58, fill: '#fff', text: 'Got an idea for your van? Send it over.' }, outro);
-  el('text', { x: 540, y: 1058, 'text-anchor': 'middle', 'font-family': BODY, 'font-weight': 500, 'font-size': 46, fill: C.grey, text: 'Even a sketch on a napkin. We’ll take it from there.' }, outro);
-  el('text', { x: 540, y: 1250, 'text-anchor': 'middle', 'font-family': BODY, 'font-weight': 600, 'font-size': 40, 'letter-spacing': 3, fill: C.grey, text: 'CUT VINYL · SIGNWRITING · FITTED' }, outro);
-  el('text', { x: 540, y: 1350, 'text-anchor': 'middle', 'font-family': DISPLAY, 'font-size': 100, 'letter-spacing': 3, fill: C.yellow, text: 'VECTOREDGE.CO.UK' }, outro);
-  el('text', { x: 540, y: 1430, 'text-anchor': 'middle', 'font-family': BODY, 'font-weight': 600, 'font-size': 56, 'letter-spacing': 2, fill: '#fff', text: '07348 580359' }, outro);
-
-  if (EP.disclaimer) el('text', { x: 540, y: 1800, 'text-anchor': 'middle', 'font-family': BODY, 'font-weight': 500, 'font-size': 23, 'letter-spacing': 1.2, fill: '#8A8A84', text: EP.disclaimer }, svg);
+  el('rect', { width: W, height: H, fill: C.navy }, outro);
+  placeLogo(outro, 540 - (600 * LOGO_AR) / 2 / LOGO_AR * 1, 300, 600 / LOGO_AR);
+  el('text', Object.assign({ x: 90, y: 700, 'font-size': 120, fill: C.text, text: 'GOT AN IDEA' }, H900), outro);
+  const outT2 = titleBlock(outro, { pre: 'FOR YOUR', hl: 'VAN?' }, 830, 120);
+  el('text', { x: 92, y: 920, 'font-family': BODY, 'font-weight': 500, 'font-size': 42, fill: C.grey, text: 'Send it over, even a sketch on a napkin.' }, outro);
+  ['FREE MOCKUP & PRICE IN 48 HOURS', 'WE COME TO YOU', 'FIXED QUOTE, NO SURPRISES'].forEach((w, i) => {
+    el('path', { d: `M 96 ${1010 + i * 66} l 12 12 l 22 -26`, fill: 'none', stroke: C.lime, 'stroke-width': 6 }, outro);
+    el('text', Object.assign({ x: 148, y: 1022 + i * 66, 'font-size': 40, 'letter-spacing': 1.5, fill: C.text, text: w }, H800), outro);
+  });
+  el('rect', { x: 90, y: 1230, width: 460, height: 104, rx: 52, fill: C.lime }, outro);
+  el('text', Object.assign({ x: 320, y: 1298, 'text-anchor': 'middle', 'font-size': 46, fill: C.navy, text: 'GET A FREE MOCKUP' }, H800), outro);
+  el('text', Object.assign({ x: 92, y: 1470, 'font-size': 96, 'letter-spacing': 1, fill: C.lime, text: 'VECTOREDGE.CO.UK' }, H900), outro);
+  el('text', Object.assign({ x: 92, y: 1550, 'font-size': 60, 'letter-spacing': 2, fill: C.text, text: '07348 580359' }, H800), outro);
 
   // ---------- measurements (after fonts load) ----------
   let sketchItems = [], camKeys = [];
@@ -384,6 +421,10 @@
   }
 
   function measure() {
+    Object.values(titleEls).concat([hoTitle, introT2, outT2]).forEach(layoutTitle);
+    let tx = 0;
+    tickerItems.forEach((n) => { set(n, { x: tx }); tx += n.getBBox().width + 60; });
+    tickerW = tx / 3;
     const probe = el('path', {}, cam);
     SH.forEach((sh) => {
       const bb = sh.trace.getBBox();
@@ -446,7 +487,8 @@
     TX.filter((t) => !order.find((o) => o.t === t)).forEach((t) => order.push({ kind: 'text', t }));
     order.forEach((o, i) => {
       if (o.kind === 'shape') {
-        const base = el('path', { d: o.s.outerD }, cam);
+        const bb = o.s.bb, sk = o.s.s.sketch;
+        const base = el('path', { d: sk === 'bbox' ? `M ${bb.x} ${bb.y} H ${bb.x + bb.width} V ${bb.y + bb.height} H ${bb.x} Z` : o.s.outerD }, cam);
         const g = el('g', {}, sketchLayer);
         const p1 = el('path', Object.assign({ d: wobbly(base, i * 3.1), 'stroke-width': 1.7, opacity: 0.85 }, NSS), g);
         const p2 = el('path', Object.assign({ d: wobbly(base, i * 7.7 + 11), 'stroke-width': 1.0, opacity: 0.5 }, NSS), g);
@@ -541,10 +583,11 @@
 
     // Intro
     const li = lt(t, 'intro');
-    const mk = eout(seg(li, 0, 0.8));
-    set(introMark, { transform: `translate(${lerp(-420, 90, mk)} ${lerp(520, 450, mk)}) rotate(${lerp(-14, 0, mk)})`, opacity: seg(li, 0, 0.2) });
-    introLines.forEach((n, i) => { const p = eout(seg(li, 0.35 + i * 0.16, 0.85 + i * 0.16)); set(n, { opacity: p, transform: `translate(0 ${(1 - p) * 80})` }); });
-    set(introRule, { width: 900 * eio(seg(li, 0.8, 1.5)) });
+    const lg = eout(seg(li, 0, 0.6));
+    set(introLogo, { opacity: lg, transform: `translate(${(1 - lg) * -60} 0)` });
+    set(introEyebrow, { opacity: seg(li, 0.3, 0.6) });
+    { const p = eout(seg(li, 0.35, 0.8)); set(introL1, { opacity: p, transform: `translate(${(1 - p) * -80} 0)` }); }
+    { const p = eout(seg(li, 0.5, 0.95)); set(introT2.g, { opacity: p, transform: `translate(${(1 - p) * -80} 0)` }); set(introT2.box, { width: (introT2.boxW || 0) * eio(seg(li, 0.75, 1.15)) }); }
     set(introEp, { opacity: seg(li, 1.1, 1.5) });
     set(introSub, { opacity: seg(li, 1.3, 1.7) });
     set(intro, { opacity: 1 - seg(li, T.intro.dur - 0.45, T.intro.dur), display: t < T.intro.end ? 'inline' : 'none' });
@@ -552,18 +595,19 @@
     // Titles
     const keys = Object.keys(TITLES);
     keys.forEach((k, idx) => {
-      const same = (o) => o && TITLES[o].main === TITLES[k].main && TITLES[o].num === TITLES[k].num;
+      const same = (o) => o && TITLES[o].main === TITLES[k].main && TITLES[o].hl === TITLES[k].hl && TITLES[o].pre === TITLES[k].pre;
       const a = T[k].start, b = T[k].end;
       const fin = same(keys[idx - 1]) ? 1 : eout(seg(t, a, a + 0.4));
       const fout = same(keys[idx + 1]) ? 0 : seg(t, b - 0.25, b);
       set(titleEls[k].g, { opacity: t >= a && t < b ? fin * (1 - fout) : 0, transform: `translate(${(1 - fin) * -40} 0)` });
+      if (t >= a && t < b) set(titleEls[k].box, { width: (titleEls[k].boxW || 0) * (same(keys[idx - 1]) ? 1 : eio(seg(t, a + 0.1, a + 0.45))) });
       set(titleEls[k].sub, { opacity: t >= a && t < b ? eout(seg(t, a + 0.1, a + 0.45)) * (1 - seg(t, b - 0.25, b)) : 0 });
     });
 
     // Pips
     const pp = [seg(t, T.brief.start, T.brief.end), seg(t, T.sketch.start, T.concept.end), seg(t, T.vector.start, T.zoom.end), seg(t, T.van.start, T.van.end), seg(t, T.handoff.start, T.handoff.end)];
     const phase = { intro: 0, brief: 0, sketch: 1, concept: 1, vector: 2, colour: 2, zoom: 2, van: 3, handoff: 4, outro: 4 }[st];
-    pipEls.forEach((p, i) => { set(p.fill, { width: pipW * pp[i] }); set(p.txt, { fill: i === phase ? '#fff' : C.grey }); });
+    pipEls.forEach((p, i) => { set(p.fill, { width: pipW * pp[i] }); set(p.txt, { fill: i === phase ? C.lime : C.grey }); });
 
     // Brief
     const lb = lt(t, 'brief');
@@ -580,7 +624,11 @@
           used += line.length + (i < row.lines.length - 1 ? 1 : 0);
         });
         used += 1;
-        if (row.hl) set(row.hl, { width: n >= used - 1 ? 620 * eout(seg(lb, 4.5, 5.0)) : 0 });
+        if (row.hl) {
+          const k = n >= used - 1 ? eout(seg(lb, 4.5, 5.0)) : 0;
+          set(row.hl, { width: 620 * k });
+          row.nodes.forEach((nd) => set(nd, { fill: k > 0.5 ? C.navy : C.lime }));
+        }
       });
     }
 
@@ -728,6 +776,7 @@
     const lh = lt(t, 'handoff');
     const hOp = within(t, 'handoff') ? eout(seg(lh, 0, 0.4)) : 0;
     set(handoff, { opacity: hOp, transform: `translate(0 ${(1 - hOp) * 30})` });
+    set(hoTitle.box, { width: (hoTitle.boxW || 0) * eio(seg(lh, 0.1, 0.45)) });
     set(hoArrow, { transform: `translate(0 ${Math.sin(lh * 6) * 10})` });
 
     // Captions
@@ -745,7 +794,8 @@
     // Outro
     const oOp = t >= T.outro.start ? eout(seg(lt(t, 'outro'), 0, 0.45)) : 0;
     set(outro, { opacity: oOp, display: oOp > 0 ? 'inline' : 'none' });
-    set(footer, { opacity: t >= T.intro.end - 0.4 ? 1 : 0 });
+    if (oOp > 0) set(outT2.box, { width: (outT2.boxW || 0) * eio(seg(lt(t, 'outro'), 0.3, 0.7)) });
+    set(tickerRow, { transform: `translate(${-((t * 90) % (tickerW || 1))} 0)` });
   }
 
   // ---------- exports (for the 3D mockup app) ----------
@@ -784,6 +834,12 @@
   window.showExport = showExport;
   await Promise.all([
     document.fonts.load(`400 100px 'Bebas Neue'`, 'A'),
+    document.fonts.load(`italic 900 100px 'Barlow Condensed'`, 'A'),
+    document.fonts.load(`italic 800 100px 'Barlow Condensed'`, 'A'),
+    document.fonts.load(`italic 700 100px 'Barlow Condensed'`, 'A'),
+    document.fonts.load(`700 100px 'Barlow Condensed'`, 'A'),
+    document.fonts.load(`500 40px 'Archivo Narrow'`, 'A'),
+    document.fonts.load(`600 40px 'Archivo Narrow'`, 'A'),
     document.fonts.load(`500 40px 'Barlow Condensed'`, 'A'),
     document.fonts.load(`600 40px 'Barlow Condensed'`, 'A'),
   ]);

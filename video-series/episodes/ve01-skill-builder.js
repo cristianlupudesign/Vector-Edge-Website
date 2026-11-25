@@ -21,7 +21,7 @@
 
   window.EPISODE = {
     engine: 3,
-    id: 'ep03-skill-builder',
+    id: 've01-skill-builder',
     number: 1,
     title: 'Skill Builder',
     subtitle: 'A site van for Roger Bisby',
@@ -131,7 +131,7 @@
       voVolume: 1.6,
       musicVolume: 0.2,
       sfxVolume: 0.35,
-      voDir: 'assets/audio/vo/ep03-skill-builder',
+      voDir: 'assets/audio/vo/ve01-skill-builder',
       // Seconds into each scene where that scene's voiceover starts (file = <scene>.mp3).
       voAt: { intro: 0.35, brief: 0.3, sketch: 0.3, concept: 0.3, vector: 0.3, colour: 0.3, zoom: 0.3, van: 0.3, handoff: 0.2, outro: 0.4 },
     },

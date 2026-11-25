@@ -5,6 +5,20 @@ Everything except the 3D part is made by code. You make the 3D clip in your 3D a
 
 ---
 
+## The five episodes so far
+
+| File | Who (unofficial fan concepts) | Van | Message |
+|---|---|---|---|
+| `ve01-skill-builder` | Roger Bisby · Skill Builder | Ford Transit Custom, black | Do it once. Do it right. |
+| `ve02-kaleb-cooper` | Kaleb Cooper | Vauxhall Combo, dark green | Straight hedges. Straight talking. |
+| `ve03-tommy-walsh` | Tommy Walsh | Peugeot Boxer, white | Gardens built to last. |
+| `ve04-jay-blades` | Jay Blades | Ford Transit Custom, dark blue | Don't bin it. Fix it. |
+| `ve05-nick-knowles` | Nick Knowles | Peugeot Boxer, silver | Big builds. Big hearts. |
+
+The look matches vectoredge.co.uk: navy `#16233D`, lime `#E8F338` highlight blocks, blue `#2563EB`, Barlow Condensed Black Italic headings, Archivo Narrow text, the site logo and the lime ticker strip.
+
+---
+
 ## Step 1: Set up the PC (once)
 
 Install these:
@@ -29,12 +43,12 @@ Later, to get the newest version: open PowerShell in `vectoredge-video` and run 
 
 Each video is one file in `video-series\episodes\`.
 
-1. Copy `ep03-skill-builder.js` and rename it, e.g. `ep04-kaleb-cooper.js`.
+1. Copy `ve01-skill-builder.js` and rename it, e.g. `ve06-your-episode.js`.
 2. Open it in Notepad (or VS Code) and change these parts:
 
 | Part | What to put |
 |---|---|
-| `id` | the file name without `.js`, e.g. `'ep04-kaleb-cooper'` |
+| `id` | the file name without `.js`, e.g. `'ve06-your-episode'` |
 | `number`, `title`, `subtitle` | shown on the intro |
 | `disclaimer` | keep "UNOFFICIAL FAN CONCEPT · NOT AFFILIATED…" with the person's name |
 | `van` | `sheet`: which template (see table below), `name`, and `paint` colour |
@@ -47,8 +61,8 @@ Each video is one file in `video-series\episodes\`.
 | `concept` | the AI prompt shown on screen, and the misspelt versions of each text line |
 | `camera` | which shapes or text to zoom in on while drawing |
 | `zoom` | the area shown in the "Why vector?" close-up |
-| `captions` | the subtitles for each scene |
-| `durations` | seconds per scene |
+| `captions` | the subtitles for each scene, one per spoken sentence (timing is filled in by `vo-plan.js`) |
+| `durations` | starting seconds per scene (`vo-plan.js` stretches them to fit the voice) |
 
 **Van templates:**
 
@@ -79,7 +93,7 @@ The same design goes on both sides automatically (the other side is mirrored, wi
 
 ```powershell
 cd $HOME\Desktop\Claude\vectoredge-video\video-series
-node render.js ep04-kaleb-cooper --preview
+node render.js ve06-your-episode --preview
 ```
 
 Open the address it prints in Chrome. It plays the video with a scrub bar, so press F5 after each change. Ctrl+C stops it.
@@ -87,7 +101,7 @@ Open the address it prints in Chrome. It plays the video with a scrub bar, so pr
 To check a single moment as a picture (e.g. 30 seconds in):
 
 ```powershell
-node render.js ep04-kaleb-cooper --frame 30
+node render.js ve06-your-episode --frame 30
 ```
 
 ---
@@ -95,7 +109,7 @@ node render.js ep04-kaleb-cooper --frame 30
 ## Step 4: Render the video
 
 ```powershell
-node render.js ep04-kaleb-cooper
+node render.js ve06-your-episode
 ```
 
 It takes about 4–5 minutes. You get, in `video-series\out\`:
@@ -128,12 +142,12 @@ In your 3D app:
 ## Step 6: Join it all into the final video
 
 ```powershell
-node stitch.js ep04-kaleb-cooper "C:\path\to\your-3d-clip.mp4"
+node stitch.js ve06-your-episode "C:\path\to\your-3d-clip.mp4"
 ```
 
 You can add more than one 3D clip, and they play in order. Any size works: each clip is fitted into the vertical frame.
 
-Result: `out\ep04-kaleb-cooper-final.mp4` (1080 × 1920, ready for Reels / TikTok / Shorts) and `-final-whatsapp.mp4`.
+Result: `out\ve06-your-episode-final.mp4` (1080 × 1920, ready for Reels / TikTok / Shorts) and `-final-whatsapp.mp4`.
 The soundtrack is rebuilt to fit: the music plays on under your 3D clip, and the voice and sound effects stay in sync either side of it.
 
 ---
@@ -152,8 +166,11 @@ Every render has a full soundtrack, levelled to -14 LUFS (what Instagram, TikTok
 1. Write one or two short lines per scene (match the captions).
 2. Make each scene's line in Magnific (Audio → Voiceover). Ep 01 used the voice **Preston Thornbury** with the eleven v4 model, so use the same voice to keep the series consistent.
 3. Save them as `assets/audio/vo/<episode>/<scene>.mp3` and point `audio.voDir` in the episode file at that folder.
-4. If a line is longer than its scene, make the scene longer in `durations` (voice starts `voAt` seconds into the scene, normally 0.3).
-5. Set each caption's `at` to when that sentence starts.
+   Put `[pause 1s]` between sentences that have their own caption.
+4. Run `node vo-plan.js <episode>`. It measures the voice, makes each scene long enough, and times every caption to its sentence (saved as `episodes/<episode>.timing.js`).
+5. Render as normal.
+
+The intro ("From idea… to van") and outro ("Vector Edge. Got an idea for your van? Send it over.") are the same in every episode, so copy them from `assets/audio/vo/ve01-skill-builder/`.
 
 Levels live in the episode file: `voVolume`, `musicVolume`, `sfxVolume`.
 Changed only the sound? `node render.js <episode> --audio-only` rebuilds it in seconds without re-rendering the pictures.

@@ -3,7 +3,7 @@
 ## Real-template episodes (engine 3, current)
 
 ```bash
-node render.js ep03-skill-builder
+node render.js ve01-skill-builder
 ```
 
 - Vans are the real Vector Edge template sheets (`assets/vans/ve-veh-*.svg`, copied from the theme), loaded with the Van Designer v5 engine (`assets/ve-vd5-engine.js`). Vinyl is masked to the bodywork, and the sheet is multiplied back on top so handles and panel lines sit on the vinyl, the same as the live designer.

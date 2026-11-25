@@ -5,7 +5,7 @@
     node render.js ep01-harris-build --preview    open-in-browser preview server
     node render.js ep01-harris-build --frame 20   one PNG at 20 s (quick check)
     node render.js ep01-harris-build --fps 24     lower frame rate (faster)
-    node render.js ep03-skill-builder --audio-only  rebuild just the sound (keeps the rendered frames)
+    node render.js ve01-skill-builder --audio-only  rebuild just the sound (keeps the rendered frames)
 
   Output (in out/):
     <ep>-9x16.mp4            whole video, 1080 x 1920

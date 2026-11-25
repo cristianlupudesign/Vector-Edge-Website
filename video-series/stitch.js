@@ -1,7 +1,7 @@
 /*
   Join an episode into one finished video:  main clip → your 3D clip(s) → outro.
 
-    node stitch.js ep03-skill-builder path/to/3d-clip.mp4 [more-3d-clips.mp4 ...]
+    node stitch.js ve01-skill-builder path/to/3d-clip.mp4 [more-3d-clips.mp4 ...]
 
   Any 3D clip size or frame rate works: each one is fitted into 1080 x 1920 (9:16) on the
   Vector Edge charcoal background, at 30 fps. The soundtrack is rebuilt to fit: the music plays on

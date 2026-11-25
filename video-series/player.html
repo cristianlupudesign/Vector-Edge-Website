@@ -8,6 +8,14 @@
   @font-face { font-family: 'Barlow Condensed'; font-weight: 400; src: url(assets/fonts/barlow-condensed-latin-400-normal.woff2) format('woff2'); }
   @font-face { font-family: 'Barlow Condensed'; font-weight: 500; src: url(assets/fonts/barlow-condensed-latin-500-normal.woff2) format('woff2'); }
   @font-face { font-family: 'Barlow Condensed'; font-weight: 600; src: url(assets/fonts/barlow-condensed-latin-600-normal.woff2) format('woff2'); }
+  @font-face { font-family: 'Barlow Condensed'; font-weight: 700; src: url(assets/fonts/barlow-condensed-latin-700-normal.woff2) format('woff2'); }
+  @font-face { font-family: 'Barlow Condensed'; font-weight: 700; font-style: italic; src: url(assets/fonts/barlow-condensed-latin-700-italic.woff2) format('woff2'); }
+  @font-face { font-family: 'Barlow Condensed'; font-weight: 800; font-style: italic; src: url(assets/fonts/barlow-condensed-latin-800-italic.woff2) format('woff2'); }
+  @font-face { font-family: 'Barlow Condensed'; font-weight: 900; font-style: italic; src: url(assets/fonts/barlow-condensed-latin-900-italic.woff2) format('woff2'); }
+  @font-face { font-family: 'Archivo Narrow'; font-weight: 400; src: url(assets/fonts/archivo-narrow-latin-400-normal.woff2) format('woff2'); }
+  @font-face { font-family: 'Archivo Narrow'; font-weight: 500; src: url(assets/fonts/archivo-narrow-latin-500-normal.woff2) format('woff2'); }
+  @font-face { font-family: 'Archivo Narrow'; font-weight: 600; src: url(assets/fonts/archivo-narrow-latin-600-normal.woff2) format('woff2'); }
+  @font-face { font-family: 'Archivo Narrow'; font-weight: 700; src: url(assets/fonts/archivo-narrow-latin-700-normal.woff2) format('woff2'); }
   html, body { margin: 0; background: #0e0e0e; overflow: hidden; }
   #stage { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; overflow: hidden; transform-origin: 0 0; background: #1B1B1B; }
   #main { position: absolute; left: 0; top: 0; }
@@ -29,12 +37,13 @@
 <script>
   // Load the episode named in ?ep=..., then the engine.
   const qs = new URLSearchParams(location.search);
-  const ep = (qs.get('ep') || 'ep01-harris-build').replace(/[^a-z0-9-]/gi, '');
+  const epId = (qs.get('ep') || 'ep01-harris-build').replace(/[^a-z0-9-]/gi, '');
   if (qs.has('render')) document.body.classList.add('render');
   const s = document.createElement('script');
-  s.src = 'episodes/' + ep + '.js';
+  s.src = 'episodes/' + epId + '.js';
   const load = (src, cb) => { const e = document.createElement('script'); e.src = src; e.onload = cb; document.body.appendChild(e); };
-  s.onload = () => {
+  s.onload = () => { const tm = document.createElement('script'); tm.src = 'episodes/' + epId + '.timing.js'; tm.onload = tm.onerror = afterEpisode; document.body.appendChild(tm); };
+  const afterEpisode = () => {
     const ep = window.EPISODE;
     if (ep.engine === 3) load('assets/ve-vd5-engine.js', () => load('engine3.js', startPlayer));
     else if (ep.engine === 2) load('vans/' + ep.van.model + '.js', () => load('engine2.js', startPlayer));

@@ -55,9 +55,41 @@ window.VE = (function () {
     return poly(pts);
   }
 
+  // Clip a polygon [[x,y],...] to a rectangle [x0,y0,x1,y1] (Sutherland–Hodgman).
+  function clipPoly(pts, r) {
+    const edges = [
+      (p) => p[0] >= r[0], (p) => p[0] <= r[2], (p) => p[1] >= r[1], (p) => p[1] <= r[3],
+    ];
+    const cut = [
+      (a, b) => [r[0], a[1] + ((b[1] - a[1]) * (r[0] - a[0])) / (b[0] - a[0])],
+      (a, b) => [r[2], a[1] + ((b[1] - a[1]) * (r[2] - a[0])) / (b[0] - a[0])],
+      (a, b) => [a[0] + ((b[0] - a[0]) * (r[1] - a[1])) / (b[1] - a[1]), r[1]],
+      (a, b) => [a[0] + ((b[0] - a[0]) * (r[3] - a[1])) / (b[1] - a[1]), r[3]],
+    ];
+    let out = pts;
+    for (let e = 0; e < 4 && out.length; e++) {
+      const inp = out; out = [];
+      for (let i = 0; i < inp.length; i++) {
+        const a = inp[(i + inp.length - 1) % inp.length], b = inp[i];
+        const ain = edges[e](a), bin = edges[e](b);
+        if (bin) { if (!ain) out.push(cut[e](a, b)); out.push(b); } else if (ain) out.push(cut[e](a, b));
+      }
+    }
+    return out;
+  }
+
+  // A leaf (two smooth curves) in design units, where x is squashed by `ar` (u = x / ar).
+  function leaf(cu, cv, len, wid, angDeg, ar) {
+    const a = (angDeg * Math.PI) / 180, dx = Math.cos(a), dy = Math.sin(a), px = -dy, py = dx;
+    const P = (along, side) => [cu + (dx * along + px * side) / ar, cv + dy * along + py * side];
+    const tip = P(len, 0);
+    const c1 = P(len * 0.2, wid), c2 = P(len * 0.75, wid * 0.9), c3 = P(len * 0.75, -wid * 0.9), c4 = P(len * 0.2, -wid);
+    return [['M', cu, cv], ['C', ...c1, ...c2, ...tip], ['C', ...c3, ...c4, cu, cv], ['Z']];
+  }
+
   function toD(cmds) {
     return cmds.map((c) => c[0] + (c.length > 1 ? ' ' + c.slice(1).map((n) => +n.toFixed(2)).join(' ') : '')).join(' ');
   }
 
-  return { poly, rrect, circle, star, toD };
+  return { poly, rrect, circle, star, clipPoly, leaf, toD };
 })();
