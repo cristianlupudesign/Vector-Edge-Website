@@ -86,14 +86,14 @@
     zoom: { u: 0.47, v: 0.08, w: 0.32 },
 
     captions: {
-      brief: [{ text: 'This one’s for Nick Knowles.' }, { text: 'One message: big builds, big hearts.' }],
+      brief: [{ text: 'This one’s for Nick Knowles.' }, { text: 'One message: *big builds, big hearts.*' }],
       sketch: [{ text: 'Rough sketch on a Peugeot Boxer.' }, { text: 'Chapter 8 chevrons on the back, so it’s seen on every site.' }],
       concept: [{ text: 'AI goes for a bold look.' }, { text: 'The spelling? Not so much.' }],
-      vector: [{ text: 'Redrawn as clean vectors.' }, { text: 'Every chevron cut to a perfect 45°.' }, { text: 'Lettering, spelled right.' }],
+      vector: [{ text: 'Redrawn as clean vectors.' }, { text: 'Every chevron cut to a perfect 45°.' }, { text: 'Lettering, *spelled right.*' }],
       colour: [{ text: 'Silver van. Red, yellow and black vinyl.' }],
-      zoom: [{ text: 'Zoom in.' }, { text: 'The AI falls apart. The vector stays razor sharp.' }],
+      zoom: [{ text: 'Zoom in.' }, { text: 'The AI falls apart. The vector stays *razor sharp.*' }],
       van: [{ text: 'On the real Boxer template.' }, { text: 'Both sides, and those chevrons on the back, ready for 3D.' }],
-      handoff: [{ text: 'Let’s see it in 3D.' }],
+      handoff: [{ text: 'Let’s see it in *3D.*' }],
     },
     audio: {
       music: 'assets/audio/music/idea-to-van-theme.mp3', voVolume: 1.6, musicVolume: 0.2, sfxVolume: 0.35,

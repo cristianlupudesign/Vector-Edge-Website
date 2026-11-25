@@ -97,7 +97,7 @@
     captions: {
       brief: [
         { at: 0.3, text: 'Every job starts with a brief, not a picture.' },
-        { at: 4.2, text: 'One message: do it once, do it right.' },
+        { at: 4.2, text: 'One message: *do it once, do it right.*' },
       ],
       sketch: [
         { at: 0.3, text: 'First, a rough sketch, straight onto the van template.' },
@@ -110,18 +110,18 @@
       vector: [
         { at: 0.3, text: 'So we redraw it as a clean vector, point by point.' },
         { at: 4.5, text: 'Every tick on that tape is its own cut.' },
-        { at: 7.5, text: 'And real lettering, spelled right.' },
+        { at: 7.5, text: 'And real lettering, *spelled right.*' },
       ],
       colour: [{ at: 0.3, text: 'Black van. Two Oracal vinyls. That’s it.' }],
       zoom: [
         { at: 0.3, text: 'Zoom right in.' },
-        { at: 2.6, text: 'The AI image falls apart. The vector stays razor sharp.' },
+        { at: 2.6, text: 'The AI image falls apart. The vector stays *razor sharp.*' },
       ],
       van: [
         { at: 0.3, text: 'On the real van template.' },
         { at: 2.8, text: 'Both sides and the back, ready for 3D.' },
       ],
-      handoff: [{ at: 0.2, text: 'Now let’s see it in 3D.' }],
+      handoff: [{ at: 0.2, text: 'Now let’s see it in *3D.*' }],
     },
 
     // Sound: one music track for the whole series, a voiceover clip per scene (made in Magnific,

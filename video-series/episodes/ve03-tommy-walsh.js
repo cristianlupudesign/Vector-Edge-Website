@@ -82,14 +82,14 @@
     zoom: { u: 0.47, v: 0.08, w: 0.32 },
 
     captions: {
-      brief: [{ text: 'This one’s for Tommy Walsh.' }, { text: 'One message: gardens built to last.' }],
+      brief: [{ text: 'This one’s for Tommy Walsh.' }, { text: 'One message: *gardens built to last.*' }],
       sketch: [{ text: 'Rough sketch on a big Peugeot Boxer.' }, { text: 'Leaves growing up the back, grass along the bottom.' }],
       concept: [{ text: 'AI turns it into a look.' }, { text: 'Lovely garden… shame about the spelling.' }],
-      vector: [{ text: 'Redrawn as clean vectors.' }, { text: 'Every leaf is just a few smooth curves.' }, { text: 'Then the lettering, spelled right.' }],
+      vector: [{ text: 'Redrawn as clean vectors.' }, { text: 'Every leaf is just a few smooth curves.' }, { text: 'Then the lettering, *spelled right.*' }],
       colour: [{ text: 'White van. Three greens. Nothing else.' }],
-      zoom: [{ text: 'Zoom right in.' }, { text: 'The AI leaves go fuzzy. The vector stays crisp.' }],
+      zoom: [{ text: 'Zoom right in.' }, { text: 'The AI leaves go fuzzy. The vector *stays crisp.*' }],
       van: [{ text: 'On the real Boxer template.' }, { text: 'Both sides and the back, ready for 3D.' }],
-      handoff: [{ text: 'Let’s see it in 3D.' }],
+      handoff: [{ text: 'Let’s see it in *3D.*' }],
     },
     audio: {
       music: 'assets/audio/music/idea-to-van-theme.mp3', voVolume: 1.6, musicVolume: 0.2, sfxVolume: 0.35,

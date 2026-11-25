@@ -175,12 +175,15 @@
   }
 
   // ---------- background, header (site logo), titles, pips ----------
-  el('rect', { width: W, height: H, fill: C.bg }, svg);
+  const bgRect = el('rect', { width: W, height: H, fill: C.bg }, svg);
+  const stripes = el('pattern', { id: 'stripes', width: 90, height: 90, patternUnits: 'userSpaceOnUse' }, defs);
+  el('rect', { x: 0, y: 0, width: 26, height: 90, fill: '#1A2947' }, stripes);
+  const bgStripes = el('rect', { width: W, height: H, fill: 'url(#stripes)', opacity: 0.55 }, svg);
   const LOGO_AR = 655 / 213; // site logo PNG
   function placeLogo(parent, x, y, h) { return el('image', { href: logoTxt, x, y, width: h * LOGO_AR, height: h }, parent); }
-  el('rect', { x: 0, y: 0, width: W, height: 128, fill: '#111C31' }, svg);
-  placeLogo(svg, 84, 30, 68);
-  el('text', Object.assign({ x: 996, y: 78, 'text-anchor': 'end', 'font-size': 30, fill: C.grey, 'letter-spacing': 1.5, text: `FROM IDEA TO VAN · EP ${String(EP.number).padStart(2, '0')}` }, H700), svg);
+  const headerBar = el('rect', { x: 0, y: 0, width: W, height: 128, fill: '#111C31' }, svg);
+  const headerLogo = placeLogo(svg, 84, 30, 68);
+  const headerEp = el('text', Object.assign({ x: 996, y: 78, 'text-anchor': 'end', 'font-size': 30, fill: C.grey, 'letter-spacing': 1.5, text: `FROM IDEA TO VAN · EP ${String(EP.number).padStart(2, '0')}` }, H700), svg);
   el('text', Object.assign({ x: 90, y: 182, 'font-size': 26, 'letter-spacing': 3.5, fill: C.lime, text: EYEBROW }, H700), svg);
 
   // Titles: a lime highlight block behind the key word (like the site hero), then the rest in white.
@@ -354,7 +357,7 @@
     const chipW = p.label.length * 17 + 40;
     el('rect', { x: 20, y: 20, width: chipW, height: 54, fill: p.chip }, g);
     el('text', Object.assign({ x: 20 + chipW / 2, y: 59, 'text-anchor': 'middle', 'font-size': 32, 'letter-spacing': 1.5, fill: p.ink, text: p.label }, H900), g);
-    return { inner };
+    return { g, inner, y: p.y };
   });
 
   // Hand-off slate
@@ -365,10 +368,16 @@
 
   // Captions
   const capG = el('g', {}, svg);
-  const capLines = [0, 1].map((i) => el('text', Object.assign({ x: 540, y: 1640 + i * 68, 'text-anchor': 'middle', 'font-size': 60, fill: C.text, 'font-family': HEAD, 'font-weight': 700 }), capG));
+  const CAP = { size: 60, lh: 74, y0: 1640, max: 30 };
+  const capWords = [];
+  for (let i = 0; i < 18; i++) {
+    const g = el('g', { opacity: 0 }, capG);
+    capWords.push({ g, box: el('rect', { fill: C.lime, height: CAP.size * 0.92, y: -CAP.size * 0.76, opacity: 0 }, g), txt: el('text', Object.assign({ x: 0, y: 0, 'font-size': CAP.size, fill: C.text }, H800), g) });
+  }
+  const capLayout = new Map(); // caption text -> [{word, hl, x, y, w}]
 
   // Disclaimer + lime ticker strip (like the site's scrolling band)
-  if (EP.disclaimer) el('text', { x: 540, y: 1794, 'text-anchor': 'middle', 'font-family': BODY, 'font-weight': 500, 'font-size': 22, 'letter-spacing': 1, fill: '#7F8CA6', text: EP.disclaimer }, svg);
+  const discEl = EP.disclaimer && el('text', { x: 540, y: 1794, 'text-anchor': 'middle', 'font-family': BODY, 'font-weight': 500, 'font-size': 22, 'letter-spacing': 1, fill: '#7F8CA6', text: EP.disclaimer }, svg);
   const tickerG = el('g', {}, svg);
   el('rect', { x: 0, y: 1822, width: W, height: 98, fill: C.lime }, tickerG);
   const tickerRow = el('g', {}, tickerG);
@@ -398,10 +407,68 @@
     el('path', { d: `M 96 ${1010 + i * 66} l 12 12 l 22 -26`, fill: 'none', stroke: C.lime, 'stroke-width': 6 }, outro);
     el('text', Object.assign({ x: 148, y: 1022 + i * 66, 'font-size': 40, 'letter-spacing': 1.5, fill: C.text, text: w }, H800), outro);
   });
-  el('rect', { x: 90, y: 1230, width: 460, height: 104, rx: 52, fill: C.lime }, outro);
-  el('text', Object.assign({ x: 320, y: 1298, 'text-anchor': 'middle', 'font-size': 46, fill: C.navy, text: 'GET A FREE MOCKUP' }, H800), outro);
+  const outBtn = el('g', {}, outro);
+  el('rect', { x: 90, y: 1230, width: 460, height: 104, rx: 52, fill: C.lime }, outBtn);
+  el('text', Object.assign({ x: 320, y: 1298, 'text-anchor': 'middle', 'font-size': 46, fill: C.navy, text: 'GET A FREE MOCKUP' }, H800), outBtn);
+  const outLogo = outro.querySelector('image');
   el('text', Object.assign({ x: 92, y: 1470, 'font-size': 96, 'letter-spacing': 1, fill: C.lime, text: 'VECTOREDGE.CO.UK' }, H900), outro);
   el('text', Object.assign({ x: 92, y: 1550, 'font-size': 60, 'letter-spacing': 2, fill: C.text, text: '07348 580359' }, H800), outro);
+
+  // ---------- motion layer ----------
+  // Scan line sweeping down the AI image while it "generates" (inside the camera, sheet units).
+  const scan = el('g', { opacity: 0 }, cam);
+  const scanGrad = el('linearGradient', { id: 'scanGrad', x1: 0, y1: 0, x2: 0, y2: 1 }, defs);
+  el('stop', { offset: '0%', 'stop-color': C.lime, 'stop-opacity': 0 }, scanGrad);
+  el('stop', { offset: '100%', 'stop-color': C.lime, 'stop-opacity': 0.55 }, scanGrad);
+  const scanGlow = el('rect', { x: PA.x, width: PA.w, height: 40, fill: 'url(#scanGrad)' }, scan);
+  const scanLine = el('rect', { x: PA.x, width: PA.w, height: 2.5, fill: C.lime }, scan);
+  // Speed lines while the van drives in (stage coordinates).
+  const speed = el('g', { opacity: 0 }, svg);
+  const speedLines = Array.from({ length: 9 }, (_, i) => el('rect', { y: 640 + i * 46 + (i % 3) * 9, height: i % 2 ? 4 : 7, width: 160 + (i * 73) % 220, fill: i % 3 ? C.lime : C.text, opacity: 0.8 }, speed));
+  // Paint flash on the paper.
+  const flash = el('rect', { x: PAPER.x, y: PAPER.y, width: PAPER.w, height: PAPER.h, fill: '#FFFFFF', opacity: 0 }, svg);
+
+  // Everything that moves with the camera punch/shake goes in one "world" group.
+  const FIXED = new Set([defs, bgRect, bgStripes, headerBar, headerLogo, headerEp, tickerG, discEl, intro, outro].filter(Boolean));
+  const world = document.createElementNS(NS, 'g');
+  svg.insertBefore(world, bgStripes.nextSibling);
+  [...svg.childNodes].forEach((n) => { if (n !== world && !FIXED.has(n)) world.appendChild(n); });
+  // Lime slash wipes between the big scenes (on top of everything but the ticker).
+  const wipeG = el('g', {}, svg);
+  const wipeA = el('rect', { x: 0, y: -100, width: 1400, height: H + 200, fill: C.lime, transform: 'skewX(-14)' }, wipeG);
+  const wipeB = el('rect', { x: 0, y: -100, width: 700, height: H + 200, fill: C.navy2, transform: 'skewX(-14)' }, wipeG);
+  svg.appendChild(tickerG);
+  const WIPES = ['brief', 'sketch', 'zoom', 'van', 'handoff', 'outro'].map((k) => T[k].start);
+  const PUNCH = ['brief', 'sketch', 'concept', 'vector', 'colour', 'zoom', 'van', 'handoff'].map((k) => T[k].start);
+  let SHAKES = [];
+
+  // Kinetic captions: words laid out once, then snapped in one by one.
+  function layoutCaption(text) {
+    if (capLayout.has(text)) return capLayout.get(text);
+    let inHl = false;
+    const words = text.split(' ').map((w) => {
+      const open = w.startsWith('*'), close = /\*[.,!?:;…’]*$/.test(w) && (w.length > 1);
+      const hl = inHl || open;
+      if (open) inHl = true;
+      if (close) inHl = false;
+      return { hl, word: w.replace(/\*/g, '') };
+    });
+    const probe = capWords[0].txt, sp = CAP.size * 0.26;
+    words.forEach((w) => { probe.textContent = w.word; w.w = probe.getComputedTextLength(); });
+    probe.textContent = '';
+    const lines = [[]];
+    let len = 0;
+    words.forEach((w) => { if (len + w.word.length > CAP.max && lines[lines.length - 1].length) { lines.push([]); len = 0; } lines[lines.length - 1].push(w); len += w.word.length + 1; });
+    const out = [];
+    lines.forEach((ln, li) => {
+      const total = ln.reduce((a, w) => a + w.w, 0) + sp * (ln.length - 1);
+      let x = 540 - total / 2;
+      const y = CAP.y0 + li * CAP.lh + (lines.length < 2 ? 34 : 0);
+      ln.forEach((w) => { out.push(Object.assign({ x, y }, w)); x += w.w + sp; });
+    });
+    capLayout.set(text, out);
+    return out;
+  }
 
   // ---------- measurements (after fonts load) ----------
   let sketchItems = [], camKeys = [];
@@ -557,6 +624,16 @@
     PAL.forEach((p, i) => ev('colour', 0.3 + i * 0.45, 'pop', { gain: 0.4, pitch: 1.35 }));
     // Zoom: rising whoosh while it pushes in
     ev('zoom', 0.6, 'riser', { dur: 1.4, gain: 0.4 });
+    // Van: drives in, stops with a thud
+    ev('van', 0, 'riser', { dur: 0.9, gain: 0.35 });
+    ev('van', 1.0, 'thud', { gain: 0.7 });
+    // Zoom: panels crash in
+    ev('zoom', 0.2, 'swish', { dur: 0.45, gain: 0.45 });
+    ev('zoom', 0.35, 'swish', { dur: 0.45, gain: 0.45 });
+    ev('zoom', 2.0, 'thud', { gain: 0.45 });
+    ev('brief', 4.55, 'thud', { gain: 0.35 });
+    // Big whoosh on every lime wipe
+    ['brief', 'sketch', 'zoom', 'van', 'handoff', 'outro'].forEach((k) => out.push({ t: +(T[k].start - 0.3).toFixed(3), type: 'whoosh', dur: 0.7, gain: 0.6 }));
     // Van: the exported views pop in
     [0, 1, 2].forEach((i) => ev('van', 3.1 + i * 0.3, 'pop', { gain: 0.4, pitch: 1.1 + i * 0.1 }));
     // Hand-off and outro hits
@@ -584,7 +661,7 @@
     // Intro
     const li = lt(t, 'intro');
     const lg = eout(seg(li, 0, 0.6));
-    set(introLogo, { opacity: lg, transform: `translate(${(1 - lg) * -60} 0)` });
+    set(introLogo, { opacity: lg, transform: `translate(${90 + 230} 375) scale(${lerp(1.6, 1, eback(seg(li, 0, 0.5)))}) translate(${-(90 + 230)} -375)` });
     set(introEyebrow, { opacity: seg(li, 0.3, 0.6) });
     { const p = eout(seg(li, 0.35, 0.8)); set(introL1, { opacity: p, transform: `translate(${(1 - p) * -80} 0)` }); }
     { const p = eout(seg(li, 0.5, 0.95)); set(introT2.g, { opacity: p, transform: `translate(${(1 - p) * -80} 0)` }); set(introT2.box, { width: (introT2.boxW || 0) * eio(seg(li, 0.75, 1.15)) }); }
@@ -599,7 +676,8 @@
       const a = T[k].start, b = T[k].end;
       const fin = same(keys[idx - 1]) ? 1 : eout(seg(t, a, a + 0.4));
       const fout = same(keys[idx + 1]) ? 0 : seg(t, b - 0.25, b);
-      set(titleEls[k].g, { opacity: t >= a && t < b ? fin * (1 - fout) : 0, transform: `translate(${(1 - fin) * -40} 0)` });
+      const slam = same(keys[idx - 1]) ? 1 : eback(seg(t, a, a + 0.5));
+      set(titleEls[k].g, { opacity: t >= a && t < b ? fin * (1 - fout) : 0, transform: `translate(${(1 - slam) * -160} 0) skewX(${(1 - slam) * -10})` });
       if (t >= a && t < b) set(titleEls[k].box, { width: (titleEls[k].boxW || 0) * (same(keys[idx - 1]) ? 1 : eio(seg(t, a + 0.1, a + 0.45))) });
       set(titleEls[k].sub, { opacity: t >= a && t < b ? eout(seg(t, a + 0.1, a + 0.45)) * (1 - seg(t, b - 0.25, b)) : 0 });
     });
@@ -612,7 +690,7 @@
     // Brief
     const lb = lt(t, 'brief');
     const bOp = within(t, 'brief') ? eout(seg(lb, 0, 0.35)) * (1 - seg(lb, T.brief.dur - 0.3, T.brief.dur)) : 0;
-    set(brief, { opacity: bOp, display: bOp > 0 ? 'inline' : 'none' });
+    set(brief, { opacity: bOp, display: bOp > 0 ? 'inline' : 'none', transform: `translate(0 ${(1 - eback(seg(lb, 0, 0.55))) * 220})` });
     if (bOp > 0) {
       const n = Math.floor(briefChars * seg(lb, 0.4, 4.4));
       let used = 0;
@@ -641,7 +719,13 @@
     set(paperRect, { opacity: t >= T.van.start ? 1 - eio(seg(lvn, 0.2, 0.9)) : 1 });
     let c = DEF;
     if (within(t, 'vector')) c = camAt(lv);
-    if (t >= T.van.start) c = { x: DEF.x, y: DEF.y, k: lerp(0.97, 1.06, eio(seg(lvn, 0, T.van.dur))) };
+    if (t >= T.van.start) {
+      const drive = eout(seg(lvn, 0, 1.0));
+      c = { x: DEF.x - (1 - drive) * 1100, y: DEF.y, k: lerp(0.97, 1.06, eio(seg(lvn, 0, T.van.dur))) };
+    }
+    const sOn = within(t, 'van') && lvn < 1.15;
+    set(speed, { opacity: sOn ? (1 - seg(lvn, 0.75, 1.1)) * seg(lvn, 0, 0.1) : 0 });
+    if (sOn) speedLines.forEach((ln, i) => set(ln, { x: 1100 - ((lvn * (2600 + i * 180) + i * 137) % 1500) }));
     set(cam, { transform: camT(c) });
     const inv = 1 / (S * c.k);
     set(floorShadow, { opacity: t >= T.van.start ? 0.6 * seg(lvn, 0.2, 0.8) : 0 });
@@ -682,6 +766,8 @@
     set(cTurb, { seed: g < 1 ? 3 + (frame % 97) : 3 });
     set(nTurb, { seed: 1 + (frame % 89) });
     set(noise, { opacity: within(t, 'concept') ? (lc < 2.6 ? eio(seg(lc, 2.1, 2.6)) : Math.pow(1 - g, 0.8)) : 0 });
+    set(scan, { opacity: g > 0 && g < 1 ? 1 : 0 });
+    if (g > 0 && g < 1) { const sy = PA.y + PA.h * eio(g); set(scanLine, { y: sy }); set(scanGlow, { y: sy - 40 }); }
     let cOp = 0;
     if (t >= T.concept.start) cOp = lc >= 2.6 ? 1 : 0;
     if (t >= T.vector.start) cOp = lerp(1, 0.3, seg(lv, 0, 0.6));
@@ -760,6 +846,7 @@
     // Zoom
     const zOp = within(t, 'zoom') ? eout(seg(lz, 0.25, 0.65)) * (1 - seg(lz, T.zoom.dur - 0.3, T.zoom.dur)) : 0;
     set(zoomG, { opacity: zOp, display: zOp > 0.001 ? 'inline' : 'none' });
+    panels.forEach((pn, i) => { const q = eback(seg(lz, 0.15 + i * 0.12, 0.65 + i * 0.12)); set(pn.g, { transform: `translate(${90 + (1 - q) * (i ? 1150 : -1150)},${pn.y})` }); });
     if (zOp > 0) {
       const zp = eio(seg(lz, 0.6, 2.0));
       const fw = CR.w * 1.04, fh = fw * ZA, full = { x: DEF.x - fw / 2, y: DEF.y - fh / 2, w: fw, h: fh };
@@ -775,27 +862,62 @@
     // Hand-off slate
     const lh = lt(t, 'handoff');
     const hOp = within(t, 'handoff') ? eout(seg(lh, 0, 0.4)) : 0;
-    set(handoff, { opacity: hOp, transform: `translate(0 ${(1 - hOp) * 30})` });
+    const hoS = lerp(1.5, 1, eback(seg(lh, 0, 0.45)));
+    set(handoff, { opacity: hOp, transform: `translate(540 880) scale(${hoS}) translate(-540 -880)` });
     set(hoTitle.box, { width: (hoTitle.boxW || 0) * eio(seg(lh, 0.1, 0.45)) });
     set(hoArrow, { transform: `translate(0 ${Math.sin(lh * 6) * 10})` });
 
-    // Captions
-    let cap = '', capOp = 0;
+    // Captions: words snap in one by one; *starred* words sit in lime blocks
+    let cap = '', capA = 0, capOp = 0;
     const list = EP.captions[st] || [];
     const lst = t - T[st].start;
     for (let i = 0; i < list.length; i++) {
       const a = list[i].at, b = i + 1 < list.length ? list[i + 1].at : T[st].dur;
-      if (lst >= a && lst < b) { cap = list[i].text; capOp = seg(lst, a, a + 0.25) * (1 - seg(lst, b - 0.22, b)); }
+      if (lst >= a && lst < b) { cap = list[i].text; capA = a; capOp = 1 - seg(lst, b - 0.2, b); }
     }
-    const lines = wrap(cap, 34);
-    capLines.forEach((n, i) => { n.textContent = lines[i] || ''; });
-    set(capG, { opacity: capOp, transform: `translate(0 ${(1 - capOp) * 14 + (lines.length < 2 ? 33 : 0)})` });
+    const words = cap ? layoutCaption(cap) : [];
+    capWords.forEach((cw, i) => {
+      const w = words[i];
+      if (!w) { set(cw.g, { opacity: 0 }); return; }
+      const q = seg(lst, capA + i * 0.05, capA + i * 0.05 + 0.3), e = eback(q);
+      cw.txt.textContent = w.word;
+      set(cw.txt, { fill: w.hl ? C.navy : C.text });
+      set(cw.box, { x: -CAP.size * 0.1, width: (w.w + CAP.size * 0.2) * (w.hl ? eio(seg(lst, capA + i * 0.05 + 0.1, capA + i * 0.05 + 0.35)) : 0), opacity: w.hl ? 1 : 0 });
+      set(cw.g, { opacity: clamp(q * 2) * capOp, transform: `translate(${w.x} ${w.y + (1 - e) * 46}) skewX(${(1 - e) * -8})` });
+    });
 
     // Outro
     const oOp = t >= T.outro.start ? eout(seg(lt(t, 'outro'), 0, 0.45)) : 0;
     set(outro, { opacity: oOp, display: oOp > 0 ? 'inline' : 'none' });
     if (oOp > 0) set(outT2.box, { width: (outT2.boxW || 0) * eio(seg(lt(t, 'outro'), 0.3, 0.7)) });
+    if (oOp > 0) {
+      const lo2 = lt(t, 'outro');
+      set(outBtn, { transform: `translate(320 1282) scale(${1 + 0.035 * Math.sin(lo2 * 7) * seg(lo2, 0.6, 0.9)}) translate(-320 -1282)` });
+      if (outLogo) set(outLogo, { transform: `translate(540 400) scale(${lerp(1.3, 1, eback(seg(lo2, 0, 0.5)))}) translate(-540 -400)` });
+    }
     set(tickerRow, { transform: `translate(${-((t * 90) % (tickerW || 1))} 0)` });
+
+    // Background stripes drift
+    set(stripes, { patternTransform: `rotate(-30) translate(${(t * 40) % 90} 0)` });
+
+    // Paint flash
+    set(flash, { opacity: within(t, 'colour') ? 0.45 * (1 - seg(lcol, 0.2, 0.7)) * seg(lcol, 0.15, 0.25) : 0 });
+
+    // Camera: punch-in at scene changes, shake on hits, gentle drift
+    let k = 1;
+    PUNCH.forEach((p0) => { if (t >= p0 && t < p0 + 0.6) k *= 1 + 0.05 * (1 - eout(seg(t, p0, p0 + 0.6))); });
+    let sx = Math.sin(t * 0.6) * 3, sy = Math.cos(t * 0.45) * 3;
+    SHAKES.forEach((sh, i) => { const d = t - sh.t; if (d >= 0 && d < 0.5) { const a = sh.a * Math.exp(-d * 9); sx += a * Math.sin(d * 75 + i); sy += a * Math.cos(d * 61 + i * 2); } });
+    set(world, { transform: `translate(${sx} ${sy}) translate(540 960) scale(${k}) translate(-540 -960)` });
+
+    // Lime slash wipes
+    let wq = -1;
+    WIPES.forEach((tb) => { if (t >= tb - 0.32 && t < tb + 0.32) wq = seg(t, tb - 0.32, tb + 0.32); });
+    set(wipeG, { display: wq >= 0 ? 'inline' : 'none' });
+    if (wq >= 0) {
+      set(wipeA, { x: lerp(-1700, 1500, eio(wq)) });
+      set(wipeB, { x: lerp(-1700, 1500, eio(clamp(wq * 1.12 - 0.08))) + 350 });
+    }
   }
 
   // ---------- exports (for the 3D mockup app) ----------
@@ -846,6 +968,7 @@
   await document.fonts.ready;
   measure();
   window.VE_SFX = buildSfx();
+  SHAKES = window.VE_SFX.filter((e) => e.type === 'boom' || e.type === 'thud').map((e) => ({ t: e.t, a: e.type === 'boom' ? 16 : 9 }));
   window.VE_AUDIO = EP.audio || null;
   renderAt(0);
 })().then(() => { window.VE_READY = true; }, (e) => { console.error(e); window.VE_ERROR = String(e && e.stack || e); });

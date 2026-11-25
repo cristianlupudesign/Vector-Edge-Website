@@ -77,14 +77,14 @@
     zoom: { u: 0.52, v: 0.1, w: 0.36 },
 
     captions: {
-      brief: [{ text: 'This one’s for Jay Blades.' }, { text: 'One message: don’t bin it, fix it.' }],
+      brief: [{ text: 'This one’s for Jay Blades.' }, { text: 'One message: *don’t bin it, fix it.*' }],
       sketch: [{ text: 'Rough sketch on a Transit Custom.' }, { text: 'A dovetail joint stripe, because the craft is the message.' }],
       concept: [{ text: 'AI makes it look lovely.' }, { text: 'Then misspells half of it.' }],
-      vector: [{ text: 'Redrawn as clean vectors.' }, { text: 'Every dovetail, cut to the same angle.' }, { text: 'Lettering, spelled right.' }],
+      vector: [{ text: 'Redrawn as clean vectors.' }, { text: 'Every dovetail, cut to the same angle.' }, { text: 'Lettering, *spelled right.*' }],
       colour: [{ text: 'Dark blue van. Gold and white vinyl.' }],
-      zoom: [{ text: 'Zoom in.' }, { text: 'The AI gets blurry. The vector doesn’t.' }],
+      zoom: [{ text: 'Zoom in.' }, { text: 'The AI gets blurry. The vector *doesn’t.*' }],
       van: [{ text: 'On the real Transit template.' }, { text: 'Both sides and the back, ready for 3D.' }],
-      handoff: [{ text: 'Now let’s see it in 3D.' }],
+      handoff: [{ text: 'Now let’s see it in *3D.*' }],
     },
     audio: {
       music: 'assets/audio/music/idea-to-van-theme.mp3', voVolume: 1.6, musicVolume: 0.2, sfxVolume: 0.35,

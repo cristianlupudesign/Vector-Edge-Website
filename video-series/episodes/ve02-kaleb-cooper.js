@@ -72,14 +72,14 @@
     zoom: { u: 0.58, v: 0.04, w: 0.36 },
 
     captions: {
-      brief: [{ text: 'This one’s for Kaleb Cooper.' }, { text: 'One message: straight hedges, straight talking.' }],
+      brief: [{ text: 'This one’s for Kaleb Cooper.' }, { text: 'One message: *straight hedges, straight talking.*' }],
       sketch: [{ text: 'Rough sketch on a Vauxhall Combo.' }, { text: 'A tractor-tread stripe, so you know he’s on his way.' }],
       concept: [{ text: 'AI gives it a country look.' }, { text: 'And a brand new spelling of his name.' }],
-      vector: [{ text: 'Redrawn as clean vectors.' }, { text: 'Every tread block is its own cut.' }, { text: 'And his name, spelled right.' }],
+      vector: [{ text: 'Redrawn as clean vectors.' }, { text: 'Every tread block is its own cut.' }, { text: 'And his name, *spelled right.*' }],
       colour: [{ text: 'Dark green van. Orange and white vinyl.' }],
-      zoom: [{ text: 'Zoom in.' }, { text: 'The AI version goes soft. The vector stays sharp.' }],
+      zoom: [{ text: 'Zoom in.' }, { text: 'The AI version goes soft. The vector *stays sharp.*' }],
       van: [{ text: 'On the real Combo template.' }, { text: 'Both sides and the back, ready for 3D.' }],
-      handoff: [{ text: 'Now, in 3D.' }],
+      handoff: [{ text: 'Now, in *3D.*' }],
     },
     audio: {
       music: 'assets/audio/music/idea-to-van-theme.mp3', voVolume: 1.6, musicVolume: 0.2, sfxVolume: 0.35,
