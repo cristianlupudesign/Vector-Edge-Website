@@ -93,36 +93,49 @@
     // Zoom compare area, in the side frame (h is set from the panel shape).
     zoom: { u: 0.46, v: 0.09, w: 0.37 },
 
+    // Captions match the voiceover: each one appears as that sentence starts (seconds into the scene).
     captions: {
       brief: [
-        { at: 0.0, text: 'Every job starts with a brief, not a picture.' },
-        { at: 3.4, text: 'One message: do it once, do it right.' },
+        { at: 0.3, text: 'Every job starts with a brief, not a picture.' },
+        { at: 4.2, text: 'One message: do it once, do it right.' },
       ],
       sketch: [
-        { at: 0.0, text: 'A rough sketch, straight onto the van template.' },
-        { at: 3.2, text: 'Tape measure and spirit level: every trade gets it in a second.' },
+        { at: 0.3, text: 'First, a rough sketch, straight onto the van template.' },
+        { at: 4.5, text: 'Tape measure. Spirit level. Every trade gets it.' },
       ],
       concept: [
-        { at: 0.0, text: 'Then AI turns the sketch into a look.' },
-        { at: 3.4, text: 'Nice mood. But look at the spelling.' },
+        { at: 0.3, text: 'Then AI turns the sketch into a look.' },
+        { at: 3.9, text: 'Nice mood… but check the spelling.' },
       ],
       vector: [
-        { at: 0.0, text: 'So we redraw it as a clean vector.' },
-        { at: 3.4, text: 'Every tick on that tape is its own cut.' },
-        { at: 7.2, text: 'Real lettering, spelled right.' },
+        { at: 0.3, text: 'So we redraw it as a clean vector, point by point.' },
+        { at: 4.5, text: 'Every tick on that tape is its own cut.' },
+        { at: 7.5, text: 'And real lettering, spelled right.' },
       ],
-      colour: [{ at: 0.0, text: 'Black van. Two Oracal vinyls. That’s it.' }],
+      colour: [{ at: 0.3, text: 'Black van. Two Oracal vinyls. That’s it.' }],
       zoom: [
-        { at: 0.0, text: 'Zoom right in.' },
-        { at: 1.6, text: 'AI: blurry and misspelt. Vector: razor sharp.' },
+        { at: 0.3, text: 'Zoom right in.' },
+        { at: 2.6, text: 'The AI image falls apart. The vector stays razor sharp.' },
       ],
       van: [
-        { at: 0.0, text: 'On the real van template.' },
-        { at: 3.2, text: 'Both sides and the back, ready for the 3D preview.' },
+        { at: 0.3, text: 'On the real van template.' },
+        { at: 2.8, text: 'Both sides and the back, ready for 3D.' },
       ],
-      handoff: [{ at: 0.0, text: 'Now let’s see it in 3D.' }],
+      handoff: [{ at: 0.2, text: 'Now let’s see it in 3D.' }],
     },
 
-    durations: { intro: 2.6, brief: 6, sketch: 6, concept: 5.5, vector: 10, colour: 4.5, zoom: 4.5, van: 7, handoff: 2.5, outro: 4 },
+    // Sound: one music track for the whole series, a voiceover clip per scene (made in Magnific,
+    // voice "Preston Thornbury"), and sound effects generated in code from what happens on screen.
+    audio: {
+      music: 'assets/audio/music/idea-to-van-theme.mp3',
+      voVolume: 1.6,
+      musicVolume: 0.2,
+      sfxVolume: 0.35,
+      voDir: 'assets/audio/vo/ep03-skill-builder',
+      // Seconds into each scene where that scene's voiceover starts (file = <scene>.mp3).
+      voAt: { intro: 0.35, brief: 0.3, sketch: 0.3, concept: 0.3, vector: 0.3, colour: 0.3, zoom: 0.3, van: 0.3, handoff: 0.2, outro: 0.4 },
+    },
+
+    durations: { intro: 2.8, brief: 8, sketch: 8.6, concept: 7.2, vector: 10.3, colour: 4.5, zoom: 7.6, van: 7, handoff: 2.7, outro: 4.5 },
   };
 })();

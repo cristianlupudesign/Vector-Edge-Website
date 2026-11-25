@@ -5,6 +5,7 @@
     node render.js ep01-harris-build --preview    open-in-browser preview server
     node render.js ep01-harris-build --frame 20   one PNG at 20 s (quick check)
     node render.js ep01-harris-build --fps 24     lower frame rate (faster)
+    node render.js ep03-skill-builder --audio-only  rebuild just the sound (keeps the rendered frames)
 
   Output (in out/):
     <ep>-9x16.mp4            whole video, 1080 x 1920
@@ -18,6 +19,7 @@ const fs = require('fs');
 const path = require('path');
 const { spawn } = require('child_process');
 const { chromium } = require('playwright');
+const { buildSoundtrack } = require('./audio');
 
 const ROOT = __dirname;
 const args = process.argv.slice(2);
@@ -184,35 +186,48 @@ async function exportViews(page, browser, port) {
     return;
   }
 
-  if (await page.evaluate(() => !!window.exportViews)) await exportViews(page, browser, port);
-  else if (await page.evaluate(() => !!window.exportPanels)) await exportPanels(page, browser);
-  else await exportLogo(page);
-
-  const full = path.join(OUT, `${EP}-9x16.mp4`);
-  const ff = spawn(FFMPEG, ['-y', '-loglevel', 'error', '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'mjpeg', '-i', '-',
-    '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', full], { stdio: ['pipe', 'inherit', 'inherit'] });
-  const done = new Promise((r, j) => ff.on('close', (c) => (c === 0 ? r() : j(new Error('ffmpeg failed')))));
-  const frames = Math.round(total * FPS);
-  const t0 = Date.now();
-  for (let f = 0; f < frames; f++) {
-    await page.evaluate((x) => window.renderAt(x), f / FPS);
-    const buf = await stage.screenshot({ type: 'jpeg', quality: 94 });
-    if (!ff.stdin.write(buf)) await new Promise((r) => ff.stdin.once('drain', r));
-    if (f % FPS === 0) process.stdout.write(`\r${EP} ${Math.round((f / frames) * 100)}%   `);
+  const audioOnly = !!flag('audio-only', false);
+  if (!audioOnly) {
+    if (await page.evaluate(() => !!window.exportViews)) await exportViews(page, browser, port);
+    else if (await page.evaluate(() => !!window.exportPanels)) await exportPanels(page, browser);
+    else await exportLogo(page);
   }
-  ff.stdin.end();
-  await done;
+
+  const silent = path.join(OUT, `${EP}-video.mp4`), full = path.join(OUT, `${EP}-9x16.mp4`);
+  const t0 = Date.now();
+  if (!audioOnly || !fs.existsSync(silent)) {
+    const ff = spawn(FFMPEG, ['-y', '-loglevel', 'error', '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'mjpeg', '-i', '-',
+      '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', silent], { stdio: ['pipe', 'inherit', 'inherit'] });
+    const done = new Promise((r, j) => ff.on('close', (c) => (c === 0 ? r() : j(new Error('ffmpeg failed')))));
+    const frames = Math.round(total * FPS);
+    for (let f = 0; f < frames; f++) {
+      await page.evaluate((x) => window.renderAt(x), f / FPS);
+      const buf = await stage.screenshot({ type: 'jpeg', quality: 94 });
+      if (!ff.stdin.write(buf)) await new Promise((r) => ff.stdin.once('drain', r));
+      if (f % FPS === 0) process.stdout.write(`\r${EP} ${Math.round((f / frames) * 100)}%   `);
+    }
+    ff.stdin.end();
+    await done;
+  }
   const cut = await page.evaluate(() => window.VE_HANDOFF || window.VE_STAGES.outro.start);
+  // Everything the soundtrack needs, saved so stitch.js can rebuild it around the 3D clip.
+  const info = await page.evaluate(() => ({ total: window.VE_TOTAL, cut: window.VE_HANDOFF || window.VE_STAGES.outro.start, stages: window.VE_STAGES, sfx: window.VE_SFX || [], audio: window.VE_AUDIO || (window.EPISODE && window.EPISODE.audio) || null }));
   await browser.close();
   srv.close();
-  console.log(`\rVideo     → ${path.relative(ROOT, full)} (${total.toFixed(1)} s, ${((Date.now() - t0) / 1000).toFixed(0)} s to render)`);
+  fs.writeFileSync(path.join(OUT, `${EP}-audio.json`), JSON.stringify(info));
+  const hasAudio = !!info.audio;
+  if (hasAudio) {
+    const track = buildSoundtrack(ROOT, info, path.join(OUT, `${EP}-soundtrack.m4a`), 0);
+    await run(FFMPEG, ['-y', '-i', silent, '-i', track, '-map', '0:v', '-map', '1:a', '-c:v', 'copy', '-c:a', 'copy', '-shortest', '-movflags', '+faststart', full]);
+  } else fs.copyFileSync(silent, full);
+  console.log(`\rVideo     → ${path.relative(ROOT, full)} (${total.toFixed(1)} s${hasAudio ? ', music + voiceover + sound effects' : ', no sound'}, ${((Date.now() - t0) / 1000).toFixed(0)} s)`);
 
   // Split at the 3D hand-off, and make a small WhatsApp copy.
   const main = path.join(OUT, `${EP}-main.mp4`), outro = path.join(OUT, `${EP}-outro.mp4`), wa = path.join(OUT, `${EP}-9x16-whatsapp.mp4`);
-  const enc = ['-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-pix_fmt', 'yuv420p', '-movflags', '+faststart'];
+  const enc = ['-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart'];
   await run(FFMPEG, ['-y', '-i', full, '-t', cut.toFixed(3), ...enc, main]);
   await run(FFMPEG, ['-y', '-ss', cut.toFixed(3), '-i', full, ...enc, outro]);
-  await run(FFMPEG, ['-y', '-i', full, '-vf', 'scale=720:1280', '-c:v', 'libx264', '-preset', 'slow', '-crf', '27', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', wa]);
+  await run(FFMPEG, ['-y', '-i', full, '-vf', 'scale=720:1280', '-c:v', 'libx264', '-preset', 'slow', '-crf', '27', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '128k', '-movflags', '+faststart', wa]);
   console.log('Split     →', path.relative(ROOT, main), '+', path.relative(ROOT, outro), `(3D clip goes between, at ${cut.toFixed(1)} s)`);
   console.log('WhatsApp  →', path.relative(ROOT, wa), `${(fs.statSync(wa).size / 1e6).toFixed(1)} MB`);
 })().catch((e) => { console.error(e); process.exit(1); });

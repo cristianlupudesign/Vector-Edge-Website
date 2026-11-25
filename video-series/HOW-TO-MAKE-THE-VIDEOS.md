@@ -134,7 +134,29 @@ node stitch.js ep04-kaleb-cooper "C:\path\to\your-3d-clip.mp4"
 You can add more than one 3D clip, and they play in order. Any size works: each clip is fitted into the vertical frame.
 
 Result: `out\ep04-kaleb-cooper-final.mp4` (1080 × 1920, ready for Reels / TikTok / Shorts) and `-final-whatsapp.mp4`.
-There's no sound, so add music in the app you post from.
+The soundtrack is rebuilt to fit: the music plays on under your 3D clip, and the voice and sound effects stay in sync either side of it.
+
+---
+
+## Sound: music, voiceover and sound effects
+
+Every render has a full soundtrack, levelled to -14 LUFS (what Instagram, TikTok and YouTube expect):
+
+| Part | Where it comes from |
+|---|---|
+| **Music** | `assets/audio/music/idea-to-van-theme.mp3`, one track for the whole series (made in Magnific). It dips automatically when the voice speaks. |
+| **Voiceover** | one MP3 per scene in `assets/audio/vo/<episode>/`: `intro.mp3`, `brief.mp3`, `sketch.mp3`, `concept.mp3`, `vector.mp3`, `colour.mp3`, `zoom.mp3`, `van.mp3`, `handoff.mp3`, `outro.mp3`. Any scene without a file is silent. |
+| **Sound effects** | made by the code from what's on screen: typing, pen-tool clicks per anchor point, pencil, whooshes, pops, the AI "generating" riser, paint, the 3D hit. Nothing to supply. |
+
+**Voiceover for a new episode:**
+1. Write one or two short lines per scene (match the captions).
+2. Make each scene's line in Magnific (Audio → Voiceover). Ep 01 used the voice **Preston Thornbury** with the eleven v4 model, so use the same voice to keep the series consistent.
+3. Save them as `assets/audio/vo/<episode>/<scene>.mp3` and point `audio.voDir` in the episode file at that folder.
+4. If a line is longer than its scene, make the scene longer in `durations` (voice starts `voAt` seconds into the scene, normally 0.3).
+5. Set each caption's `at` to when that sentence starts.
+
+Levels live in the episode file: `voVolume`, `musicVolume`, `sfxVolume`.
+Changed only the sound? `node render.js <episode> --audio-only` rebuilds it in seconds without re-rendering the pictures.
 
 ---
 

@@ -480,6 +480,50 @@
     });
   }
 
+  // ---------- sound-effect cues (rendered to audio by audio.js) ----------
+  function buildSfx() {
+    const out = [];
+    let seed = 7;
+    const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+    const ev = (stage, at, type, o) => out.push(Object.assign({ t: +(T[stage].start + at).toFixed(3), type }, o || {}));
+    const typing = (stage, a, b, gain, step = 0.07) => { for (let x = a; x < b; x += step * (0.7 + rnd() * 0.6)) ev(stage, x, 'key', { gain, pitch: 0.85 + rnd() * 0.3 }); };
+    ['brief', 'sketch', 'concept', 'vector', 'colour', 'zoom', 'van'].forEach((k) => ev(k, 0, 'whoosh', { dur: 0.45, gain: 0.35 }));
+    // Intro: plane flies in, words land, rule draws
+    ev('intro', 0, 'whoosh', { dur: 0.9, gain: 0.8 });
+    [0, 1, 2].forEach((i) => ev('intro', 0.42 + i * 0.16, 'thud', { gain: 0.55 }));
+    ev('intro', 0.8, 'swish', { dur: 0.7, gain: 0.35 });
+    // Brief: typing, then the marker highlight
+    typing('brief', 0.42, 4.4, 0.3);
+    ev('brief', 4.5, 'marker', { dur: 0.5, gain: 0.45 });
+    // Sketch: pencil on paper for every stroke and note
+    sketchItems.forEach((it) => ev('sketch', it.a, 'pencil', { dur: Math.max(0.15, it.b - it.a), gain: 0.2 }));
+    // Concept: prompt typing, button, generation riser, done chime
+    typing('concept', 0.2, 2.0, 0.28);
+    ev('concept', 2.15, 'click', { gain: 0.6 });
+    ev('concept', 2.6, 'riser', { dur: 2.2, gain: 0.45 });
+    ev('concept', 4.8, 'ding', { gain: 0.4 });
+    // Vector: a click per anchor point (thinned so it never turns into a buzz), then typing
+    const clicks = [];
+    SH.forEach((sh) => sh.anchors.forEach((a) => clicks.push(sh.win.a + (a.cum / sh.len) * (sh.win.b - sh.win.a))));
+    clicks.sort((x, y) => x - y);
+    let last = -1;
+    clicks.forEach((c) => { if (c - last >= 0.055) { ev('vector', c, 'click', { gain: 0.55, pitch: 0.9 + rnd() * 0.25 }); last = c; } });
+    TX.forEach((tx) => { const n = tx.x.text.replace(/ /g, '').length; for (let k = 0; k < n; k++) ev('vector', tx.win.a + (k / n) * (tx.win.b - 0.12 - tx.win.a), 'key', { gain: 0.3, pitch: 0.85 + rnd() * 0.3 }); });
+    // Colour: paint pour, a pop per vinyl piece, pops for the swatches
+    ev('colour', 0.2, 'paint', { dur: 0.9, gain: 0.5 });
+    SH.forEach((sh, i) => ev('colour', 0.9 + i * 0.14, 'pop', { gain: 0.3, pitch: 1 + i * 0.06 }));
+    PAL.forEach((p, i) => ev('colour', 0.3 + i * 0.45, 'pop', { gain: 0.4, pitch: 1.35 }));
+    // Zoom: rising whoosh while it pushes in
+    ev('zoom', 0.6, 'riser', { dur: 1.4, gain: 0.4 });
+    // Van: the exported views pop in
+    [0, 1, 2].forEach((i) => ev('van', 3.1 + i * 0.3, 'pop', { gain: 0.4, pitch: 1.1 + i * 0.1 }));
+    // Hand-off and outro hits
+    ev('handoff', 0, 'boom', { gain: 0.7 });
+    ev('handoff', 0, 'whoosh', { dur: 0.6, gain: 0.45 });
+    ev('outro', 0, 'boom', { gain: 0.5 });
+    return out.sort((a, b) => a.t - b.t);
+  }
+
   function camAt(lv) {
     if (!camKeys.length || lv <= camKeys[0].t) return DEF;
     for (let i = 0; i < camKeys.length - 1; i++) {
@@ -745,6 +789,8 @@
   ]);
   await document.fonts.ready;
   measure();
+  window.VE_SFX = buildSfx();
+  window.VE_AUDIO = EP.audio || null;
   renderAt(0);
 })().then(() => { window.VE_READY = true; }, (e) => { console.error(e); window.VE_ERROR = String(e && e.stack || e); });
 window.VE_READY = window.VE_READY || null;

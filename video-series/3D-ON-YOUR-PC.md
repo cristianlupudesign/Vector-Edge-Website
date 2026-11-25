@@ -97,4 +97,4 @@ Save your 3D clip anywhere, then in `video-series`:
 node stitch.js ep03-skill-builder "C:\path\to\your-3d-clip.mp4"
 ```
 
-You can pass several clips (turntable, close-ups); they play in the order given. The result is `out\ep03-skill-builder-final.mp4` (1080 × 1920, 30 fps) plus `-final-whatsapp.mp4`. Sound is dropped, so add music in your editor or on the platform.
+You can pass several clips (turntable, close-ups); they play in the order given. The result is `out\ep03-skill-builder-final.mp4` (1080 × 1920, 30 fps) plus `-final-whatsapp.mp4`, with the full soundtrack: the music plays on under the 3D clip, and the voice and sound effects are in sync either side.
