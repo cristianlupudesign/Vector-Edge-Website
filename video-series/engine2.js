@@ -36,6 +36,7 @@
     if (cur) lines.push(cur);
     return lines;
   }
+  const PAINT = (EP.shapes.find((s) => s.paint) || { fill: '#FFFFFF' }).fill;
   const dOf = (s, which) => (s.d === 'VAN_BODY' ? VAN.body : s.d === 'VAN_REAR' ? VAN.rear.body : s.d || VE.toD(s.cmds));
   const NSS = { 'vector-effect': 'non-scaling-stroke' };
 
@@ -121,10 +122,10 @@
     el('path', Object.assign({ d: VAN.body, fill: 'none', stroke: '#000', 'stroke-opacity': 0.55, 'stroke-width': 1.6 }, NSS), parent);
   }
   // Livery artwork. mode: 'final' | 'concept'. mirror: offside (van facing left, text kept readable).
-  function buildLivery(parent, mode, mirror) {
+  function buildLivery(parent, mode, mirror, skipPaint) {
     const g = el('g', { 'clip-path': `url(#${mirror ? 'bodyClipM' : 'bodyClip'})` }, parent);
     const sg = mirror ? el('g', { transform: `translate(${VAN.size.w} 0) scale(-1 1)` }, g) : g;
-    for (const s of EP.shapes) el('path', { d: dOf(s), fill: mode === 'concept' ? gradFor[s.fill] : s.fill }, sg);
+    for (const s of EP.shapes) if (!(skipPaint && s.paint)) el('path', { d: dOf(s), fill: mode === 'concept' ? gradFor[s.fill] : s.fill }, sg);
     for (const x of EP.texts) {
       const xx = mirror ? Object.assign({}, x, { x: VAN.size.w - x.x }) : x;
       if (mode === 'concept') textNode(g, xx, { text: (EP.concept.garbled || {})[x.text] || x.text, fill: gradFor[x.fill], transform: `skewX(-3) translate(${x.y * 0.05} 0)` });
@@ -186,7 +187,7 @@
 
   // ---------- brief card ----------
   const brief = el('g', { opacity: 0 }, svg);
-  el('rect', { x: 90, y: 470, width: 900, height: 900, rx: 26, fill: '#232323', stroke: '#3E3E3E', 'stroke-width': 2 }, brief);
+  el('rect', { x: 90, y: 470, width: 900, height: 990, rx: 26, fill: '#232323', stroke: '#3E3E3E', 'stroke-width': 2 }, brief);
   el('text', { x: 130, y: 540, 'font-family': DISPLAY, 'font-size': 44, 'letter-spacing': 3, fill: C.yellow, text: 'CREATIVE BRIEF' }, brief);
   el('rect', { x: 130, y: 562, width: 820, height: 2, fill: '#3E3E3E' }, brief);
   let by = 630;
@@ -197,7 +198,7 @@
     const hl = r.key ? el('rect', { x: 330, y: by - 46, width: 0, height: lines.length * lh + 14, rx: 6, fill: C.yellow, opacity: 0.22 }, brief) : null;
     const nodes = lines.map((_, i) => el('text', { x: 340, y: by + i * lh, 'font-family': BODY, 'font-weight': 600, 'font-size': size, fill: r.key ? C.yellow : '#fff' }, brief));
     const row = { r, lines, label, nodes, hl, y: by, lh };
-    by += lines.length * lh + 30;
+    by += lines.length * lh + 26;
     return row;
   });
   const briefChars = briefRows.reduce((a, r) => a + r.lines.join(' ').length, 0);
@@ -280,21 +281,21 @@
   // Export panels (real elements, kept off-screen; thumbnails <use> them)
   const exportStage = el('g', { transform: 'translate(-30000 0)' }, svg);
   const exNear = el('g', { id: 'exNear' }, exportStage);
-  buildLivery(exNear, 'final', false);
+  buildLivery(exNear, 'final', false, true);
   const exOff = el('g', { id: 'exOff' }, exportStage);
-  buildLivery(exOff, 'final', true);
+  buildLivery(exOff, 'final', true, true);
   const exRear = el('g', { id: 'exRear' }, exportStage);
   {
     const g = el('g', { 'clip-path': 'url(#rearClip)' }, exRear);
-    for (const s of EP.rear.shapes) el('path', { d: dOf(s), fill: s.fill }, g);
+    for (const s of EP.rear.shapes) if (!s.paint) el('path', { d: dOf(s), fill: s.fill }, g);
     for (const x of EP.rear.texts) textNode(g, x, { text: x.text });
   }
   const panelsG = el('g', { opacity: 0 }, svg);
-  el('text', { x: 90, y: RY + 70, 'font-family': DISPLAY, 'font-size': 36, 'letter-spacing': 2, fill: C.yellow, text: 'EXPORTED FOR THE 3D MOCKUP · SVG + PNG' }, panelsG);
+  el('text', { x: 90, y: RY + 70, 'font-family': DISPLAY, 'font-size': 36, 'letter-spacing': 2, fill: C.yellow, text: `GRAPHICS FOR THE 3D MOCKUP · VAN PAINTED ${PAINT.toUpperCase()}` }, panelsG);
   const thumbs = [
-    { id: 'exNear', label: 'NEARSIDE', vb: `0 0 ${VAN.size.w} ${VAN.size.h}`, w: 370, h: 156 },
-    { id: 'exOff', label: 'OFFSIDE', vb: `0 0 ${VAN.size.w} ${VAN.size.h}`, w: 370, h: 156 },
-    { id: 'exRear', label: 'REAR', vb: `0 0 ${VAN.rear.size.w} ${VAN.rear.size.h}`, w: 130, h: 110 },
+    { id: 'exNear', label: 'NEARSIDE', vb: `0 0 ${VAN.size.w} ${VAN.size.h}`, w: 370, h: 156, body: VAN.body },
+    { id: 'exOff', label: 'OFFSIDE', vb: `0 0 ${VAN.size.w} ${VAN.size.h}`, w: 370, h: 156, body: VAN.body, mirror: true },
+    { id: 'exRear', label: 'REAR', vb: `0 0 ${VAN.rear.size.w} ${VAN.rear.size.h}`, w: 130, h: 110, body: VAN.rear.body },
   ];
   let tx0 = 90;
   const thumbEls = thumbs.map((th, i) => {
@@ -302,6 +303,7 @@
     const ty = RY + 96 + (156 - th.h);
     el('rect', { x: tx0 - 6, y: RY + 90, width: th.w + 12, height: 168, rx: 10, fill: '#262626', stroke: '#3E3E3E', 'stroke-width': 2 }, g);
     const s = el('svg', { x: tx0, y: ty - 2, width: th.w, height: th.h, viewBox: th.vb }, g);
+    el('path', { d: th.body, fill: PAINT, opacity: 0.55, transform: th.mirror ? `translate(${VAN.size.w} 0) scale(-1 1)` : '' }, s);
     el('use', { href: '#' + th.id }, s);
     el('text', { x: tx0, y: RY + 296, 'font-family': DISPLAY, 'font-size': 28, 'letter-spacing': 2, fill: '#fff', text: th.label }, g);
     tx0 += th.w + 25;

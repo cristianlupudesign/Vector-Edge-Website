@@ -9,7 +9,8 @@ node render.js ep02-mrbeast
 ```
 
 Extra outputs for these episodes, for the 3D mockup app (in `out/`):
-- `ep02-mrbeast-nearside.svg / .png`: left side of the van (sliding-door side), artwork only, text as outlines, PNG 4000 px wide with a transparent background
+- The van is **painted** (Ep 02: `#1B4DFF`). Set that as the body colour on the mockup app's own realistic van, then lay the graphics on top. A shape marked `paint: true` in the episode is the paint, not vinyl, so it is left out of these files.
+- `ep02-mrbeast-nearside.svg / .png`: left side of the van (sliding-door side), vinyl graphics only, text as outlines, PNG 4000 px wide with a transparent background
 - `ep02-mrbeast-offside.svg / .png`: right side (layout re-flowed so the text still reads the right way)
 - `ep02-mrbeast-rear.svg / .png`: rear doors
 

@@ -16,7 +16,7 @@ window.EPISODE = {
 
   brief: [
     { label: 'CLIENT', value: 'MrBeast (unofficial fan concept)' },
-    { label: 'THE VAN', value: 'VW Transporter T6.1' },
+    { label: 'THE VAN', value: 'VW Transporter T6.1, painted electric blue' },
     { label: 'WHAT IT’S FOR', value: 'A giveaway van that turns up in UK towns' },
     { label: 'WHO SEES IT', value: 'Families and kids who’ll chase it down the street' },
     { label: 'THE MESSAGE', value: '“If this van stops, someone wins.”', key: true },
@@ -24,7 +24,7 @@ window.EPISODE = {
   ],
 
   palette: [
-    { name: 'Electric Blue', hex: '#1B4DFF' },
+    { name: 'Blue (paint)', hex: '#1B4DFF' },
     { name: 'Hot Pink', hex: '#FF2E88' },
     { name: 'Sky', hex: '#3EC6FF' },
     { name: 'Sunshine', hex: '#FFD60A' },
@@ -32,7 +32,7 @@ window.EPISODE = {
 
   // The wrap artwork, in drawing order. `trace: false` = not pen-traced (the van template already gives it).
   shapes: [
-    { id: 'bg', fill: '#1B4DFF', d: 'VAN_BODY', trace: false },
+    { id: 'bg', fill: '#1B4DFF', d: 'VAN_BODY', trace: false, paint: true }, // van comes painted this colour; not part of the vinyl
     { id: 'swoosh', fill: '#FF2E88', cmds: [['M', -10, 330], ['C', 300, 300, 560, 330, 1010, 205], ['L', 1010, 255], ['C', 560, 370, 300, 340, -10, 372], ['Z']] },
     { id: 'line', fill: '#FFD60A', cmds: [['M', -10, 318], ['C', 300, 288, 560, 318, 1010, 193], ['L', 1010, 201], ['C', 560, 326, 300, 296, -10, 326], ['Z']] },
     { id: 'burst', fill: '#3EC6FF', cmds: VE.star(575, 238, 14, 140, 102) },
@@ -57,7 +57,7 @@ window.EPISODE = {
   // Rear doors (export panel only). Rear units: 500 wide, ground y = 420.
   rear: {
     shapes: [
-      { fill: '#1B4DFF', d: 'VAN_REAR' },
+      { fill: '#1B4DFF', d: 'VAN_REAR', paint: true },
       { fill: '#FF2E88', d: 'M -10 300 C 150 280 350 320 510 270 L 510 330 C 350 370 150 330 -10 350 Z' },
     ],
     texts: [
@@ -106,14 +106,14 @@ window.EPISODE = {
       { at: 3.4, text: 'Every curve placed point by point.' },
       { at: 7.2, text: 'Real lettering, spelled right.' },
     ],
-    colour: [{ at: 0.0, text: 'Exact colours, matched to wrap vinyl.' }],
+    colour: [{ at: 0.0, text: 'Van painted electric blue. Graphics in matched vinyl.' }],
     zoom: [
       { at: 0.0, text: 'Zoom right in.' },
       { at: 1.6, text: 'AI: blurry and misspelt. Vector: razor sharp.' },
     ],
     van: [
       { at: 0.0, text: 'Off the screen and onto the van.' },
-      { at: 3.2, text: 'Every side exported for the 3D preview.' },
+      { at: 3.2, text: 'Graphics for every side, ready for the 3D preview.' },
     ],
     handoff: [{ at: 0.0, text: 'Now let’s see it in 3D.' }],
   },
