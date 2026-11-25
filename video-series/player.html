@@ -33,11 +33,11 @@
   if (qs.has('render')) document.body.classList.add('render');
   const s = document.createElement('script');
   s.src = 'episodes/' + ep + '.js';
+  const load = (src, cb) => { const e = document.createElement('script'); e.src = src; e.onload = cb; document.body.appendChild(e); };
   s.onload = () => {
-    const e = document.createElement('script');
-    e.src = 'engine.js';
-    e.onload = startPlayer;
-    document.body.appendChild(e);
+    const ep = window.EPISODE;
+    if (ep.engine === 2) load('vans/' + ep.van.model + '.js', () => load('engine2.js', startPlayer));
+    else load('engine.js', startPlayer);
   };
   document.body.appendChild(s);
 

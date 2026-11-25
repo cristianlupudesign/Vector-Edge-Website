@@ -45,9 +45,19 @@ window.VE = (function () {
     ];
   }
 
+  function star(cx, cy, n, ro, ri, rot) {
+    const pts = [];
+    const a0 = rot === undefined ? -Math.PI / 2 : rot;
+    for (let i = 0; i < n * 2; i++) {
+      const a = a0 + (i * Math.PI) / n, r = i % 2 ? ri : ro;
+      pts.push([cx + Math.cos(a) * r, cy + Math.sin(a) * r]);
+    }
+    return poly(pts);
+  }
+
   function toD(cmds) {
     return cmds.map((c) => c[0] + (c.length > 1 ? ' ' + c.slice(1).map((n) => +n.toFixed(2)).join(' ') : '')).join(' ');
   }
 
-  return { poly, rrect, circle, toD };
+  return { poly, rrect, circle, star, toD };
 })();

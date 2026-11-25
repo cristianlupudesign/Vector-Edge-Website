@@ -78,6 +78,52 @@ async function exportLogo(page) {
   console.log('Logo SVG  →', path.relative(ROOT, file));
 }
 
+// Van-wrap episodes: each side as SVG (text turned into outlines) + transparent PNG for the mockup app.
+function textToPath(font, t) {
+  let x = 0;
+  const glyphs = font.stringToGlyphs(t.text);
+  const placed = glyphs.map((g, i) => {
+    const at = x;
+    x += (g.advanceWidth / font.unitsPerEm) * t.size + t.spacing;
+    if (i < glyphs.length - 1) x += (font.getKerningValue(g, glyphs[i + 1]) / font.unitsPerEm) * t.size;
+    return { g, at };
+  });
+  const k = t.width / (x - t.spacing);
+  return placed.map(({ g, at }) => g.getPath(t.x + at * k, t.y, t.size).toPathData(2)).join(' ');
+}
+async function exportPanels(page, browser) {
+  const opentype = require('opentype.js');
+  const font = opentype.loadSync(path.join(ROOT, 'assets/fonts/bebas-neue-latin-400-normal.woff'));
+  const panels = await page.evaluate(() => window.exportPanels());
+  let clipN = 0;
+  const mat = (m) => (m && m.join(',') !== '1,0,0,1,0,0' ? ` transform="matrix(${m.join(' ')})"` : '');
+  function emit(n, defs) {
+    if (!n) return '';
+    if (n.tag === 'g') {
+      let clip = '';
+      if (n.clip) { const id = 'c' + clipN++; defs.push(`<clipPath id="${id}"><path d="${n.clip.d}"${n.clip.transform ? ` transform="${n.clip.transform}"` : ''}/></clipPath>`); clip = ` clip-path="url(#${id})"`; }
+      return `<g${mat(n.mat)}${clip}>${n.children.map((c) => emit(c, defs)).join('')}</g>`;
+    }
+    if (n.tag === 'path') return `<path d="${n.d}" fill="${n.fill}"${mat(n.mat)}/>`;
+    if (n.tag === 'text') return `<path d="${textToPath(font, n)}" fill="${n.fill}"${mat(n.mat)}/>`;
+    return '';
+  }
+  const shot = await browser.newPage({ deviceScaleFactor: 1 });
+  for (const p of panels) {
+    const defs = [];
+    const body = emit(p.tree, defs);
+    const svg = `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="${p.w}" height="${p.h}" viewBox="0 0 ${p.w} ${p.h}">\n<defs>${defs.join('')}</defs>\n${body}\n</svg>\n`;
+    const base = path.join(OUT, `${EP}-${p.name}`);
+    fs.writeFileSync(base + '.svg', svg);
+    const scale = 4;
+    await shot.setViewportSize({ width: p.w * scale, height: p.h * scale });
+    await shot.setContent(`<html><body style="margin:0;background:transparent">${svg.replace(/^<\?xml[^>]*>/, '').replace(`width="${p.w}" height="${p.h}"`, `width="${p.w * scale}" height="${p.h * scale}"`)}</body></html>`);
+    await shot.screenshot({ path: base + '.png', omitBackground: true });
+    console.log('Panel     →', path.relative(ROOT, base) + '.svg / .png');
+  }
+  await shot.close();
+}
+
 (async () => {
   if (!fs.existsSync(path.join(ROOT, 'episodes', EP + '.js'))) { console.error('No episode file: episodes/' + EP + '.js'); process.exit(1); }
   const port = 4000 + Math.floor(Math.random() * 2000);
@@ -109,7 +155,8 @@ async function exportLogo(page) {
     return;
   }
 
-  await exportLogo(page);
+  if (await page.evaluate(() => !!window.exportPanels)) await exportPanels(page, browser);
+  else await exportLogo(page);
 
   const full = path.join(OUT, `${EP}-9x16.mp4`);
   const ff = spawn(FFMPEG, ['-y', '-loglevel', 'error', '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'mjpeg', '-i', '-',
@@ -125,12 +172,12 @@ async function exportLogo(page) {
   }
   ff.stdin.end();
   await done;
+  const cut = await page.evaluate(() => window.VE_HANDOFF || window.VE_STAGES.outro.start);
   await browser.close();
   srv.close();
   console.log(`\rVideo     → ${path.relative(ROOT, full)} (${total.toFixed(1)} s, ${((Date.now() - t0) / 1000).toFixed(0)} s to render)`);
 
   // Split at the 3D hand-off, and make a small WhatsApp copy.
-  const cut = stages.outro.start;
   const main = path.join(OUT, `${EP}-main.mp4`), outro = path.join(OUT, `${EP}-outro.mp4`), wa = path.join(OUT, `${EP}-9x16-whatsapp.mp4`);
   const enc = ['-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-pix_fmt', 'yuv420p', '-movflags', '+faststart'];
   await run(FFMPEG, ['-y', '-i', full, '-t', cut.toFixed(3), ...enc, main]);

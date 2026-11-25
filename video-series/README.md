@@ -1,5 +1,28 @@
 # From Idea to Van — Vector Edge video series
 
+## Van-wrap episodes (Ep 02 onwards)
+
+Flow: **Brief → sketch on the van template → AI concept → vector (pen + type) → colours → zoom compare → on the van → 3D hand-off slate → outro**.
+
+```bash
+node render.js ep02-mrbeast
+```
+
+Extra outputs for these episodes, for the 3D mockup app (in `out/`):
+- `ep02-mrbeast-nearside.svg / .png`: left side of the van (sliding-door side), artwork only, text as outlines, PNG 4000 px wide with a transparent background
+- `ep02-mrbeast-offside.svg / .png`: right side (layout re-flowed so the text still reads the right way)
+- `ep02-mrbeast-rear.svg / .png`: rear doors
+
+`ep02-mrbeast-main.mp4` ends on the "05 3D PREVIEW" slate. Put your 3D clip after it, then `ep02-mrbeast-outro.mp4`.
+
+A new episode = copy `episodes/ep02-mrbeast.js` and change the brief, shapes, text, notes, prompt and captions.
+A new van = copy `vans/vw-t61.js`, redraw the outline, glass, lines, wheels and parts, and set `van.model` in the episode.
+Real people: keep the `disclaimer` line, use original artwork only (no copies of their logos, no photos or likeness).
+
+---
+
+## Logo episodes (Ep 01)
+
 Short 9:16 videos showing a design going **AI concept → hand-drawn vector → on the van → 3D**.
 Everything up to the 3D part is made in code. The 3D part is made by you on the PC and dropped in.
 
