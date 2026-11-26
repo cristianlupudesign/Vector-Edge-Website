@@ -9,6 +9,35 @@ Do not invent a new look.
 Mobile van signwriting, West London. Bold, plain-spoken, trade-friendly. It should look like
 a confident signwriter made it, not a SaaS startup.
 
+## Logo (always include it)
+Every design needs the Vector Edge logo: page mockups, artifacts, social graphics, emails,
+quotes, flyers and van mockups. Never retype "VECTOR EDGE" in a font as a stand-in, and
+never redraw the mark.
+
+Files are in `brand/` (transparent PNGs):
+| File | Use |
+|------|-----|
+| `brand/vector-edge-logo.png` (655×213) | **Primary.** Full-colour mark + wordmark, on white or paper backgrounds |
+| `brand/vector-edge-logo-reversed.png` | On charcoal or dark photos. Wordmark and blue shard turn white, yellow stays |
+| `brand/vector-edge-icon.png` (231×197) | Mark only: favicons, avatars, small spaces, watermarks |
+| `brand/vector-edge-icon-reversed.png` | Mark only, on dark backgrounds |
+
+- **Logo:** the blue (`#0057FF`) and yellow (`#E5E521`) arrowhead "V" mark, with "VECTOR EDGE"
+  in heavy italic blue capitals stacked on two lines. A small yellow corner sits under the final E.
+- **Placement:** top-left of every page or graphic, plus the footer or sign-off on longer pieces.
+  On Shopify, the theme header already shows it (`settings.logo`, served from
+  `//vectoredge.co.uk/cdn/shop/files/Asset1d.png`), so standalone sections don't repeat it at the top.
+- **Size:** 170px wide in the site header. Never narrower than 120px for the full logo; below that,
+  use the icon. Keep clear space around it at least the height of the "E" in EDGE.
+- **Background:** full colour on white or paper only. Use the reversed version on charcoal.
+  Never put either version on yellow or blue, or on a busy photo without a dark overlay.
+- **Don't:** recolour it (beyond the supplied reversed files), stretch or squash it, rotate it,
+  add shadows or outlines, or put it inside a box or badge.
+- **Standalone HTML/artifacts:** embed the PNG as a base64 `data:` URI so it always renders.
+  Set `alt="Vector Edge"`.
+- The reversed files were made from the official PNGs, with blue swapped for white. If the
+  designer supplies official reversed or SVG versions, replace these and update this table.
+
 ## Colour (use these hex values only)
 | Token           | Hex       | Use |
 |-----------------|-----------|-----|
@@ -85,6 +114,7 @@ a confident signwriter made it, not a SaaS startup.
 - Shared snippets in use: `ve-check` (check icon).
 
 ## Before you hand anything over
-Check the design against this file: colours, the two fonts, uppercase Bebas headings,
+Check the design against this file: the logo is present (right version for the
+background, not distorted), colours, the two fonts, uppercase Bebas headings,
 square corners, alternating bands, yellow CTA. If a request seems to need something
 outside these rules, ask first rather than improvising.
