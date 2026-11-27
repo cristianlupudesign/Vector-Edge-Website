@@ -1,0 +1,124 @@
+{%- comment -%}
+  Vector Edge — price guide. One page listing "from" prices for every service and product.
+  Blocks: "group" starts a new table (title, intro, link); each "row" belongs to the group above it.
+  Rows placed before the first group are not shown.
+  Matches the offer-page styling (Bebas Neue / Barlow Condensed, yellow + charcoal).
+{%- endcomment -%}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600&display=swap">
+
+<style>
+  #shopify-section-{{ section.id }} .vepg {
+    --ve-yellow: #E5E521; --ve-blue: #0057FF; --ve-charcoal: #2B2B2B; --ve-paper: #F7F7F5; --ve-white: #FFFFFF; --ve-rule: #D9D9D2;
+    --pg-display: 'Bebas Neue', 'Arial Narrow', Impact, sans-serif;
+    --pg-body: 'Barlow Condensed', 'Arial Narrow', system-ui, sans-serif;
+    font-family: var(--pg-body); color: var(--ve-charcoal); background: var(--ve-paper);
+    line-height: 1.5; padding: 6.4rem 2rem;
+  }
+  #shopify-section-{{ section.id }} .vepg * { box-sizing: border-box; }
+  #shopify-section-{{ section.id }} .vepg__inner { max-width: 960px; margin: 0 auto; }
+  #shopify-section-{{ section.id }} .vepg h1,
+  #shopify-section-{{ section.id }} .vepg h2 { font-family: var(--pg-display); font-weight: 400; text-transform: uppercase; line-height: 0.96; margin: 0; }
+  #shopify-section-{{ section.id }} .vepg h1 { font-size: clamp(4.4rem, 8vw, 7.2rem); }
+  #shopify-section-{{ section.id }} .vepg h2 { font-size: clamp(2.8rem, 4vw, 3.8rem); }
+  #shopify-section-{{ section.id }} .vepg__eyebrow { font-family: var(--pg-display); font-size: 1.6rem; letter-spacing: 0.18em; display: inline-block; margin-bottom: 1.2rem; }
+  #shopify-section-{{ section.id }} .vepg__lead { font-size: 1.9rem; max-width: 62ch; margin: 1.6rem 0 0; }
+  #shopify-section-{{ section.id }} .vepg__group { margin-top: 5.2rem; background: var(--ve-white); border: 2px solid var(--ve-charcoal); padding: clamp(2rem, 4vw, 3.2rem); }
+  #shopify-section-{{ section.id }} .vepg__ghead { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0.8rem 2rem; padding-bottom: 1.4rem; border-bottom: 4px solid var(--ve-yellow); }
+  #shopify-section-{{ section.id }} .vepg__gintro { font-size: 1.6rem; color: #55554f; margin: 1.2rem 0 0; max-width: 70ch; }
+  #shopify-section-{{ section.id }} .vepg__glink { font-family: var(--pg-display); font-size: 1.9rem; letter-spacing: 0.04em; color: var(--ve-blue); text-decoration: none; white-space: nowrap; }
+  #shopify-section-{{ section.id }} .vepg__glink:hover { text-decoration: underline; }
+  #shopify-section-{{ section.id }} .vepg__rows { list-style: none; margin: 0.8rem 0 0; padding: 0; }
+  #shopify-section-{{ section.id }} .vepg__row { display: flex; align-items: baseline; gap: 1.2rem; padding: 1.3rem 0; border-bottom: 1px solid var(--ve-rule); }
+  #shopify-section-{{ section.id }} .vepg__row:last-child { border-bottom: 0; }
+  #shopify-section-{{ section.id }} .vepg__item { flex: 1 1 auto; min-width: 0; }
+  #shopify-section-{{ section.id }} .vepg__name { display: block; font-size: 1.8rem; font-weight: 600; }
+  #shopify-section-{{ section.id }} .vepg__detail { display: block; font-size: 1.5rem; color: #55554f; }
+  #shopify-section-{{ section.id }} .vepg__price { flex: none; font-family: var(--pg-display); font-size: 2.4rem; letter-spacing: 0.02em; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  #shopify-section-{{ section.id }} .vepg__foot { margin-top: 3.2rem; font-size: 1.6rem; color: #55554f; max-width: 75ch; }
+  #shopify-section-{{ section.id }} .vepg__cta { display: inline-flex; margin-top: 2.4rem; font-family: var(--pg-display); font-size: 2.1rem; letter-spacing: 0.05em; text-transform: uppercase; text-decoration: none; padding: 1.4rem 2.6rem; background: var(--ve-yellow); color: var(--ve-charcoal); }
+  #shopify-section-{{ section.id }} .vepg a:focus-visible { outline: 3px solid var(--ve-blue); outline-offset: 2px; }
+  @media (max-width: 749px) {
+    #shopify-section-{{ section.id }} .vepg { padding: 4.8rem 1.6rem; }
+    #shopify-section-{{ section.id }} .vepg__price { font-size: 2.1rem; }
+  }
+</style>
+
+<div class="vepg">
+  <div class="vepg__inner">
+    {%- if section.settings.eyebrow != blank -%}<span class="vepg__eyebrow">{{ section.settings.eyebrow }}</span>{%- endif -%}
+    <h1>{{ section.settings.title }}</h1>
+    {%- if section.settings.lead != blank -%}<p class="vepg__lead">{{ section.settings.lead }}</p>{%- endif -%}
+
+    {%- for block in section.blocks -%}
+      {%- if block.type == 'group' -%}
+        <div class="vepg__group" {{ block.shopify_attributes }}>
+          <div class="vepg__ghead">
+            <h2>{{ block.settings.title }}</h2>
+            {%- if block.settings.link_label != blank and block.settings.link_url != blank -%}
+              <a class="vepg__glink" href="{{ block.settings.link_url }}">{{ block.settings.link_label }} →</a>
+            {%- endif -%}
+          </div>
+          {%- if block.settings.intro != blank -%}<p class="vepg__gintro">{{ block.settings.intro }}</p>{%- endif -%}
+          <ul class="vepg__rows">
+            {%- for row in section.blocks offset: forloop.index -%}
+              {%- if row.type == 'group' -%}{%- break -%}{%- endif -%}
+              <li class="vepg__row" {{ row.shopify_attributes }}>
+                <span class="vepg__item">
+                  <span class="vepg__name">{{ row.settings.item }}</span>
+                  {%- if row.settings.detail != blank -%}<span class="vepg__detail">{{ row.settings.detail }}</span>{%- endif -%}
+                </span>
+                <span class="vepg__price">{{ row.settings.price }}</span>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+
+    {%- if section.settings.footnote != blank -%}<p class="vepg__foot">{{ section.settings.footnote }}</p>{%- endif -%}
+    {%- if section.settings.cta_label != blank and section.settings.cta_url != blank -%}
+      <a class="vepg__cta" href="{{ section.settings.cta_url }}">{{ section.settings.cta_label }}</a>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Price guide",
+  "tag": "section",
+  "class": "ve-section ve-section--price-guide",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "PRICES · FITTED · NO VAT TO ADD" },
+    { "type": "text", "id": "title", "label": "Heading", "default": "WHAT IT COSTS" },
+    { "type": "textarea", "id": "lead", "label": "Intro" },
+    { "type": "textarea", "id": "footnote", "label": "Footnote" },
+    { "type": "text", "id": "cta_label", "label": "Button label", "default": "GET A FREE MOCKUP" },
+    { "type": "url", "id": "cta_url", "label": "Button link" }
+  ],
+  "blocks": [
+    {
+      "type": "group",
+      "name": "Group heading",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Title", "default": "Group" },
+        { "type": "textarea", "id": "intro", "label": "Intro" },
+        { "type": "text", "id": "link_label", "label": "Link label" },
+        { "type": "url", "id": "link_url", "label": "Link" }
+      ]
+    },
+    {
+      "type": "row",
+      "name": "Price row",
+      "settings": [
+        { "type": "text", "id": "item", "label": "Item", "default": "Item" },
+        { "type": "text", "id": "detail", "label": "Detail" },
+        { "type": "text", "id": "price", "label": "Price", "default": "£0" }
+      ]
+    }
+  ],
+  "presets": [ { "name": "Price guide" } ]
+}
+{% endschema %}

@@ -1,5 +1,6 @@
 {%- comment -%}
-  Vector Edge — "The Van That Sells" flagship offer page.
+  Vector Edge — direct-response offer page. Built for "The Van That Sells" and reused for
+  other services (shop windows, office glass) by changing settings and blocks in a page template.
   Self-contained direct-response section: hero, value maths, job-sheet value stack,
   price bands, guarantee, how-it-works, proof, add-ons, FAQ and mockup-request form.
   Renders inside the normal theme layout (no layout-none override). Vanilla JS only.
@@ -140,7 +141,7 @@
   #shopify-section-{{ section.id }} .vts-stamp__small { font-size: 1.5rem; margin-top: 0.6rem; font-weight: 600; }
 
   /* ---- Price bands ---- */
-  #shopify-section-{{ section.id }} .vts-bands { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.6rem; }
+  #shopify-section-{{ section.id }} .vts-bands { display: grid; grid-template-columns: repeat(var(--vts-cols, 4), 1fr); gap: 1.6rem; }
   #shopify-section-{{ section.id }} .vts-bandcard {
     position: relative; display: flex; flex-direction: column;
     background: var(--ve-white); border: 1px solid var(--ve-rule); padding: 2.6rem 2rem;
@@ -170,6 +171,7 @@
   #shopify-section-{{ section.id }} .vts-proof { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; }
   #shopify-section-{{ section.id }} .vts-proofcard { background: var(--ve-white); border: 1px solid var(--ve-rule); }
   #shopify-section-{{ section.id }} .vts-proofcard__imgs { display: grid; grid-template-columns: 1fr 1fr; }
+  #shopify-section-{{ section.id }} .vts-proofcard__imgs--one { grid-template-columns: 1fr; }
   #shopify-section-{{ section.id }} .vts-proofcard__imgs img { display: block; width: 100%; height: 100%; object-fit: cover; aspect-ratio: 4/3; }
   #shopify-section-{{ section.id }} .vts-proofcard__ph {
     aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center;
@@ -259,6 +261,36 @@
   }
 </style>
 
+{%- liquid
+  assign stack_count = 0
+  assign band_count = 0
+  assign addon_count = 0
+  assign faq_count = 0
+  assign proof_count = 0
+  for block in section.blocks
+    case block.type
+      when 'stack_item'
+        assign stack_count = stack_count | plus: 1
+      when 'price_band'
+        assign band_count = band_count | plus: 1
+      when 'addon'
+        assign addon_count = addon_count | plus: 1
+      when 'faq'
+        assign faq_count = faq_count | plus: 1
+      when 'proof'
+        if block.settings.before_image != blank or block.settings.after_image != blank or block.settings.caption != blank
+          assign proof_count = proof_count | plus: 1
+        endif
+    endcase
+  endfor
+  assign band_cols = band_count
+  if band_cols > 4
+    assign band_cols = 4
+  endif
+  if band_cols < 1
+    assign band_cols = 1
+  endif
+-%}
 <div class="vts">
 
   {%- comment -%} 1. HERO {%- endcomment -%}
@@ -284,14 +316,17 @@
   </section>
 
   {%- comment -%} 2. THE MATHS {%- endcomment -%}
+  {%- if section.settings.maths_h2 != blank -%}
   <section class="vts-band vts-band--paper vts-maths" aria-labelledby="vts-maths-h">
     <div class="vts-inner vts-inner--narrow">
       <h2 id="vts-maths-h">{{ section.settings.maths_h2 }}</h2>
       {%- if section.settings.maths_body != blank -%}<div>{{ section.settings.maths_body }}</div>{%- endif -%}
     </div>
   </section>
+  {%- endif -%}
 
   {%- comment -%} 3. THE STACK (job sheet) {%- endcomment -%}
+  {%- if stack_count > 0 -%}
   <section class="vts-band vts-band--white vts-stack" aria-labelledby="vts-stack-h">
     <div class="vts-inner vts-inner--narrow">
       <h2 id="vts-stack-h">{{ section.settings.stack_h2 }}</h2>
@@ -315,12 +350,14 @@
       </div>
     </div>
   </section>
+  {%- endif -%}
 
   {%- comment -%} 4. PRICE BANDS {%- endcomment -%}
+  {%- if band_count > 0 -%}
   <section class="vts-band vts-band--paper" aria-labelledby="vts-bands-h">
     <div class="vts-inner">
       <h2 id="vts-bands-h">{{ section.settings.bands_h2 }}</h2>
-      <div class="vts-bands">
+      <div class="vts-bands" style="--vts-cols: {{ band_cols }};">
         {%- for block in section.blocks -%}
           {%- if block.type == 'price_band' -%}
           <div class="vts-bandcard {% if block.settings.badge != blank %}vts-bandcard--pop{% endif %}" {{ block.shopify_attributes }}>
@@ -336,14 +373,17 @@
       {%- if section.settings.bands_footnote != blank -%}<p class="vts-bands__foot">{{ section.settings.bands_footnote }}</p>{%- endif -%}
     </div>
   </section>
+  {%- endif -%}
 
   {%- comment -%} 5. GUARANTEE {%- endcomment -%}
+  {%- if section.settings.guarantee_h2 != blank -%}
   <section class="vts-band vts-band--dark" aria-labelledby="vts-guar-h">
     <div class="vts-inner vts-inner--narrow vts-guarantee">
       <h2 id="vts-guar-h">{{ section.settings.guarantee_h2 }}</h2>
       {%- if section.settings.guarantee_body != blank -%}<p>{{ section.settings.guarantee_body }}</p>{%- endif -%}
     </div>
   </section>
+  {%- endif -%}
 
   {%- comment -%} 6. HOW IT WORKS {%- endcomment -%}
   <section class="vts-band vts-band--white" aria-labelledby="vts-how-h">
@@ -369,20 +409,14 @@
     <div class="vts-inner">
       <h2 id="vts-proof-h">{{ section.settings.proof_h2 }}</h2>
       <div class="vts-proof">
-        {%- assign proof_count = 0 -%}
-        {%- for block in section.blocks -%}{%- if block.type == 'proof' -%}{%- assign proof_count = proof_count | plus: 1 -%}{%- endif -%}{%- endfor -%}
         {%- for block in section.blocks -%}
           {%- if block.type == 'proof' -%}
+            {%- if block.settings.before_image != blank or block.settings.after_image != blank or block.settings.caption != blank -%}
           <figure class="vts-proofcard" {{ block.shopify_attributes }}>
             {%- if block.settings.before_image != blank or block.settings.after_image != blank -%}
-            <div class="vts-proofcard__imgs">
-              {%- if block.settings.before_image != blank -%}<img src="{{ block.settings.before_image | image_url: width: 800 }}" alt="{{ block.settings.caption | escape }} — before" loading="lazy" width="800" height="600">{%- else -%}<div class="vts-proofcard__ph">Before</div>{%- endif -%}
-              {%- if block.settings.after_image != blank -%}<img src="{{ block.settings.after_image | image_url: width: 800 }}" alt="{{ block.settings.caption | escape }} — after" loading="lazy" width="800" height="600">{%- else -%}<div class="vts-proofcard__ph">After</div>{%- endif -%}
-            </div>
-            {%- else -%}
-            <div class="vts-proofcard__imgs">
-              <div class="vts-proofcard__ph">Before</div>
-              <div class="vts-proofcard__ph">After</div>
+            <div class="vts-proofcard__imgs{% if block.settings.before_image == blank or block.settings.after_image == blank %} vts-proofcard__imgs--one{% endif %}">
+              {%- if block.settings.before_image != blank -%}<img src="{{ block.settings.before_image | image_url: width: 800 }}" alt="{{ block.settings.caption | escape }} — before" loading="lazy" width="800" height="600">{%- endif -%}
+              {%- if block.settings.after_image != blank -%}<img src="{{ block.settings.after_image | image_url: width: 800 }}" alt="{{ block.settings.caption | escape }} — after" loading="lazy" width="800" height="600">{%- endif -%}
             </div>
             {%- endif -%}
             <figcaption class="vts-proofcard__cap">
@@ -390,6 +424,7 @@
               {%- if block.settings.result != blank -%}<p class="vts-proofcard__result">{{ block.settings.result }}</p>{%- endif -%}
             </figcaption>
           </figure>
+            {%- endif -%}
           {%- endif -%}
         {%- endfor -%}
         {%- if proof_count == 0 and section.settings.proof_empty != blank -%}
@@ -401,6 +436,7 @@
   </section>
 
   {%- comment -%} 8. ADD-ONS {%- endcomment -%}
+  {%- if addon_count > 0 -%}
   <section class="vts-band vts-band--white" aria-labelledby="vts-addons-h">
     <div class="vts-inner vts-inner--narrow">
       <h2 id="vts-addons-h">{{ section.settings.addons_h2 }}</h2>
@@ -413,8 +449,10 @@
       </ul>
     </div>
   </section>
+  {%- endif -%}
 
   {%- comment -%} 9. FAQ {%- endcomment -%}
+  {%- if faq_count > 0 -%}
   <section class="vts-band vts-band--paper vts-faq" aria-labelledby="vts-faq-h">
     <div class="vts-inner vts-inner--narrow">
       <h2 id="vts-faq-h">{{ section.settings.faq_h2 }}</h2>
@@ -428,6 +466,7 @@
       {%- endfor -%}
     </div>
   </section>
+  {%- endif -%}
 
   {%- comment -%} 10. FINAL CTA + FORM {%- endcomment -%}
   <section class="vts-band vts-band--dark vts-form__end" id="vts-form" aria-labelledby="vts-form-h">
@@ -442,7 +481,7 @@
             {{ form.errors | default_errors }}
           </div>
         {%- endif -%}
-        <input type="hidden" name="contact[Subject]" value="Van That Sells — mockup request">
+        <input type="hidden" name="contact[Subject]" value="{{ section.settings.form_subject | default: 'Van That Sells — mockup request' | escape }}">
         <div class="vts-field">
           <label for="vts-name">Name</label>
           <input type="text" id="vts-name" name="contact[name]" autocomplete="name" required>
@@ -456,8 +495,9 @@
           <input type="email" id="vts-email" name="contact[email]" autocomplete="email" required>
         </div>
         <div class="vts-field">
-          <label for="vts-van">Van make &amp; model</label>
-          <input type="text" id="vts-van" name="contact[Van make &amp; model]">
+          {%- assign detail_label = section.settings.form_detail_label | default: 'Van make & model' -%}
+          <label for="vts-van">{{ detail_label | escape }}</label>
+          <input type="text" id="vts-van" name="contact[{{ detail_label | escape }}]">
         </div>
         <div class="vts-field vts-field--full">
           <label for="vts-msg">Anything else?</label>
@@ -490,7 +530,7 @@
     function vePush(label) {
       try {
         if (window.dataLayer && typeof window.dataLayer.push === 'function') {
-          window.dataLayer.push({ event: 've_cta', label: label, page: 'van-that-sells' });
+          window.dataLayer.push({ event: 've_cta', label: label, page: {{ section.settings.tracking_page | default: 'van-that-sells' | json }} });
         }
       } catch (e) {}
     }
@@ -533,7 +573,7 @@
 
 {% schema %}
 {
-  "name": "The Van That Sells",
+  "name": "Offer page",
   "tag": "section",
   "class": "ve-section ve-section--van-that-sells",
   "settings": [
@@ -586,6 +626,8 @@
     { "type": "text", "id": "form_h2", "label": "Heading", "default": "GET YOUR FREE MOCKUP" },
     { "type": "textarea", "id": "form_sub", "label": "Sub", "default": "No cost, no obligation — the design is yours either way." },
     { "type": "text", "id": "form_submit_label", "label": "Submit button label", "default": "SEND ME MY MOCKUP" },
+    { "type": "text", "id": "form_subject", "label": "Email subject for enquiries", "default": "Van That Sells — mockup request" },
+    { "type": "text", "id": "form_detail_label", "label": "Detail field label", "default": "Van make & model" },
     { "type": "text", "id": "form_footer", "label": "Under-form line", "default": "Prefer to talk? Call or text" },
     { "type": "textarea", "id": "form_success", "label": "Success message", "default": "Thanks — your mockup request is in. We will be in touch within a day." },
 
@@ -594,6 +636,8 @@
     { "type": "text", "id": "phone_tel", "label": "Phone (tel: digits)", "default": "07348580359" },
     { "type": "text", "id": "email", "label": "Email", "default": "support@vectoredge.co.uk" },
 
+    { "type": "header", "content": "Tracking" },
+    { "type": "text", "id": "tracking_page", "label": "Page name sent with clicks (dataLayer)", "default": "van-that-sells" },
     { "type": "header", "content": "Sticky mobile bar" },
     { "type": "text", "id": "sticky_cta_label", "label": "Sticky CTA label", "default": "GET FREE MOCKUP" },
     { "type": "text", "id": "sticky_call_label", "label": "Sticky call label", "default": "CALL" }

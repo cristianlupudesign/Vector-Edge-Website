@@ -1,0 +1,278 @@
+{
+  "sections": {
+    "main": {
+      "type": "ve-price-guide",
+      "blocks": {
+        "group-1": {
+          "type": "group",
+          "settings": {
+            "title": "Vans & vehicles",
+            "intro": "Designed, printed and fitted at your address. Free mockup first.",
+            "link_label": "See The Van That Sells",
+            "link_url": "/pages/van-that-sells"
+          }
+        },
+        "row-1": {
+          "type": "row",
+          "settings": {
+            "item": "Small van",
+            "detail": "Caddy, Connect, Combo, Berlingo, Partner",
+            "price": "£995"
+          }
+        },
+        "row-2": {
+          "type": "row",
+          "settings": {
+            "item": "Medium van",
+            "detail": "Transit Custom, Transporter, Vito, Vivaro, Trafic",
+            "price": "£1,295"
+          }
+        },
+        "row-3": {
+          "type": "row",
+          "settings": {
+            "item": "Large van",
+            "detail": "Transit LWB, Sprinter, Crafter, Master, Ducato. High roof +£150",
+            "price": "£1,595"
+          }
+        },
+        "row-4": {
+          "type": "row",
+          "settings": {
+            "item": "Luton / box van",
+            "detail": "The biggest billboard you'll ever own",
+            "price": "£1,895"
+          }
+        },
+        "row-5": {
+          "type": "row",
+          "settings": {
+            "item": "Cars and pickups",
+            "detail": "Quoted from your photo",
+            "price": "from £795"
+          }
+        },
+        "row-6": {
+          "type": "row",
+          "settings": {
+            "item": "Fleets of 3+ identical vans",
+            "detail": "One invoice",
+            "price": "10% off"
+          }
+        },
+        "row-7": {
+          "type": "row",
+          "settings": {
+            "item": "Chapter 8 chevron pack",
+            "detail": "Fitted",
+            "price": "from £249"
+          }
+        },
+        "row-8": {
+          "type": "row",
+          "settings": {
+            "item": "Cab height notice",
+            "detail": "Free with high-roof van jobs",
+            "price": "£15"
+          }
+        },
+        "group-2": {
+          "type": "group",
+          "settings": {
+            "title": "Shop windows",
+            "intro": "Fitted at your shop. Minimum fitted job £120.",
+            "link_label": "See The Window That Sells",
+            "link_url": "/pages/shop-window-graphics"
+          }
+        },
+        "row-9": {
+          "type": "row",
+          "settings": {
+            "item": "Opening hours door decal",
+            "detail": "Hours, phone, website, socials",
+            "price": "from £75"
+          }
+        },
+        "row-10": {
+          "type": "row",
+          "settings": {
+            "item": "Window lettering",
+            "detail": "Name, services and phone",
+            "price": "from £180"
+          }
+        },
+        "row-11": {
+          "type": "row",
+          "settings": {
+            "item": "Printed window graphics",
+            "detail": "Promotions, photos, seasonal displays",
+            "price": "from £55/m²"
+          }
+        },
+        "row-12": {
+          "type": "row",
+          "settings": {
+            "item": "One-way vision",
+            "detail": "Privacy inside, advertising outside",
+            "price": "from £65/m²"
+          }
+        },
+        "row-13": {
+          "type": "row",
+          "settings": {
+            "item": "Blockout or \"To let\" vinyl",
+            "detail": "Empty units and refits",
+            "price": "from £45/m²"
+          }
+        },
+        "row-14": {
+          "type": "row",
+          "settings": {
+            "item": "Window Season Pass",
+            "detail": "Four window changes a year",
+            "price": "from £59/month"
+          }
+        },
+        "row-15": {
+          "type": "row",
+          "settings": {
+            "item": "Removal of old vinyl",
+            "detail": "With a glass clean",
+            "price": "from £40 a window"
+          }
+        },
+        "group-3": {
+          "type": "group",
+          "settings": {
+            "title": "Office glass",
+            "intro": "Safety marking, frosting and logos on glass.",
+            "link_label": "See Office Glass",
+            "link_url": "/pages/office-glass"
+          }
+        },
+        "row-16": {
+          "type": "row",
+          "settings": {
+            "item": "Safety bands",
+            "detail": "Two frosted bands on one glass door",
+            "price": "from £60 a door"
+          }
+        },
+        "row-17": {
+          "type": "row",
+          "settings": {
+            "item": "Branded frost band",
+            "detail": "Your logo or name cut out",
+            "price": "from £45 a metre"
+          }
+        },
+        "row-18": {
+          "type": "row",
+          "settings": {
+            "item": "Privacy frosting",
+            "detail": "Meeting and treatment rooms",
+            "price": "from £60/m²"
+          }
+        },
+        "row-19": {
+          "type": "row",
+          "settings": {
+            "item": "Small office",
+            "detail": "Entrance, reception logo and up to three rooms",
+            "price": "from £600"
+          }
+        },
+        "row-20": {
+          "type": "row",
+          "settings": {
+            "item": "Office Move-In pack",
+            "detail": "Safety bands, branded frost, privacy and reception logo",
+            "price": "from £695"
+          }
+        },
+        "group-4": {
+          "type": "group",
+          "settings": {
+            "title": "Walls & signs",
+            "intro": "Fitted locally.",
+            "link_label": "Ask for a quote",
+            "link_url": "/pages/contact"
+          }
+        },
+        "row-21": {
+          "type": "row",
+          "settings": {
+            "item": "Logo wall or values wall",
+            "detail": "Cut vinyl",
+            "price": "from £150"
+          }
+        },
+        "row-22": {
+          "type": "row",
+          "settings": {
+            "item": "Printed wall graphics",
+            "detail": "Fitted",
+            "price": "from £75/m²"
+          }
+        },
+        "row-23": {
+          "type": "row",
+          "settings": {
+            "item": "Panel signs",
+            "detail": "Foamex or Dibond, fitted",
+            "price": "from £120"
+          }
+        },
+        "row-24": {
+          "type": "row",
+          "settings": {
+            "item": "Builders' site boards",
+            "detail": "Fitted to your hoarding",
+            "price": "from £120 each"
+          }
+        }
+      },
+      "block_order": [
+        "group-1",
+        "row-1",
+        "row-2",
+        "row-3",
+        "row-4",
+        "row-5",
+        "row-6",
+        "row-7",
+        "row-8",
+        "group-2",
+        "row-9",
+        "row-10",
+        "row-11",
+        "row-12",
+        "row-13",
+        "row-14",
+        "row-15",
+        "group-3",
+        "row-16",
+        "row-17",
+        "row-18",
+        "row-19",
+        "row-20",
+        "group-4",
+        "row-21",
+        "row-22",
+        "row-23",
+        "row-24"
+      ],
+      "settings": {
+        "eyebrow": "PRICES · FITTED · NO VAT TO ADD",
+        "title": "WHAT IT COSTS",
+        "lead": "Starting prices for our most common jobs, fitted in our free-fitting area. Every job starts with a free mockup and a fixed price, so you know the exact cost before you commit.",
+        "footnote": "Free fitting in HA4, HA5, HA6, UB8, UB9, UB10, HA1, HA2, HA3 and WD3. Further afield, ask us. We're not VAT registered, so there's no VAT to add.",
+        "cta_label": "GET A FREE MOCKUP",
+        "cta_url": "/pages/van-that-sells#vts-form"
+      }
+    }
+  },
+  "order": [
+    "main"
+  ]
+}

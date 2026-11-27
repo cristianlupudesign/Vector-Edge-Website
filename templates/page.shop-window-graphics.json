@@ -1,0 +1,72 @@
+{
+  "sections": {
+    "main": {
+      "type": "van-that-sells",
+      "blocks": {
+        "stack-1": { "type": "stack_item", "settings": { "title": "Free mockup on a photo of your shop", "line": "See it on your own window before you spend a penny.", "worth": "included", "included": true } },
+        "stack-2": { "type": "stack_item", "settings": { "title": "Design to match your brand + two revision rounds", "line": "Your name, logo, colours and what you sell, laid out to read from across the road.", "worth": "included", "included": true } },
+        "stack-3": { "type": "stack_item", "settings": { "title": "Vinyl cut in our Ruislip workshop", "line": "Outdoor-rated vinyl, usually fitted inside the glass so it lasts.", "worth": "included", "included": true } },
+        "stack-4": { "type": "stack_item", "settings": { "title": "Fitted at your shop", "line": "Most windows take an hour or two. We fit around your opening hours where we can.", "worth": "included", "included": true } },
+        "band-1": { "type": "price_band", "settings": { "name": "OPENING HOURS", "examples": "Door decal with your hours, phone, website and socials", "price": "£75", "note": "From, fitted" } },
+        "band-2": { "type": "price_band", "settings": { "name": "WINDOW LETTERING", "examples": "Name, services and phone across your main window", "price": "£180", "note": "From, fitted", "badge": "MOST POPULAR" } },
+        "band-3": { "type": "price_band", "settings": { "name": "PRINTED GRAPHICS", "examples": "Full-colour promotions, photos and seasonal displays", "price": "£55/m²", "note": "Minimum job £120" } },
+        "band-4": { "type": "price_band", "settings": { "name": "ONE-WAY VISION", "examples": "Privacy inside, advertising outside. Gyms, clinics, salons", "price": "£65/m²", "note": "From, fitted" } },
+        "addon-1": { "type": "addon", "settings": { "text": "QR \"Review us on Google\" window sticker — from £12" } },
+        "addon-2": { "type": "addon", "settings": { "text": "Window Season Pass: four window changes a year — from £59 a month" } },
+        "addon-3": { "type": "addon", "settings": { "text": "Removal of old vinyl and a glass clean — from £40 a window" } },
+        "addon-4": { "type": "addon", "settings": { "text": "Matching lettering for your van — see The Van That Sells" } },
+        "faq-1": { "type": "faq", "settings": { "question": "Do I need planning permission?", "answer": "<p>Graphics on the inside of a shop window usually have deemed consent, so no application is needed. Some councils discourage covering the whole window, so we design to keep your shop visible. Illuminated signs and fascias are different, so ask us if you're unsure.</p>" } },
+        "faq-2": { "type": "faq", "settings": { "question": "Inside or outside the glass?", "answer": "<p>Usually inside. It's protected from weather and vandalism and lasts longer. Some lettering reads better outside, and we'll say which on your mockup.</p>" } },
+        "faq-3": { "type": "faq", "settings": { "question": "How long does it last?", "answer": "<p>Cut vinyl lettering typically lasts 5–7 years. Printed promotional graphics are made for shorter campaigns and are easy to change.</p>" } },
+        "faq-4": { "type": "faq", "settings": { "question": "Can you take my old graphics off?", "answer": "<p>Yes. Removal and a glass clean from £40 a window, done on the same visit.</p>" } },
+        "faq-5": { "type": "faq", "settings": { "question": "Can you fit before we open?", "answer": "<p>Ask when you book. Most windows take an hour or two, and we fit around your opening hours where we can.</p>" } },
+        "faq-6": { "type": "faq", "settings": { "question": "Do you cover my area?", "answer": "<p>Fitting is free in HA4, HA5, HA6, UB8, UB9, UB10, HA1, HA2, HA3 and WD3. Further afield, ask us.</p>" } }
+      },
+      "block_order": [
+        "stack-1", "stack-2", "stack-3", "stack-4",
+        "band-1", "band-2", "band-3", "band-4",
+        "addon-1", "addon-2", "addon-3", "addon-4",
+        "faq-1", "faq-2", "faq-3", "faq-4", "faq-5", "faq-6"
+      ],
+      "settings": {
+        "hero_eyebrow": "SHOP WINDOW GRAPHICS — RUISLIP & WEST LONDON",
+        "hero_h1": "THE WINDOW THAT SELLS.",
+        "hero_sub": "Lettering, opening hours and window graphics, designed and fitted at your shop. Most shopfronts from £180, fitted. No VAT to add.",
+        "hero_cta_label": "GET YOUR FREE WINDOW MOCKUP",
+        "hero_secondary": "or call 07348 580359",
+        "trust_1": "Fitted at your shop",
+        "trust_2": "Outdoor-rated vinyl",
+        "trust_3": "Free mockup in 48 hours",
+        "maths_h2": "YOUR WINDOW IS YOUR CHEAPEST ADVERT",
+        "maths_body": "<p>Everyone who walks past your shop reads your window, whether you meant them to or not. A clear name, what you sell, your hours and your number turn some of them into customers. A faded or empty window can make people think you're closed. Fitted lettering works every day for years, for a one-off price.</p>",
+        "stack_h2": "WHAT'S INCLUDED",
+        "stack_subtotal": "",
+        "stack_stamp": "SHOPFRONT LETTERING FROM £180, FITTED",
+        "stack_stamp_small": "Exact price on your free mockup. No VAT to add.",
+        "bands_h2": "PRICED BY THE JOB",
+        "bands_footnote": "All prices are from, fitted in our free-fitting area (HA4, HA5, HA6, UB8, UB9, UB10, HA1, HA2, HA3, WD3). Minimum fitted job £120. Prices are VAT-free.",
+        "guarantee_h2": "FITTED RIGHT, OR WE PUT IT RIGHT",
+        "guarantee_body": "If any lettering we fit lifts, bubbles or isn't straight, tell us and we'll come back and fix it free.",
+        "how_h2": "HOW IT WORKS",
+        "step_1": "Send a photo of your shopfront, or just your address. Free mockup back within 48 hours.",
+        "step_2": "Tweak it until it's right. Two revision rounds included.",
+        "step_3": "We cut it in Ruislip and fit it at your shop.",
+        "step_4": "Want a Christmas or sale window next? Book it any time.",
+        "proof_h2": "RECENT WINDOWS",
+        "proof_empty": "New window jobs added every month. Follow us on Instagram @vectoredge.co.uk.",
+        "addons_h2": "WORTH ADDING WHILE WE'RE THERE",
+        "faq_h2": "FREQUENTLY ASKED",
+        "form_h2": "GET YOUR FREE WINDOW MOCKUP",
+        "form_sub": "No cost, no obligation. We'll reply and ask for a photo of your window. The design is yours either way.",
+        "form_submit_label": "SEND ME MY MOCKUP",
+        "form_subject": "Shop window — mockup request",
+        "form_detail_label": "Shop name & postcode",
+        "form_success": "Thanks. Your window mockup request is in. We'll be in touch within 48 hours.",
+        "tracking_page": "shop-window-graphics",
+        "sticky_cta_label": "GET FREE MOCKUP",
+        "sticky_call_label": "CALL"
+      }
+    }
+  },
+  "order": ["main"]
+}

@@ -1,0 +1,72 @@
+{
+  "sections": {
+    "main": {
+      "type": "van-that-sells",
+      "blocks": {
+        "stack-1": { "type": "stack_item", "settings": { "title": "Measuring and advice", "line": "We check every door and screen and tell you what needs marking.", "worth": "included", "included": true } },
+        "stack-2": { "type": "stack_item", "settings": { "title": "Design to match your brand", "line": "Frosted bands with your logo or name cut out, in place of plain dots.", "worth": "included", "included": true } },
+        "stack-3": { "type": "stack_item", "settings": { "title": "Frosted or coloured vinyl, cut in Ruislip", "line": "Lets light through, blocks the view, peels off cleanly when you move.", "worth": "included", "included": true } },
+        "stack-4": { "type": "stack_item", "settings": { "title": "Fitted by us, bubble-free", "line": "Most offices take a few hours. We fit around your working day where we can.", "worth": "included", "included": true } },
+        "band-1": { "type": "price_band", "settings": { "name": "SAFETY BANDS", "examples": "Two frosted bands on one glass door, at the Approved Document K heights", "price": "£60", "note": "From, per door" } },
+        "band-2": { "type": "price_band", "settings": { "name": "BRANDED FROST BAND", "examples": "Frosted band with your logo or name cut out", "price": "£45", "note": "From, per metre", "badge": "MOST POPULAR" } },
+        "band-3": { "type": "price_band", "settings": { "name": "PRIVACY FROSTING", "examples": "Full or part-height frost for meeting and treatment rooms", "price": "£60/m²", "note": "From, fitted" } },
+        "band-4": { "type": "price_band", "settings": { "name": "SMALL OFFICE", "examples": "Entrance door, reception logo and up to three rooms", "price": "£600", "note": "From, fitted" } },
+        "addon-1": { "type": "addon", "settings": { "text": "Reception logo on glass or wall — quoted with your mockup" } },
+        "addon-2": { "type": "addon", "settings": { "text": "Opening hours and door lettering — from £75" } },
+        "addon-3": { "type": "addon", "settings": { "text": "Logo wall or values wall in cut vinyl — from £150" } },
+        "addon-4": { "type": "addon", "settings": { "text": "Office Move-In pack: safety bands, branded frost, privacy and a reception logo — from £695" } },
+        "faq-1": { "type": "faq", "settings": { "question": "Do I legally have to mark my glass?", "answer": "<p>In workplaces, transparent doors and screens must be marked where it's needed for safety, under regulation 14 of the Workplace (Health, Safety and Welfare) Regulations 1992. For building work, Approved Document K says where and at what height. We fit at those heights, but we can't certify your building. If you're unsure, ask your building control body or health and safety adviser.</p>" } },
+        "faq-2": { "type": "faq", "settings": { "question": "What heights do you use?", "answer": "<p>Two bands: 850–1000mm and 1400–1600mm above the floor, as set out in Approved Document K. Where the marking needs to stand out more, for example for people with poor sight, we can use a contrasting colour.</p>" } },
+        "faq-3": { "type": "faq", "settings": { "question": "Will frosting make the room dark?", "answer": "<p>No. Frosted vinyl lets light through and blocks the view. We can frost just a band at eye level so the room stays bright.</p>" } },
+        "faq-4": { "type": "faq", "settings": { "question": "Can it come off when we move?", "answer": "<p>Yes. It peels off cleanly, which suits rented offices. We can remove it for you too.</p>" } },
+        "faq-5": { "type": "faq", "settings": { "question": "Can you fit outside office hours?", "answer": "<p>Ask when you book. Most jobs take a few hours, and we fit around your working day where we can.</p>" } },
+        "faq-6": { "type": "faq", "settings": { "question": "Do you cover my area?", "answer": "<p>Fitting is free in HA4, HA5, HA6, UB8, UB9, UB10, HA1, HA2, HA3 and WD3. Further afield, ask us.</p>" } }
+      },
+      "block_order": [
+        "stack-1", "stack-2", "stack-3", "stack-4",
+        "band-1", "band-2", "band-3", "band-4",
+        "addon-1", "addon-2", "addon-3", "addon-4",
+        "faq-1", "faq-2", "faq-3", "faq-4", "faq-5", "faq-6"
+      ],
+      "settings": {
+        "hero_eyebrow": "GLASS MANIFESTATION & OFFICE FROSTING — WEST LONDON",
+        "hero_h1": "MARK THE GLASS. MAKE IT YOUR BRAND.",
+        "hero_sub": "Safety bands, privacy frosting and logos on glass, fitted at your office, clinic or school. From £60 a door, fitted. No VAT to add.",
+        "hero_cta_label": "GET YOUR FREE GLASS MOCKUP",
+        "hero_secondary": "or call 07348 580359",
+        "trust_1": "Fitted at the Approved Document K heights",
+        "trust_2": "Frosted vinyl cut to your logo",
+        "trust_3": "Free mockup in 48 hours",
+        "maths_h2": "WHY CLEAR GLASS NEEDS MARKING",
+        "maths_body": "<p>People walk into clear glass doors and screens. In workplaces, transparent doors and partitions have to be marked where it's needed for safety. For building work, Approved Document K sets two bands for the marking: 850–1000mm and 1400–1600mm above the floor.</p><p>You have to mark the glass anyway. We make it look like your brand, with frosted bands, your logo cut out and privacy where you need it.</p>",
+        "stack_h2": "WHAT'S INCLUDED",
+        "stack_subtotal": "",
+        "stack_stamp": "SAFETY BANDS FROM £60 A DOOR, FITTED",
+        "stack_stamp_small": "Exact price on your free mockup. No VAT to add.",
+        "bands_h2": "PRICES",
+        "bands_footnote": "All prices are from, fitted in our free-fitting area (HA4, HA5, HA6, UB8, UB9, UB10, HA1, HA2, HA3, WD3). Printed and gradient frost quoted with your mockup. Prices are VAT-free.",
+        "guarantee_h2": "FITTED RIGHT, OR WE PUT IT RIGHT",
+        "guarantee_body": "If any frosting we fit lifts, bubbles or isn't straight, tell us and we'll come back and fix it free.",
+        "how_h2": "HOW IT WORKS",
+        "step_1": "Send photos of the glass, or ask for a quick visit. Free mockup within 48 hours.",
+        "step_2": "Choose your design. Two revision rounds included.",
+        "step_3": "We cut it in Ruislip and fit it in a few hours.",
+        "step_4": "Moving office later? It peels off cleanly.",
+        "proof_h2": "RECENT GLASS JOBS",
+        "proof_empty": "New jobs added every month. Follow us on Instagram @vectoredge.co.uk.",
+        "addons_h2": "WORTH ADDING WHILE WE'RE THERE",
+        "faq_h2": "FREQUENTLY ASKED",
+        "form_h2": "GET YOUR FREE GLASS MOCKUP",
+        "form_sub": "No cost, no obligation. Tell us roughly how many doors and screens you have, and we'll reply to arrange photos or a visit.",
+        "form_submit_label": "SEND ME MY MOCKUP",
+        "form_subject": "Office glass — mockup request",
+        "form_detail_label": "Company & postcode",
+        "form_success": "Thanks. Your glass mockup request is in. We'll be in touch within 48 hours.",
+        "tracking_page": "office-glass",
+        "sticky_cta_label": "GET FREE MOCKUP",
+        "sticky_call_label": "CALL"
+      }
+    }
+  },
+  "order": ["main"]
+}
